@@ -1,0 +1,20 @@
+preset: laravel
+
+enabled:
+  - array_indentation
+  - combine_consecutive_unsets
+  - compact_nullable_typehint
+  - concat_with_spaces
+  - explicit_string_variable
+  - method_chaining_indentation
+  - no_empty_comment
+  - ordered_class_elements
+  - phpdoc_add_missing_param_annotation
+  - phpdoc_no_empty_return
+  - phpdoc_order
+  - phpdoc_separation
+  - property_separation
+  - ternary_to_null_coalescing
+
+disabled:
+  - concat_without_spaces
