@@ -14,6 +14,6 @@ class InvalidRelationshipName extends InvalidArgumentException
      */
     public static function create(string $key, string $value)
     {
-        return new static(sprintf('You have added an invalid relationship named `%s` for key `%s` in propsMap. Please make sure that this relationship exists for this model.', $value, $key));
+        return new static(sprintf('Invalid relationship name (%s) for a key (%s) in propertyMap array. Please make sure that this relationship is defined on the model', $value, $key));
     }
 }
