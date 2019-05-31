@@ -4,8 +4,11 @@ namespace KirschbaumDevelopment\NovaInlineRelationship\Traits;
 
 use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\InvalidRelationshipName;
 use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\IncorrectRelationshipFormat;
+use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\UnsupportedRelationshipType;
+use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\UnsupportedNestedRelationship;
 
 trait HasRelatedAttributes
 {
@@ -60,9 +63,9 @@ trait HasRelatedAttributes
     /**
      * Returns a unique array of relationships available in map.
      *
-     * @return mixed
+     * @return array
      */
-    protected static function getUniqueRelationships()
+    protected static function getUniqueRelationships(): array
     {
         return collect(static::getPropertyMap())->map(function ($item, $key) {
             return static::getRelatedPropertyParts($key)['relationship'];
@@ -110,6 +113,10 @@ trait HasRelatedAttributes
         if (Arr::has(static::getPropertyMap(), $key)) {
             $property = static::getRelatedPropertyParts($key);
 
+            if ($this->isInvalidRelationship($property['relationship'])) {
+                throw UnsupportedRelationshipType::create($key);
+            }
+
             return optional($this->{$property['relationship']})->{$property['attribute']};
         }
 
@@ -117,19 +124,34 @@ trait HasRelatedAttributes
     }
 
     /**
+     * Checks that whether a relationship is invalid.
+     * Currently relationships returning collections are unsupported.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    protected function isInvalidRelationship($key): bool
+    {
+        return $this->{$key} instanceof Collection;
+    }
+
+    /**
      * Search for properties listed in propsMap and return as an array.
      *
-     * @param $key
+     * @param string $key
      *
      * @return array
      */
-    protected static function getRelatedPropertyParts($key)
+    protected static function getRelatedPropertyParts($key): array
     {
         $value = Arr::get(static::getPropertyMap(), $key);
         $parts = explode('.', $value);
 
-        if (count($parts) != 2) {
+        if (count($parts) == 1) {
             throw IncorrectRelationshipFormat::create($key, $value);
+        } elseif (count($parts) >= 3) {
+            throw UnsupportedNestedRelationship::create($key, $value);
         }
 
         if (! method_exists(static::class, $parts[0])) {
@@ -154,6 +176,10 @@ trait HasRelatedAttributes
     {
         if (Arr::has(static::getPropertyMap(), $key)) {
             $property = static::getRelatedPropertyParts($key);
+
+            if ($this->isInvalidRelationship($property['relationship'])) {
+                throw UnsupportedRelationshipType::create($key);
+            }
 
             if (! $this->{$property['relationship']}) {
                 $this->relatedModelAttribs[$property['relationship']][$property['attribute']] = $value;
