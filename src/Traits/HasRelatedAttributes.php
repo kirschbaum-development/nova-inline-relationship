@@ -9,8 +9,10 @@ use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\IncorrectRelationshi
 
 trait HasRelatedAttributes
 {
+    /** @var array */
     protected $relatedModelAttribs = [];
 
+    /** @var bool */
     protected $isDirty = false;
 
     /**
@@ -56,7 +58,7 @@ trait HasRelatedAttributes
     }
 
     /**
-     * Returns a unique array of relationships available in map
+     * Returns a unique array of relationships available in map.
      *
      * @return mixed
      */
@@ -68,7 +70,7 @@ trait HasRelatedAttributes
     }
 
     /**
-     * Trait Boot Function for hooking in Updating and created events
+     * Trait Boot Function for hooking in Updating and created events.
      */
     protected static function bootHasRelatedAttributes()
     {
@@ -115,7 +117,7 @@ trait HasRelatedAttributes
     }
 
     /**
-     * Search for properties listed in propsMap and return as an array
+     * Search for properties listed in propsMap and return as an array.
      *
      * @param $key
      *
@@ -123,7 +125,7 @@ trait HasRelatedAttributes
      */
     protected static function getRelatedPropertyParts($key)
     {
-        $value = static::getPropertyMap()[$key];
+        $value = Arr::get(static::getPropertyMap(), $key);
         $parts = explode('.', $value);
 
         if (count($parts) != 2) {
