@@ -2,7 +2,7 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Contracts;
 
-interface RelationshipMappable
+interface MappableRelationships
 {
     /**
      * Should return property map as key value pair.
