@@ -9,9 +9,19 @@
     "require": {
         "php": ">=7.1.0"
     },
+    "require-dev": {
+        "orchestra/testbench": "^3.8",
+        "phpunit/phpunit": "^7.5",
+        "mockery/mockery": "^1.1"
+    },
     "autoload": {
         "psr-4": {
             "KirschbaumDevelopment\\NovaInlineRelationship\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "KirschbaumDevelopment\\NovaInlineRelationship\\Tests\\": "tests/"
         }
     },
     "extra": {
