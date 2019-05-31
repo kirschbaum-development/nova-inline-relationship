@@ -14,6 +14,6 @@ class UnsupportedRelationshipType extends InvalidArgumentException
      */
     public static function create(string $key)
     {
-        return new static(sprintf('Unsupported Relationship type for a key (%s) in array returned by getPropertyMap function. This plugin currently supports singular relationships only.', $key));
+        return new static(sprintf('Unsupported Relationship type for a key (%s) in array returned by getPropertyMap function. This package currently supports singular relationships only.', $key));
     }
 }
