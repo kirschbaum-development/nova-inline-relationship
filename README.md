@@ -1,9 +1,8 @@
 # Nova Inline Relationship
 
 ## Introduction
-Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource.
+Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource. This project is under active development, and currently only supports singular relationships. You are welcome to request or contribute by opening an issue.
 
-**This is a pre-release project in Active Development. Frequent Changes are expected**
 
 ## Requirements
 
@@ -17,14 +16,70 @@ You can install this package in a Laravel app that uses [Nova](https://nova.lara
 composer require kirschbaum-development/nova-inline-relationship
 ```
 
+## Setup
+
+After installation, your model should include the `KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes` trait and you must implement the `KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships` Contract.
+
+You must also define a static `getPropertyMap` function in the model which should return the required mapping between local and related attribute.
+
+**_NOTE:_** You must add relationships in `relationship.attribute` format in the map. Nested relationships are currently not supported.
+
+```php
+use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
+use KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships;
+
+class Employee extends Model implements MappableRelationships
+{
+    use HasRelatedAttributes;
+
+    /**
+     * @return HasOne
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(EmployeeProfile::class);
+    }
+
+    /**
+     * Should return property map as key value pair.
+     *
+     * @return array
+     */
+    public static function getPropertyMap(): array
+    {
+        return ['phone' => 'profile.phone', 'fax' => 'profile.fax'];
+    }
+    
+    // ...
+}
+````
+
 ## Usage
 
-Coming Soon
+Once you add this relationship map you can use the keys for this relationship map as a normal attribute inside your model's nova resource. 
 
-## To-Do
-- [x] Setup Repo
-- [ ] Present a Relationship property as inline using computed field 
-- [ ] Update a Relationship property by overloading mutator magic method
+**_NOTE:_** These fields are in essence [Computed Fields](https://nova.laravel.com/docs/2.0/resources/fields.html#computed-fields), and are subjected to the same limitations. Since they are not associated with a database column, these fields will not be `sortable`.
+
+```php
+namespace App\Nova;
+
+class Employee extends Resource
+{
+    
+    //...
+    public function fields(Request $request)
+    {
+        return [
+            //...
+
+            Text::make('Phone #', 'phone')
+                ->rules('required'),
+
+            Number::make('Fax Number', 'fax'),
+        ];
+    }
+}
+``` 
 
 ## Changelog
 
