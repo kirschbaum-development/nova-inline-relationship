@@ -8,7 +8,6 @@ class UnsupportedRelationshipType extends InvalidArgumentException
 {
     /**
      * @param string $key
-     * @param string $value
      *
      * @return UnsupportedRelationshipType
      */
