@@ -2,7 +2,17 @@
     <default-field :field="field" :errors="errors">
         <template slot="field">
             <draggable v-model="value" handle=".relationship-item-handle" @start="drag=true" @end="drag=false">
-                <relationship-form-item :value="item" :id="index" :key="index" :errors="errorList" :name="field.attribute" :label="field.name" :singular="field.singular" @deleted="removeItem(index)" v-for="(item, index) in value" />
+                <relationship-form-item
+                    v-for="(item, index) in value"
+                    :key="index"
+                    :value="item"
+                    :id="index"
+                    :errors="errorList"
+                    :name="field.attribute"
+                    :label="field.name"
+                    :singular="field.singular"
+                    :settings="field.settings"
+                    @deleted="removeItem(index)"  />
             </draggable>
             <div class="bg-30 flex p-2 border-b border-40 rounded-lg" v-if="!field.singular">
                 <div class="w-full text-right">

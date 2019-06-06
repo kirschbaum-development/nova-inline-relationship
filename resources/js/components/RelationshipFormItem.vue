@@ -17,15 +17,15 @@
         </div>
         <div class="nova-items-field-input-wrapper flex p-2 border-b border-40" v-for="(parameter, attrib) in value" :key="attrib">
             <div class="w-1/4 py-2 px-2">
-                <h4 class="font-normal text-80">{{attrib}}</h4>
+                <h4 class="font-normal text-80">{{getLabel(attrib)}}</h4>
             </div>
             <div class="w-3/4">
                 <div class="flex">
                     <input
                         v-model="value[attrib]"
-                        :type="getType()"
+                        :type="getType(attrib)"
                         :name="'profile['+id+']['+attrib+']'"
-                        :placeholder="getPlaceholder()"
+                        :placeholder="getPlaceholder(attrib)"
                         :class="{'border-danger': hasError(id, attrib)}"
                         class="flex-1 form-control form-input form-input-bordered"
                     />
@@ -47,9 +47,7 @@
             'label',
             'name',
             'id',
-            'type',
-            'placeholder',
-            'options',
+            'settings',
             'singular',
             'errors'
         ],
@@ -59,16 +57,25 @@
                 this.$emit('deleted', this.id);
             },
 
-            getType:function(){
-                return this.type||'text';
+            getLabel:function(attrib){
+                return this.getSettings(attrib, 'label')||attrib;
             },
 
-            getPlaceholder:function(){
-                return this.placeholder||this.label||this.parameter;
+            getType:function(attrib){
+                return this.getSettings(attrib, 'type')||'text';
             },
 
-            getOptions:function(){
-                return Array.isArray(this.options)?this.options:[];
+            getPlaceholder:function(attrib){
+                return this.getSettings(attrib, 'placeholder')||this.label||this.parameter;
+            },
+
+            getOptions:function(attrib){
+                let options = this.getSettings(attrib, 'options');
+                return Array.isArray(options)?options:[];
+            },
+
+            getSettings:function(attrib, key){
+                return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key)?this.settings[attrib][key]:''
             },
 
             getName:function(id, attrib){
