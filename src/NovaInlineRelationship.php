@@ -37,6 +37,7 @@ class NovaInlineRelationship extends Field
                 },
                 $properties
             ),
+            'settings' => $properties,
             'singular' => $resource->isSingularRelationship($attribute ?? $this->attribute),
         ]);
 
