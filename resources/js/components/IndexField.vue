@@ -1,5 +1,5 @@
 <template>
-    <span>{{ field.value }}</span>
+    <span>{{ Object.keys(field.value).length }} {{field.name}}(s)</span>
 </template>
 
 <script>
