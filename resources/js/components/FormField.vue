@@ -1,39 +1,93 @@
 <template>
-    <default-field :field="field" :errors="errors">
-        <template slot="field">
-            <input
-                :id="field.name"
-                type="text"
-                class="w-full form-control form-input form-input-bordered"
-                :class="errorClasses"
-                :placeholder="field.name"
-                v-model="value"
-            />
-        </template>
-    </default-field>
+  <default-field
+    :field="field"
+    :errors="errors"
+  >
+    <template slot="field">
+      <draggable
+        v-model="value"
+        handle=".relationship-item-handle"
+        @start="drag=true"
+        @end="drag=false"
+      >
+        <relationship-form-item
+          v-for="(item, index) in value"
+          :id="index"
+          :key="index"
+          :value="item"
+          :errors="errorList"
+          :name="field.attribute"
+          :label="field.name"
+          :singular="field.singular"
+          :settings="field.settings"
+          @deleted="removeItem(index)"
+        />
+      </draggable>
+      <div
+        v-if="!field.singular"
+        class="bg-30 flex p-2 border-b border-40 rounded-lg"
+      >
+        <div class="w-full text-right">
+          <button
+            type="button"
+            class="btn btn-default bg-transparent hover:bg-primary text-primary hover:text-white border border-primary hover:border-transparent inline-flex items-center relative mr-3"
+            @click="addItem()"
+          >
+            Add new {{ field.name }}
+          </button>
+        </div>
+      </div>
+    </template>
+  </default-field>
 </template>
 
 <script>
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
+import draggable from 'vuedraggable'
+import RelationshipFormItem from './RelationshipFormItem.vue'
 
 export default {
+    components:{
+        draggable,
+        RelationshipFormItem
+    },
+
     mixins: [FormField, HandlesValidationErrors],
 
     props: ['resourceName', 'resourceId', 'field'],
+
+    data: function(){
+        return {
+            errorBag: []
+        }
+    },
+
+    watch:{
+        'errors': function (errors) {
+            this.errorList = errors.errors.hasOwnProperty(this.field.attribute) ? errors.errors[this.field.attribute][0] : {};
+        }
+    },
 
     methods: {
         /*
          * Set the initial, internal value for the field.
          */
         setInitialValue() {
-            this.value = this.field.value || ''
+            this.value = Array.isArray(this.field.value) ? this.field.value : [];
+            if(this.field.singular){
+                this.value = this.value.splice(1);
+            }
+
+            if(this.field.addChildAtStart && (this.value.length == 0)){
+                this.value.push({...this.field.defaults});
+            }
         },
 
         /**
          * Fill the given FormData object with the field's internal value.
          */
         fill(formData) {
-            formData.append(this.field.attribute, this.value || '')
+            formData.append(this.field.attribute, JSON.stringify(this.value) || '{}')
         },
 
         /**
@@ -42,6 +96,18 @@ export default {
         handleChange(value) {
             this.value = value
         },
-    },
+
+        removeItem (index) {
+            let value = [...this.value];
+            value.splice(index, 1);
+            this.handleChange(value);
+        },
+
+        addItem(){
+            let value = [...this.value];
+            value.push({...this.field.defaults});
+            this.handleChange(value);
+        },
+    }
 }
 </script>
