@@ -5,6 +5,7 @@ namespace KirschbaumDevelopment\NovaInlineRelationship\Traits;
 use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\InvalidRelationshipName;
 use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\IncorrectRelationshipFormat;
 use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\UnsupportedRelationshipType;
@@ -61,6 +62,20 @@ trait HasRelatedAttributes
     }
 
     /**
+     * Checks if a relationship is singular
+     *
+     * @param $key
+     *
+     * @return bool
+     */
+    public function isSingularRelationship($key): bool
+    {
+        $relation = $this->{$key}();
+
+        return ! ($relation->getResults() instanceof Collection);
+    }
+
+    /**
      * Returns a unique array of relationships available in map.
      *
      * @return array
@@ -80,22 +95,36 @@ trait HasRelatedAttributes
         Model::boot();
 
         static::updating(function ($model) {
-            $relationships = static::getUniqueRelationships();
+            $relationships = array_keys(static::getPropertyMap());
 
             foreach ($relationships as $relationship) {
-                if (! $model->{$relationship}) {
-                    $model->{$relationship}()->create($model->relatedModelAttribs[$relationship]);
-                } else {
-                    $model->{$relationship}->save();
+                $count = count($model->relatedModelAttribs[$relationship]);
+
+                if ($model->isSingularRelationship($relationship)) {
+                    $count = 1;
+                }
+
+                $models = $model->{$relationship}()->get()->all();
+
+                for ($i = 0; $i < $count; $i++) {
+                    if ($i < count($models)) {
+                        $models[$i]->update($model->relatedModelAttribs[$relationship][$i]);
+                    } else {
+                        $model->{$relationship}()->create($model->relatedModelAttribs[$relationship][$i]);
+                    }
                 }
             }
         });
 
         static::created(function ($model) {
-            $relationships = static::getUniqueRelationships();
+            $relationships = array_keys(static::getPropertyMap());
 
             foreach ($relationships as $relationship) {
-                $model->{$relationship}()->create($model->relatedModelAttribs[$relationship]);
+                if ($model->isSingularRelationship($relationship)) {
+                    $model->{$relationship}()->create($model->relatedModelAttribs[$relationship][0]);
+                } else {
+                    $model->{$relationship}()->createMany($model->relatedModelAttribs[$relationship]);
+                }
             }
         });
     }
@@ -110,14 +139,16 @@ trait HasRelatedAttributes
      */
     protected function mutateAttribute($key, $value)
     {
-        if (Arr::has(static::getPropertyMap(), $key)) {
-            $property = static::getRelatedPropertyParts($key);
+        $propMap = static::getPropertyMap();
 
-            if ($this->isInvalidRelationship($property['relationship'])) {
+        if (Arr::has($propMap, $key)) {
+            if ($this->isInvalidRelationship($key)) {
                 throw UnsupportedRelationshipType::create($key);
             }
 
-            return optional($this->{$property['relationship']})->{$property['attribute']};
+            return $this->{$key}()
+                ->get(array_keys($propMap[$key]))
+                ->toArray();
         }
 
         return parent::mutateAttribute($key, $value);
@@ -125,7 +156,6 @@ trait HasRelatedAttributes
 
     /**
      * Checks that whether a relationship is invalid.
-     * Currently relationships returning collections are unsupported.
      *
      * @param string $key
      *
@@ -133,7 +163,7 @@ trait HasRelatedAttributes
      */
     protected function isInvalidRelationship($key): bool
     {
-        return $this->{$key} instanceof Collection;
+        return ! ($this->{$key}() instanceof Relation);
     }
 
     /**
@@ -175,18 +205,7 @@ trait HasRelatedAttributes
     protected function setMutatedAttributeValue($key, $value)
     {
         if (Arr::has(static::getPropertyMap(), $key)) {
-            $property = static::getRelatedPropertyParts($key);
-
-            if ($this->isInvalidRelationship($property['relationship'])) {
-                throw UnsupportedRelationshipType::create($key);
-            }
-
-            if (! $this->{$property['relationship']}) {
-                $this->relatedModelAttribs[$property['relationship']][$property['attribute']] = $value;
-            } else {
-                $this->{$property['relationship']}->{$property['attribute']} = $value;
-            }
-
+            $this->relatedModelAttribs[$key] = $value;
             $this->isDirty = true;
 
             return true;
