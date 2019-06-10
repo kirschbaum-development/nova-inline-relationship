@@ -128,16 +128,62 @@ You can specify the validation rule for the fields in your related model using t
 
 An error will be displayed next to field if a validation rule is not met.
 
-![Validating Models](screenshots/CreateRelatedModel.png "Validating Models")
+![Validating Models](screenshots/Validation.png "Validating Models")
 
+### Specifying custom error messages
+
+You can specify custom error messages for field in format specified in the [laravel documentation](https://laravel.com/docs/5.8/validation#customizing-the-error-messages).
+
+For every field you can specify validation messages for each rule. You can use attribute wildcards like `:attribute` in your error messages as well.
+
+```php
+use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
+use KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships;
+
+class Employee extends Model implements MappableRelationships
+{
+    // ...
+
+    /**
+     * Should return property map as key value pair.
+     *
+     * @return array
+     */
+    public static function getPropertyMap(): array
+    {
+        return [
+            'profile' => [
+                'phone' => [
+                    'type' => 'text',
+                    'label' => 'Phone',
+                    'rules' => 'required|numeric',
+                    'placeholder' => 'Add Phone',
+                    'messages' => [
+                        'required' => 'You must add a :attribute for this profile.',
+                        'numeric' => 'Your :attribute must be numeric'
+                    ],
+                ],
+                'fax' => [
+                    'type' => 'number',
+                    'rules' => 'required',
+                    'placeholder' => 'Add Fax',
+                ],
+            ],
+        ];
+    }
+    
+    // ...
+}
+```
 
 ## Settings
 
 You can pass on following items for your related model's attributes:-
 1. `type`: Input type you want to use for your field. Currently [default input types](https://html.com/attributes/input-type/) in HTML like text, number, etc. are supported.
-2. `label`: Label for your field.
+2. `label`: Label for your field. This will also be used as the field name in error messages.
 3. `rules`: A rule string in [Laravel Validation format](https://laravel.com/docs/5.8/validation#available-validation-rules).
-4. `placeholder`: A placeholder for your field.
+4. `messages`: An array of error messages to be used in validation.
+5. `placeholder`: A placeholder for your field.
 
 ## Changelog
 
