@@ -72,14 +72,29 @@ class NovaInlineRelationship extends Field
      */
     protected function getRelationshipRule($attribute, $properties): RelationshipRule
     {
+        /** @var array $ruleArray */
         $ruleArray = [];
+
+        /** @var array $messageArray */
+        $messageArray = [];
+
+        /** @var array $attribArray */
+        $attribArray = [];
 
         foreach ($properties as $attrib => $prop) {
             if (! empty($prop['rules'])) {
-                $ruleArray[sprintf('%s.*.%s', $attribute, $attrib)] = $prop['rules'];
+                $name = sprintf('%s.*.%s', $attribute, $attrib);
+                $ruleArray[$name] = $prop['rules'];
+                $attribArray[$name] = $prop['label'] ?? $attrib;
+
+                if (! empty($prop['messages']) && is_array($prop['messages'])) {
+                    foreach ($prop['messages'] as $rule => $message) {
+                        $messageArray[sprintf('%s.%s', $name, $rule)] = $message;
+                    }
+                }
             }
         }
 
-        return new RelationshipRule($ruleArray);
+        return new RelationshipRule($ruleArray, $messageArray, $attribArray);
     }
 }
