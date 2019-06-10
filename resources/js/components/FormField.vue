@@ -2,6 +2,7 @@
   <default-field
     :field="field"
     :errors="errors"
+    :show-errors="false"
   >
     <template slot="field">
       <draggable
