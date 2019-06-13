@@ -177,7 +177,7 @@ module.exports = function normalizeComponent (
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(2);
-module.exports = __webpack_require__(21);
+module.exports = __webpack_require__(22);
 
 
 /***/ }),
@@ -187,7 +187,9 @@ module.exports = __webpack_require__(21);
 Nova.booting(function (Vue, router, store) {
     Vue.component('index-nova-inline-relationship', __webpack_require__(3));
     Vue.component('detail-nova-inline-relationship', __webpack_require__(6));
-    Vue.component('form-nova-inline-relationship', __webpack_require__(12));
+    Vue.component('form-nova-inline-relationship', __webpack_require__(13));
+
+    Vue.config.devtools = true;
 });
 
 /***/ }),
@@ -288,7 +290,7 @@ var normalizeComponent = __webpack_require__(0)
 /* script */
 var __vue_script__ = __webpack_require__(7)
 /* template */
-var __vue_template__ = __webpack_require__(11)
+var __vue_template__ = __webpack_require__(12)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -334,6 +336,10 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__RelationshipDetailItem__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__RelationshipDetailItem___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__RelationshipDetailItem__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 //
 //
 //
@@ -359,6 +365,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -369,6 +376,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     computed: {
         collapsed: function collapsed() {
             return this.field.collapsed === true;
+        },
+
+        fields: function fields() {
+            var _this = this;
+
+            if (Array.isArray(this.field.value)) {
+                return [].concat(_toConsumableArray(this.field.value)).map(function (relatedFields, id) {
+                    return _.keyBy(Object.keys(_extends({}, relatedFields)).map(function (attrib) {
+                        return _extends({}, _this.field.settings[attrib], {
+                            'component': _this.field.settings[attrib].component || 'text',
+                            'attribute': _this.field.attribute + '.' + id + '.' + attrib,
+                            'value': _this.field.value[id][attrib],
+                            'name': _this.field.settings[attrib].label || attrib,
+                            'attrib': attrib
+                        });
+                    }), 'attrib');
+                });
+            }
+
+            return [];
         }
     }
 });
@@ -426,10 +453,6 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
 //
 //
 //
@@ -606,22 +629,14 @@ var render = function() {
               _vm._l(_vm.value, function(parameter, attrib) {
                 return _c(
                   "div",
-                  { key: attrib, staticClass: "flex p-2 border-b border-40" },
+                  { key: attrib, staticClass: "w-full px-6" },
                   [
-                    _c("div", { staticClass: "w-1/4 py-2 px-2" }, [
-                      _c("h4", { staticClass: "font-normal text-80" }, [
-                        _vm._v(
-                          "\n            " +
-                            _vm._s(_vm.getLabel(attrib)) +
-                            "\n          "
-                        )
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "w-3/4 py-2 px-2" }, [
-                      _vm._v("\n          " + _vm._s(parameter) + "\n        ")
-                    ])
-                  ]
+                    _c("detail-" + parameter.component, {
+                      tag: "component",
+                      attrs: { field: parameter }
+                    })
+                  ],
+                  1
                 )
               }),
               0
@@ -643,7 +658,8 @@ if (false) {
 }
 
 /***/ }),
-/* 11 */
+/* 11 */,
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -667,7 +683,7 @@ var render = function() {
     _c("div", { staticClass: "w-3/4 py-4" }, [
       _c(
         "div",
-        _vm._l(_vm.field.value, function(item, index) {
+        _vm._l(_vm.fields, function(item, index) {
           return _c("RelationshipDetailItem", {
             key: index,
             attrs: {
@@ -695,15 +711,15 @@ if (false) {
 }
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(0)
 /* script */
-var __vue_script__ = __webpack_require__(13)
+var __vue_script__ = __webpack_require__(14)
 /* template */
-var __vue_template__ = __webpack_require__(20)
+var __vue_template__ = __webpack_require__(21)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -742,22 +758,21 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_nova__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_nova__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_nova___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_laravel_nova__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vuedraggable__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__RelationshipFormItem_vue__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__RelationshipFormItem_vue__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__RelationshipFormItem_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__RelationshipFormItem_vue__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-//
 //
 //
 //
@@ -818,13 +833,49 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
     data: function data() {
         return {
-            errorBag: []
+            errorBag: [],
+            fields: []
         };
+    },
+
+    computed: {
+        getValueFromChildren: function getValueFromChildren() {
+            var _this = this;
+
+            return _.tap([], function (formData) {
+                _(_this.fields).each(function (item) {
+                    item.fill(formData);
+                });
+            });
+        }
     },
 
     watch: {
         'errors': function errors(_errors) {
-            this.errorList = _errors.errors.hasOwnProperty(this.field.attribute) ? _errors.errors[this.field.attribute][0] : {};
+            this.errorList = _errors.errors.hasOwnProperty(this.field.attribute) ? new __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["Errors"](_errors.errors[this.field.attribute][0]) : new __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["Errors"]();
+        },
+
+        'value': function value() {
+            var _this2 = this;
+
+            if (Array.isArray(this.value)) {
+                this.fields = [].concat(_toConsumableArray(this.value)).map(function (relatedFields, id) {
+                    return _.keyBy(Object.keys(_extends({}, relatedFields)).map(function (attrib) {
+                        return _extends({}, _this2.field.settings[attrib], {
+                            'component': _this2.field.settings[attrib].component || 'text',
+                            'attribute': _this2.field.attribute + '_' + id + '_' + attrib,
+                            'singularLabel': _this2.field.settings[attrib].label || attrib,
+                            'value': _this2.value[id][attrib],
+                            'name': _this2.field.attribute + '[' + id + '][' + attrib + ']',
+                            'attrib': attrib
+                        }, {
+                            'extraAttributes': {
+                                'name': _this2.field.attribute + '[' + id + '][' + attrib + ']'
+                            }
+                        });
+                    }), 'attrib');
+                });
+            }
         }
     },
 
@@ -848,6 +899,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * Fill the given FormData object with the field's internal value.
          */
         fill: function fill(formData) {
+            //console.log(this.getValueFromChildren);
+            this.handleChange(this.getValueFromChildren);
             formData.append(this.field.attribute, JSON.stringify(this.value) || '{}');
         },
 
@@ -872,7 +925,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 });
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -11099,7 +11152,7 @@ module.exports = g;
 });
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports =
@@ -12978,7 +13031,7 @@ module.exports = Object.create || function create(O, Properties) {
 /***/ "a352":
 /***/ (function(module, exports) {
 
-module.exports = __webpack_require__(16);
+module.exports = __webpack_require__(17);
 
 /***/ }),
 
@@ -14357,7 +14410,7 @@ if (typeof window !== "undefined" && "Vue" in window) {
 //# sourceMappingURL=vuedraggable.common.js.map
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
@@ -16827,15 +16880,15 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(0)
 /* script */
-var __vue_script__ = __webpack_require__(18)
+var __vue_script__ = __webpack_require__(19)
 /* template */
-var __vue_template__ = __webpack_require__(19)
+var __vue_template__ = __webpack_require__(20)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -16874,7 +16927,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16939,57 +16992,56 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "RelationshipFormItem",
 
-    props: ['value', 'label', 'name', 'id', 'settings', 'singular', 'errors'],
+    props: ['value', 'label', 'name', 'singular', 'id', 'errors'],
+
+    mounted: function mounted() {
+        this.value.fill = this.fill;
+    },
+
+
+    computed: {
+        getValueFromChildren: function getValueFromChildren() {
+            var _this = this;
+
+            return _.tap(new FormData(), function (formData) {
+                _(_this.value).each(function (item) {
+                    if (item.hasOwnProperty('fill') && item.fill instanceof Function) {
+                        item.fill(formData);
+                    }
+                });
+            });
+        }
+    },
 
     methods: {
+        /**
+         * Provide a function that fills a passed FormData object with the
+         * field's internal value attribute
+         */
+        fill: function fill(formData) {
+            var formObject = {};
+            this.getValueFromChildren.forEach(function (value, key) {
+                formObject[key.split('_', 3)[2]] = value;
+            });
+            formData[this.id] = formObject;
+        },
+
+
         removeItem: function removeItem() {
             this.$emit('deleted', this.id);
         },
 
-        getLabel: function getLabel(attrib) {
-            return this.getSettings(attrib, 'label') || attrib;
-        },
-
-        getType: function getType(attrib) {
-            return this.getSettings(attrib, 'type') || 'text';
-        },
-
-        getPlaceholder: function getPlaceholder(attrib) {
-            return this.getSettings(attrib, 'placeholder') || 'Add ' + this.getLabel(attrib);
-        },
-
-        getOptions: function getOptions(attrib) {
-            var options = this.getSettings(attrib, 'options');
-            return Array.isArray(options) ? options : [];
-        },
-
-        getSettings: function getSettings(attrib, key) {
-            return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : '';
-        },
-
         getName: function getName(id, attrib) {
-            return this.name + '.' + id + '.' + attrib;
+            return this.name + '_' + id + '_' + attrib;
+        },
+
+        getErrors: function getErrors(id, attrib) {
+            return this.errors && this.errors.hasOwnProperty(this.getName(id, attrib)) ? this.errors[this.getName(id, attrib)] : [];
         },
 
         hasError: function hasError(id, attrib) {
@@ -17003,7 +17055,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -17106,140 +17158,18 @@ var render = function() {
       _vm._l(_vm.value, function(parameter, attrib) {
         return _c(
           "div",
-          {
-            key: attrib,
-            staticClass:
-              "nova-items-field-input-wrapper flex p-2 border-b border-40"
-          },
+          { key: attrib, staticClass: "nova-items-field-input-wrapper w-full" },
           [
-            _c("div", { staticClass: "w-1/4 py-2 px-2" }, [
-              _c("h4", { staticClass: "font-normal text-80" }, [
-                _vm._v("\n        " + _vm._s(_vm.getLabel(attrib)) + "\n      ")
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "w-3/4" }, [
-              _c("div", { staticClass: "flex" }, [
-                _vm.getType(attrib) === "checkbox"
-                  ? _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.value[attrib],
-                          expression: "value[attrib]"
-                        }
-                      ],
-                      staticClass:
-                        "flex-1 form-control form-input form-input-bordered",
-                      class: { "border-danger": _vm.hasError(_vm.id, attrib) },
-                      attrs: {
-                        name: "profile[" + _vm.id + "][" + attrib + "]",
-                        placeholder: _vm.getPlaceholder(attrib),
-                        type: "checkbox"
-                      },
-                      domProps: {
-                        checked: Array.isArray(_vm.value[attrib])
-                          ? _vm._i(_vm.value[attrib], null) > -1
-                          : _vm.value[attrib]
-                      },
-                      on: {
-                        change: function($event) {
-                          var $$a = _vm.value[attrib],
-                            $$el = $event.target,
-                            $$c = $$el.checked ? true : false
-                          if (Array.isArray($$a)) {
-                            var $$v = null,
-                              $$i = _vm._i($$a, $$v)
-                            if ($$el.checked) {
-                              $$i < 0 &&
-                                _vm.$set(_vm.value, attrib, $$a.concat([$$v]))
-                            } else {
-                              $$i > -1 &&
-                                _vm.$set(
-                                  _vm.value,
-                                  attrib,
-                                  $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                )
-                            }
-                          } else {
-                            _vm.$set(_vm.value, attrib, $$c)
-                          }
-                        }
-                      }
-                    })
-                  : _vm.getType(attrib) === "radio"
-                  ? _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.value[attrib],
-                          expression: "value[attrib]"
-                        }
-                      ],
-                      staticClass:
-                        "flex-1 form-control form-input form-input-bordered",
-                      class: { "border-danger": _vm.hasError(_vm.id, attrib) },
-                      attrs: {
-                        name: "profile[" + _vm.id + "][" + attrib + "]",
-                        placeholder: _vm.getPlaceholder(attrib),
-                        type: "radio"
-                      },
-                      domProps: { checked: _vm._q(_vm.value[attrib], null) },
-                      on: {
-                        change: function($event) {
-                          return _vm.$set(_vm.value, attrib, null)
-                        }
-                      }
-                    })
-                  : _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.value[attrib],
-                          expression: "value[attrib]"
-                        }
-                      ],
-                      staticClass:
-                        "flex-1 form-control form-input form-input-bordered",
-                      class: { "border-danger": _vm.hasError(_vm.id, attrib) },
-                      attrs: {
-                        name: "profile[" + _vm.id + "][" + attrib + "]",
-                        placeholder: _vm.getPlaceholder(attrib),
-                        type: _vm.getType(attrib)
-                      },
-                      domProps: { value: _vm.value[attrib] },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.value, attrib, $event.target.value)
-                        }
-                      }
-                    })
-              ]),
-              _vm._v(" "),
-              _vm.hasError(_vm.id, attrib)
-                ? _c(
-                    "div",
-                    {
-                      staticClass:
-                        "flex help-text error-text text-danger px-2 py-2"
-                    },
-                    [
-                      _c("p", {
-                        domProps: {
-                          innerHTML: _vm._s(_vm.getError(_vm.id, attrib))
-                        }
-                      })
-                    ]
-                  )
-                : _vm._e()
-            ])
-          ]
+            _c("form-" + parameter.component, {
+              tag: "component",
+              attrs: {
+                field: parameter,
+                "full-width-content": true,
+                errors: _vm.errors
+              }
+            })
+          ],
+          1
         )
       })
     ],
@@ -17257,7 +17187,7 @@ if (false) {
 }
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -17292,7 +17222,7 @@ var render = function() {
                 expression: "value"
               }
             },
-            _vm._l(_vm.value, function(item, index) {
+            _vm._l(_vm.fields, function(item, index) {
               return _c("relationship-form-item", {
                 key: index,
                 attrs: {
@@ -17300,9 +17230,8 @@ var render = function() {
                   value: item,
                   errors: _vm.errorList,
                   name: _vm.field.attribute,
-                  label: _vm.field.name,
                   singular: _vm.field.singular,
-                  settings: _vm.field.settings
+                  label: _vm.field.name
                 },
                 on: {
                   deleted: function($event) {
@@ -17362,7 +17291,7 @@ if (false) {
 }
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
