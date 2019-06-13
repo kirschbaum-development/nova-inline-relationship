@@ -50,12 +50,14 @@ class Employee extends Model implements MappableRelationships
             'profile' => [
                 'phone' => [
                     'type' => 'text',
+                    'component => 'text-field',
                     'label' => 'Phone',
                     'rules' => 'required|numeric',
                     'placeholder' => 'Add Phone',
                 ],
-                'fax' => [
-                    'type' => 'number',
+                'address' => [
+                    'type' => 'text',
+                    'field' => 'place-field',
                     'rules' => 'required',
                     'placeholder' => 'Add Fax',
                 ],
@@ -155,6 +157,7 @@ class Employee extends Model implements MappableRelationships
             'profile' => [
                 'phone' => [
                     'type' => 'text',
+                    'component => 'text-field',
                     'label' => 'Phone',
                     'rules' => 'required|numeric',
                     'placeholder' => 'Add Phone',
@@ -163,11 +166,12 @@ class Employee extends Model implements MappableRelationships
                         'numeric' => 'Your :attribute must be numeric'
                     ],
                 ],
-                'fax' => [
-                    'type' => 'number',
+                'address' => [
+                    'type' => 'text',
+                    'field' => 'place-field',
                     'rules' => 'required',
                     'placeholder' => 'Add Fax',
-                ],
+                ],,
             ],
         ];
     }
@@ -180,10 +184,33 @@ class Employee extends Model implements MappableRelationships
 
 You can pass on following items for your related model's attributes:-
 1. `type`: Input type you want to use for your field. Currently [default input types](https://html.com/attributes/input-type/) in HTML like text, number, etc. are supported.
-2. `label`: Label for your field. This will also be used as the field name in error messages.
-3. `rules`: A rule string in [Laravel Validation format](https://laravel.com/docs/5.8/validation#available-validation-rules).
-4. `messages`: An array of error messages to be used in validation.
-5. `placeholder`: A placeholder for your field.
+2. `component`: The component use to render the field. You should provide the component name specified in the field like `text-field`, `place-field`, `trix-field`, `code-field` ans so on.
+3. `label`: Label for your field. This will also be used as the field name in error messages.
+4. `rules`: A rule string in [Laravel Validation format](https://laravel.com/docs/5.8/validation#available-validation-rules).
+5. `messages`: An array of error messages to be used in validation.
+6. `placeholder`: A placeholder for your field.
+
+## Supported fields
+
+You can use any field you can add to your Nova resource with `Field::make` syntax. The following fields are confirmed to work.
+
+- Boolean Field
+- Code Field
+- Country Field
+- Currency Field
+- Date Field
+- DateTime Field
+- Markdown Field
+- Number Field
+- Password Field
+- Place Field
+- Select Field
+- Text Field
+- Textarea Field
+- Timezone Field
+- Trix Field
+
+**_NOTE:_** You can pass any additional arguments (like options for your select field) with your settings map.
 
 ## Changelog
 
