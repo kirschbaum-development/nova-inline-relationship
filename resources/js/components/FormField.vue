@@ -127,7 +127,6 @@ export default {
          * Fill the given FormData object with the field's internal value.
          */
         fill(formData) {
-            //console.log(this.getValueFromChildren);
             this.handleChange(this.getValueFromChildren);
             formData.append(this.field.attribute, JSON.stringify(this.value) || '{}')
         },
