@@ -46,36 +46,20 @@
     <div
       v-for="(parameter, attrib) in value"
       :key="attrib"
-      class="nova-items-field-input-wrapper flex p-2 border-b border-40"
+      class="nova-items-field-input-wrapper w-full"
     >
-      <div class="w-1/4 py-2 px-2">
-        <h4 class="font-normal text-80">
-          {{ getLabel(attrib) }}
-        </h4>
-      </div>
-      <div class="w-3/4">
-        <div class="flex">
-          <input
-            v-model="value[attrib]"
-            :type="getType(attrib)"
-            :name="'profile['+id+']['+attrib+']'"
-            :placeholder="getPlaceholder(attrib)"
-            :class="{'border-danger': hasError(id, attrib)}"
-            class="flex-1 form-control form-input form-input-bordered"
-          >
-        </div>
-        <div
-          v-if="hasError(id, attrib)"
-          class="flex help-text error-text text-danger px-2 py-2"
-        >
-          <p v-html="getError(id, attrib)" />
-        </div>
-      </div>
+      <component
+        :is="'form-' + parameter.component"
+        :field="parameter"
+        :full-width-content="true"
+        :errors="errors"
+      />
     </div>
   </div>
 </template>
 
 <script>
+
     export default {
         name: "RelationshipFormItem",
 
@@ -83,40 +67,53 @@
             'value',
             'label',
             'name',
-            'id',
-            'settings',
             'singular',
+            'id',
             'errors'
         ],
 
+        mounted() {
+            this.value.fill = this.fill
+        },
+
+        computed: {
+            getValueFromChildren: function() {
+                return _.tap(new FormData(), formData => {
+                    _(this.value).each(item => {
+                        if(item.hasOwnProperty('fill') && (item.fill instanceof Function)){
+                            item.fill(formData)
+                        }
+                    })
+                })
+            },
+        },
+
         methods:{
+            /**
+             * Provide a function that fills a passed FormData object with the
+             * field's internal value attribute
+             */
+            fill(formData) {
+                let formObject = {};
+                this.getValueFromChildren.forEach(
+                    (value, key) => {
+                        formObject[key.split('_', 3)[2]] = value
+                    }
+                );
+                formData[this.id] = formObject;
+            },
+
+
             removeItem:function(){
                 this.$emit('deleted', this.id);
             },
 
-            getLabel:function(attrib){
-                return this.getSettings(attrib, 'label') || attrib;
-            },
-
-            getType:function(attrib){
-                return this.getSettings(attrib, 'type') || 'text';
-            },
-
-            getPlaceholder:function(attrib){
-                return this.getSettings(attrib, 'placeholder') || `Add ${this.getLabel(attrib)}`;
-            },
-
-            getOptions:function(attrib){
-                let options = this.getSettings(attrib, 'options');
-                return Array.isArray(options) ? options : [];
-            },
-
-            getSettings:function(attrib, key){
-                return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : ''
-            },
-
             getName:function(id, attrib){
-                return this.name + '.' + id + '.' + attrib
+                return this.name + '_' + id + '_' + attrib
+            },
+
+            getErrors:function(id, attrib){
+                return this.errors && this.errors.hasOwnProperty(this.getName(id, attrib))?this.errors[this.getName(id, attrib)]:[]
             },
 
             hasError:function(id, attrib){

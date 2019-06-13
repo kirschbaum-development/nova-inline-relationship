@@ -42,16 +42,12 @@
         <div
           v-for="(parameter, attrib) in value"
           :key="attrib"
-          class="flex p-2 border-b border-40"
+          class="w-full px-6"
         >
-          <div class="w-1/4 py-2 px-2">
-            <h4 class="font-normal text-80">
-              {{ getLabel(attrib) }}
-            </h4>
-          </div>
-          <div class="w-3/4 py-2 px-2">
-            {{ parameter }}
-          </div>
+          <component
+            :is="'detail-' + parameter.component"
+            :field="parameter"
+          />
         </div>
       </div>
     </transition>

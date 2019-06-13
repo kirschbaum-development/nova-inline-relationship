@@ -5,22 +5,21 @@
     :show-errors="false"
   >
     <template slot="field">
-      <draggable
+        <draggable
         v-model="value"
         handle=".relationship-item-handle"
         @start="drag=true"
         @end="drag=false"
       >
         <relationship-form-item
-          v-for="(item, index) in value"
+          v-for="(item, index) in fields"
           :id="index"
           :key="index"
           :value="item"
           :errors="errorList"
           :name="field.attribute"
-          :label="field.name"
           :singular="field.singular"
-          :settings="field.settings"
+          :label="field.name"
           @deleted="removeItem(index)"
         />
       </draggable>
@@ -43,7 +42,7 @@
 </template>
 
 <script>
-import { FormField, HandlesValidationErrors } from 'laravel-nova'
+import { FormField, HandlesValidationErrors, Errors } from 'laravel-nova'
 import draggable from 'vuedraggable'
 import RelationshipFormItem from './RelationshipFormItem.vue'
 
@@ -59,13 +58,53 @@ export default {
 
     data: function(){
         return {
-            errorBag: []
+            errorBag: [],
+            fields: []
         }
     },
 
-    watch:{
+    computed: {
+        getValueFromChildren: function() {
+            return _.tap([], formData => {
+                _(this.fields).each(item => {
+                    item.fill(formData)
+                })
+            })
+        },
+    },
+
+    watch: {
         'errors': function (errors) {
-            this.errorList = errors.errors.hasOwnProperty(this.field.attribute) ? errors.errors[this.field.attribute][0] : {};
+            this.errorList = errors.errors.hasOwnProperty(this.field.attribute) ? new Errors(errors.errors[this.field.attribute][0]) : new Errors();
+        },
+
+        'value': function(){
+            if(Array.isArray(this.value)){
+                this.fields = [...this.value].map((relatedFields, id)=> {
+                    return _.keyBy(
+                        Object.keys({...relatedFields}).map(
+                            attrib => {
+                                return {
+                                    ...this.field.settings[attrib],
+                                    ...{
+                                        'component': this.field.settings[attrib].component || 'text',
+                                        'attribute': this.field.attribute + '_' + id + '_' + attrib,
+                                        'singularLabel': this.field.settings[attrib].label||attrib,
+                                        'value': this.value[id][attrib],
+                                        'name': this.field.attribute + '[' + id + '][' + attrib + ']',
+                                        'attrib': attrib
+                                    },
+                                    ...{
+                                        'extraAttributes': {
+                                                                'name': this.field.attribute + '[' + id + '][' + attrib + ']'
+                                                            }
+                                        }
+                                }
+                            }
+                        ), 'attrib'
+                    )
+                })
+            }
         }
     },
 
@@ -88,6 +127,8 @@ export default {
          * Fill the given FormData object with the field's internal value.
          */
         fill(formData) {
+            //console.log(this.getValueFromChildren);
+            this.handleChange(this.getValueFromChildren);
             formData.append(this.field.attribute, JSON.stringify(this.value) || '{}')
         },
 
