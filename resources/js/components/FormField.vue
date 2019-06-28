@@ -5,21 +5,20 @@
     :show-errors="false"
   >
     <template slot="field">
-        <draggable
+      <draggable
         v-model="value"
         handle=".relationship-item-handle"
         @start="drag=true"
         @end="drag=false"
       >
         <relationship-form-item
-          v-for="(item, index) in fields"
+          v-for="(items, index) in value"
+          :ref="index"
+          :key="items.id"
           :id="index"
-          :key="index"
-          :value="item"
+          :value="items.fields"
           :errors="errorList"
-          :name="field.attribute"
-          :singular="field.singular"
-          :label="field.name"
+          :field="field"
           @deleted="removeItem(index)"
         />
       </draggable>
@@ -58,16 +57,15 @@ export default {
 
     data: function(){
         return {
-            errorBag: [],
-            fields: []
+            id: 0
         }
     },
 
     computed: {
         getValueFromChildren: function() {
             return _.tap([], formData => {
-                _(this.fields).each(item => {
-                    item.fill(formData)
+                _(this.$refs).each(item => {
+                    item[0].fill(formData);
                 })
             })
         },
@@ -75,37 +73,13 @@ export default {
 
     watch: {
         'errors': function (errors) {
-            this.errorList = errors.errors.hasOwnProperty(this.field.attribute) ? new Errors(errors.errors[this.field.attribute][0]) : new Errors();
+            let errObj = errors.errors.hasOwnProperty(this.field.attribute) ? errors.errors[this.field.attribute][0] : {};
+            Object.keys(errObj).forEach(key=>{
+                errObj[key.replace(/\./g , '_')] = errObj[key];
+                delete errObj[key];
+            });
+            this.errorList =  new Errors(errObj);
         },
-
-        'value': function(){
-            if(Array.isArray(this.value)){
-                this.fields = [...this.value].map((relatedFields, id)=> {
-                    return _.keyBy(
-                        Object.keys({...relatedFields}).map(
-                            attrib => {
-                                return {
-                                    ...this.field.settings[attrib],
-                                    ...{
-                                        'component': this.field.settings[attrib].component || 'text',
-                                        'attribute': this.field.attribute + '_' + id + '_' + attrib,
-                                        'singularLabel': this.field.settings[attrib].label||attrib,
-                                        'value': this.value[id][attrib],
-                                        'name': this.field.attribute + '[' + id + '][' + attrib + ']',
-                                        'attrib': attrib
-                                    },
-                                    ...{
-                                        'extraAttributes': {
-                                                                'name': this.field.attribute + '[' + id + '][' + attrib + ']'
-                                                            }
-                                        }
-                                }
-                            }
-                        ), 'attrib'
-                    )
-                })
-            }
-        }
     },
 
     methods: {
@@ -114,12 +88,16 @@ export default {
          */
         setInitialValue() {
             this.value = Array.isArray(this.field.value) ? this.field.value : [];
+            this.value = this.value.map(item=>{
+                return { 'id': this.getNextId(), 'fields':item }
+            });
+
             if(this.field.singular){
                 this.value = this.value.splice(1);
             }
 
             if(this.field.addChildAtStart && (this.value.length == 0)){
-                this.value.push({...this.field.defaults});
+                this.value.push({ 'id': this.getNextId(), 'fields': {...this.field.defaults}});
             }
         },
 
@@ -127,8 +105,12 @@ export default {
          * Fill the given FormData object with the field's internal value.
          */
         fill(formData) {
-            this.handleChange(this.getValueFromChildren);
-            formData.append(this.field.attribute, JSON.stringify(this.value) || '{}')
+            try{
+                formData.append(this.field.attribute, JSON.stringify(this.getValueFromChildren) || '{}');
+            }catch(error){
+                console.log(error);
+            }
+
         },
 
         /**
@@ -136,6 +118,11 @@ export default {
          */
         handleChange(value) {
             this.value = value
+        },
+
+        getNextId(){
+            this.id += 1;
+            return this.id;
         },
 
         removeItem (index) {
@@ -146,7 +133,7 @@ export default {
 
         addItem(){
             let value = [...this.value];
-            value.push({...this.field.defaults});
+            value.push({ 'id': this.getNextId(), 'fields': {...this.field.defaults}});
             this.handleChange(value);
         },
     }

@@ -2,7 +2,7 @@
   <div class="card shadow-md mb-4">
     <div class="bg-30 flex p-2 border-b border-40">
       <div
-        v-if="!singular"
+        v-if="!field.singular"
         class="w-1/8 text-left py-2 px-2"
       >
         <span class="relationship-item-handle py-2 px-2 cursor-move">
@@ -19,7 +19,7 @@
       </div>
       <div class="w-5/8 flex-grow text-left py-2 px-2">
         <h4 class="font-normal text-80">
-          {{ label }} {{ id+1 }}
+          {{ field.name }} {{ id+1 }}
         </h4>
       </div>
       <div class="w-1/4 text-right">
@@ -44,13 +44,14 @@
       </div>
     </div>
     <div
-      v-for="(parameter, attrib) in value"
+      v-for="(field, attrib) in fields"
       :key="attrib"
       class="nova-items-field-input-wrapper w-full"
     >
       <component
-        :is="'form-' + parameter.component"
-        :field="parameter"
+        :is="'form-' + field.component"
+        :ref="attrib"
+        :field="field"
         :full-width-content="true"
         :errors="errors"
       />
@@ -66,63 +67,61 @@
         props:[
             'value',
             'label',
-            'name',
-            'singular',
             'id',
-            'errors'
+            'errors',
+            'field'
         ],
 
-        mounted() {
-            this.value.fill = this.fill
-        },
-
-        computed: {
-            getValueFromChildren: function() {
-                return _.tap(new FormData(), formData => {
-                    _(this.value).each(item => {
-                        if(item.hasOwnProperty('fill') && (item.fill instanceof Function)){
-                            item.fill(formData)
+        computed:{
+            fields: function(){
+                return _.keyBy(
+                    Object.keys({...this.value}).map(
+                        attrib => {
+                            return {
+                                ...this.field.settings[attrib],
+                                ...{
+                                    'component': this.field.settings[attrib].component || 'text',
+                                    'attribute': this.field.attribute + '_' + this.id + '_' + attrib,
+                                    'singularLabel': this.field.settings[attrib].label||attrib,
+                                    'value': this.value[attrib],
+                                    'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
+                                    'attrib': attrib
+                                },
+                                ...{
+                                    'extraAttributes': {
+                                        'name': this.field.attribute + '[' + this.id + '][' + attrib + ']'
+                                    }
+                                }
+                            }
                         }
-                    })
-                })
-            },
+                    ), 'attrib'
+                )
+            }
         },
 
         methods:{
-            /**
-             * Provide a function that fills a passed FormData object with the
-             * field's internal value attribute
-             */
+            getValueFromChildren: function() {
+                return _.tap(new FormData(), formData => {
+                    _(this.$refs).each(item => {
+                        item[0].fill(formData);
+                    })
+                })
+            },
+
             fill(formData) {
                 let formObject = {};
-                this.getValueFromChildren.forEach(
+                this.getValueFromChildren().forEach(
                     (value, key) => {
+                        console.log(key, value);
                         formObject[key.split('_', 3)[2]] = value
                     }
                 );
                 formData[this.id] = formObject;
             },
 
-
-            removeItem:function(){
+            removeItem: function (){
                 this.$emit('deleted', this.id);
             },
-
-            getName:function(id, attrib){
-                return this.name + '_' + id + '_' + attrib
-            },
-
-            getErrors:function(id, attrib){
-                return this.errors && this.errors.hasOwnProperty(this.getName(id, attrib))?this.errors[this.getName(id, attrib)]:[]
-            },
-
-            hasError:function(id, attrib){
-                return this.errors && this.errors.hasOwnProperty(this.getName(id, attrib))
-            },
-
-            getError:function(id, attrib){
-                return this.hasError(id, attrib) ? this.errors[this.getName(id, attrib)][0] : '';
-            }
-        }
+        },
     }
 </script>
