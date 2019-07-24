@@ -3,6 +3,7 @@
     :field="field"
     :errors="errors"
     :show-errors="false"
+    :full-width-content="true"
   >
     <template slot="field">
       <draggable
