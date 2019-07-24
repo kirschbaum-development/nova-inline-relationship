@@ -21,7 +21,7 @@ composer require kirschbaum-development/nova-inline-relationship
 
 After installation, your model should include the `KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes` trait and you must implement the `KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships` Contract.
 
-You must also define a static `getPropertyMap` function in the model which should return the required mapping between your relationships and fields within your related model you want to show inline.
+You must also define a static `getPropertyMap` function in the model which should return the required list of properties from your related model you want to show inline.
 
 ```php
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
@@ -48,20 +48,59 @@ class Employee extends Model implements MappableRelationships
     {
         return [
             'profile' => [
+                'nickname' => [
+                    'label' => 'nickname',
+                    'component' => Text::class,
+                    'rules' => 'required',
+                    'placeholder' => 'Add Nickname',
+                    'messages' => ['required' => 'You must add a :attribute for this profile.'],
+                ],
                 'phone' => [
-                    'type' => 'text',
-                    'component => 'text-field',
+                    'component' => Number::class,
                     'label' => 'Phone',
                     'rules' => 'required|numeric',
                     'placeholder' => 'Add Phone',
                 ],
-                'address' => [
-                    'type' => 'text',
-                    'field' => 'place-field',
-                    'rules' => 'required',
-                    'placeholder' => 'Add Fax',
+                'active' => [
+                    'component' => Boolean::class,
+                    'label' => 'Active',
                 ],
-            ],
+                'signature' => [
+                    'component' => Trix::class,
+                    'label' => 'Signature',
+                    'placeholder' => 'Add your signature here',
+                ],
+                'avatar' => [
+                    'component' => Avatar::class,
+                ],
+                'snippet' => [
+                    'component' => Code::class,
+                ],
+                'country' => [
+                    'component' => Country::class,
+                ],
+                'address' => [
+                    'component' => Place::class,
+                ],
+                'password' => [
+                    'component' => Password::class,
+                ],
+                'settings' => [
+                    'component' => KeyValue::class,
+                ],
+                'bio' => [
+                    'component' => Markdown::class,
+                ],
+                'rate' => [
+                    'component' => Currency::class,
+                ],
+                'dob' => [
+                    'component' => Date::class,
+                ],
+                'joined_at' => [
+                    'component' => DateTime::class,
+                ],
+            ]
         ];
     }
     
@@ -156,8 +195,7 @@ class Employee extends Model implements MappableRelationships
         return [
             'profile' => [
                 'phone' => [
-                    'type' => 'text',
-                    'component => 'text-field',
+                    'component => Number::class,
                     'label' => 'Phone',
                     'rules' => 'required|numeric',
                     'placeholder' => 'Add Phone',
@@ -166,12 +204,6 @@ class Employee extends Model implements MappableRelationships
                         'numeric' => 'Your :attribute must be numeric'
                     ],
                 ],
-                'address' => [
-                    'type' => 'text',
-                    'field' => 'place-field',
-                    'rules' => 'required',
-                    'placeholder' => 'Add Fax',
-                ],,
             ],
         ];
     }
@@ -183,8 +215,7 @@ class Employee extends Model implements MappableRelationships
 ## Settings
 
 You can pass on following items for your related model's attributes:-
-1. `type`: Input type you want to use for your field. Currently [default input types](https://html.com/attributes/input-type/) in HTML like text, number, etc. are supported.
-2. `component`: The component use to render the field. You should provide the component name specified in the field like `text-field`, `place-field`, `trix-field`, `code-field` ans so on.
+1. `component`: The component use to render the field. You should provide the component name specified in the field like Text::class, Number::class, Boolean::class and so on.
 3. `label`: Label for your field. This will also be used as the field name in error messages.
 4. `rules`: A rule string in [Laravel Validation format](https://laravel.com/docs/5.8/validation#available-validation-rules).
 5. `messages`: An array of error messages to be used in validation.
@@ -192,7 +223,7 @@ You can pass on following items for your related model's attributes:-
 
 ## Supported fields
 
-You can use any field you can add to your Nova resource with `Field::make` syntax. The following fields are confirmed to work.
+You can use any field you can add to your Nova resource with `Field::make` syntax. The following native Nova 2.0 fields are confirmed to work.
 
 - Boolean Field
 - Code Field
@@ -209,8 +240,16 @@ You can use any field you can add to your Nova resource with `Field::make` synta
 - Textarea Field
 - Timezone Field
 - Trix Field
+- Avatar Field
+- Image Field
+- File Field
 
 **_NOTE:_** You can pass any additional arguments (like options for your select field) with your settings map.
+
+## Things to Fix
+
+1. Currently for all three file field (File, Image and Avatar) File deletion is not working.
+2. relationship names with underscore might cause some issues returning values correctly.
 
 ## Changelog
 
