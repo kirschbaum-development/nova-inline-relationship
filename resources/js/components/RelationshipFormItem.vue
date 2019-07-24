@@ -98,20 +98,31 @@
             getValueFromChildren: function() {
                 return _.tap(new FormData(), formData => {
                     _(this.$refs).each(item => {
-                        item[0].fill(formData);
+                        if (item[0].field.component === 'file-field'){
+                            if (item[0].file){
+                                formData.append(item[0].field.attribute, item[0].file, item[0].fileName);
+                            } else if (item[0].value){
+                                formData.append(item[0].field.attribute, String(item[0].value))
+                            }
+                        } else if (item[0].field.component === 'boolean-field'){
+                            formData.append(item[0].field.attribute, item[0].trueValue);
+                        } else {
+                            item[0].fill(formData);
+                        }
                     })
                 })
             },
 
             fill(formData) {
-                let formObject = {};
                 this.getValueFromChildren().forEach(
                     (value, key) => {
-                        console.log(key, value);
-                        formObject[key.split('_', 3)[2]] = value
+                        let keyParts = key.split('_');
+                        let parentAttrib = keyParts.unshift();
+                        let keyId = keyParts.unshift();
+                        let attrib = key.join('_');
+                        formData.append(`${parentAttrib}[${this.id}][${attrib}]`,  value);
                     }
                 );
-                formData[this.id] = formObject;
             },
 
             removeItem: function (){
