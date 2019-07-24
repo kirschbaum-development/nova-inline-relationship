@@ -113,6 +113,12 @@ trait HasRelatedAttributes
                         $model->{$relationship}()->create($model->relatedModelAttribs[$relationship][$i]);
                     }
                 }
+
+                if ($count < count($models)) {
+                    for ($i = $count; $i < count($models); $i++) {
+                        $models[$i]->delete();
+                    }
+                }
             }
         });
 
