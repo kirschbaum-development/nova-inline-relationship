@@ -112,7 +112,9 @@ export default {
 
         fillValueFromChildren: function(formData) {
             _(this.$refs).each(item => {
-                item[0].fill(formData, this.field.attribute);
+                if(item && Array.isArray(item) && item[0]){
+                    item[0].fill(formData, this.field.attribute);
+                }
             });
         },
 
