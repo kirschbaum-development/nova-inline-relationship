@@ -58,18 +58,9 @@ export default {
 
     data: function(){
         return {
-            id: 0
+            id: 0,
+            errorList: new Errors()
         }
-    },
-
-    computed: {
-        getValueFromChildren: function() {
-            return _.tap([], formData => {
-                _(this.$refs).each(item => {
-                    item[0].fill(formData);
-                })
-            })
-        },
     },
 
     watch: {
@@ -107,18 +98,23 @@ export default {
          */
         fill(formData) {
             try{
-                formData.append(this.field.attribute, JSON.stringify(this.getValueFromChildren) || '{}');
+                this.fillValueFromChildren(formData)
             }catch(error){
                 console.log(error);
             }
+        },
 
+        fillValueFromChildren: function(formData) {
+            _(this.$refs).each(item => {
+                item[0].fill(formData);
+            });
         },
 
         /**
          * Update the field's internal value.
          */
         handleChange(value) {
-            this.value = value
+            this.value = Array.isArray(value) ? value : [];
         },
 
         getNextId(){
