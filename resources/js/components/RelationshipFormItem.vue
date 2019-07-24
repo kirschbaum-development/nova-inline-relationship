@@ -78,19 +78,14 @@
                     Object.keys({...this.value}).map(
                         attrib => {
                             return {
-                                ...this.field.settings[attrib],
                                 ...{
-                                    'component': this.field.settings[attrib].component || 'text',
+                                    'options':{}
+                                },
+                                ...this.value[attrib].meta,
+                                ...{
                                     'attribute': this.field.attribute + '_' + this.id + '_' + attrib,
-                                    'singularLabel': this.field.settings[attrib].label||attrib,
-                                    'value': this.value[attrib],
                                     'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
                                     'attrib': attrib
-                                },
-                                ...{
-                                    'extraAttributes': {
-                                        'name': this.field.attribute + '[' + this.id + '][' + attrib + ']'
-                                    }
                                 }
                             }
                         }
