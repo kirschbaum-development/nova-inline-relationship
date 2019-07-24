@@ -855,7 +855,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             }
 
             if (this.field.addChildAtStart && this.value.length == 0) {
-                this.value.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.defaults) });
+                this.value.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.settings) });
             }
         },
 
@@ -876,7 +876,9 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             var _this2 = this;
 
             _(this.$refs).each(function (item) {
-                item[0].fill(formData, _this2.field.attribute);
+                if (item && Array.isArray(item) && item[0]) {
+                    item[0].fill(formData, _this2.field.attribute);
+                }
             });
         },
 
@@ -897,7 +899,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         },
         addItem: function addItem() {
             var value = [].concat(_toConsumableArray(this.value));
-            value.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.defaults) });
+            value.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.settings) });
             this.handleChange(value);
         }
     }

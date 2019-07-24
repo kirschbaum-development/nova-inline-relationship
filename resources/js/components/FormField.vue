@@ -95,7 +95,7 @@ export default {
             }
 
             if(this.field.addChildAtStart && (this.value.length == 0)){
-                this.value.push({ 'id': this.getNextId(), 'fields': {...this.field.defaults}});
+                this.value.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
             }
         },
 
@@ -138,7 +138,7 @@ export default {
 
         addItem(){
             let value = [...this.value];
-            value.push({ 'id': this.getNextId(), 'fields': {...this.field.defaults}});
+            value.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
             this.handleChange(value);
         },
     }
