@@ -113,13 +113,12 @@
                 })
             },
 
-            fill(formData) {
+            fill(formData, parentAttrib) {
                 this.getValueFromChildren().forEach(
                     (value, key) => {
                         let keyParts = key.split('_');
-                        let parentAttrib = keyParts.unshift();
-                        let keyId = keyParts.unshift();
-                        let attrib = key.join('_');
+                        let parentParts = parentAttrib.split('_');
+                        let attrib = keyParts.slice(parentParts.length+1).join('_');
                         formData.append(`${parentAttrib}[${this.id}][${attrib}]`,  value);
                     }
                 );

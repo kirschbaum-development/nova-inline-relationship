@@ -7,7 +7,7 @@
   >
     <template slot="field">
       <draggable
-        v-model="value"
+        v-model="valueAsArray"
         handle=".relationship-item-handle"
         @start="drag=true"
         @end="drag=false"
@@ -64,7 +64,7 @@ export default {
     },
 
     watch: {
-        'errors': function (errors) {
+        errors: function (errors) {
             let errObj = errors.errors.hasOwnProperty(this.field.attribute) ? errors.errors[this.field.attribute][0] : {};
             Object.keys(errObj).forEach(key=>{
                 errObj[key.replace(/\./g , '_')] = errObj[key];
@@ -72,6 +72,12 @@ export default {
             });
             this.errorList =  new Errors(errObj);
         },
+    },
+
+    computed: {
+        valueAsArray: function (){
+            return Array.isArray(this.value) ? this.value : [];
+        }
     },
 
     methods: {
@@ -106,7 +112,7 @@ export default {
 
         fillValueFromChildren: function(formData) {
             _(this.$refs).each(item => {
-                item[0].fill(formData);
+                item[0].fill(formData, this.field.attribute);
             });
         },
 
