@@ -10,7 +10,7 @@
     <div class="w-3/4 py-4">
       <div>
         <RelationshipDetailItem
-          v-for="(item, index) in fields"
+          v-for="(item, index) in value"
           :id="index"
           :key="index"
           :value="item"
@@ -36,26 +36,9 @@ export default {
             return this.field.collapsed === true
         },
 
-        fields: function(){
+        value: function(){
             if(Array.isArray(this.field.value)){
-                return [...this.field.value].map((relatedFields, id)=> {
-                    return _.keyBy(
-                        Object.keys({...relatedFields}).map(
-                            attrib => {
-                                return {
-                                    ...this.field.settings[attrib],
-                                    ...{
-                                        'component': this.field.settings[attrib].component || 'text',
-                                        'attribute': this.field.attribute + '.' + id + '.' + attrib,
-                                        'value': this.field.value[id][attrib],
-                                        'name': this.field.settings[attrib].label||attrib,
-                                        'attrib': attrib
-                                    }
-                                }
-                            }
-                        ), 'attrib'
-                    )
-                })
+                return this.field.value;
             }
 
             return [];
