@@ -45,8 +45,8 @@
           class="w-full px-6"
         >
           <component
-            :is="'detail-' + parameter.component"
-            :field="parameter"
+            :is="'detail-' + parameter.meta.component"
+            :field="parameter.meta"
           />
         </div>
       </div>
