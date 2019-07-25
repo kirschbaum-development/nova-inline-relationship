@@ -230,10 +230,34 @@ class Employee extends Model implements MappableRelationships
 
 You can pass on following items for your related model's attributes:-
 1. `component`: The component use to render the field. You should provide the component name specified in the field like Text::class, Number::class, Boolean::class and so on.
-3. `label`: Label for your field. This will also be used as the field name in error messages.
-4. `rules`: A rule string in [Laravel Validation format](https://laravel.com/docs/5.8/validation#available-validation-rules).
-5. `messages`: An array of error messages to be used in validation.
-6. `placeholder`: A placeholder for your field.
+2. `label`: Label for your field. This will also be used as the field name in error messages.
+3. `rules`: A rule string in [Laravel Validation format](https://laravel.com/docs/5.8/validation#available-validation-rules).
+4. `messages`: An array of error messages to be used in validation.
+5. `placeholder`: A placeholder for your field.
+6. `options`: Additional options for your components
+
+### Select Component
+To pass dropdown options to your select component, pass an array of key values to options
+```php
+'component => Select::class,
+'options' => [
+    'options' => [
+        ['label' => 'Yes', 'value' => true],
+        ['label' => 'No', 'value' => false],
+    ],
+]
+```
+
+### Number/Currency Component
+You can pass `min`, `max` and `step` to number and currency field
+```php
+'component' => Currency::class,
+'options' => [
+    'min' => 0,
+    'max' => 100,
+    'step' => 10,
+],
+``` 
 
 ## Supported fields
 
@@ -258,7 +282,7 @@ You can use any field you can add to your Nova resource with `Field::make` synta
 - Image Field
 - File Field
 
-**_NOTE:_** You can pass any additional arguments (like options for your select field) with your settings map.
+**_NOTE:_** You can pass any additional arguments (like options for your select field) with your settings map using `options`.
 
 ## Things to Fix
 
