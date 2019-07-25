@@ -437,6 +437,8 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 //
 //
 //
@@ -508,6 +510,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         'id': Number
     },
 
+    data: function data() {
+        return {
+            isCollapsed: false
+        };
+    },
+
+    computed: {
+        fields: function fields() {
+            var fields = _extends({}, this.value);
+            Object.keys(fields).map(function (attrib) {
+                fields[attrib].meta['name'] = fields[attrib].meta['singularLabel'];
+            });
+            return fields;
+        }
+    },
+
     methods: {
         getLabel: function getLabel(attrib) {
             return this.getSettings(attrib, 'label') || attrib;
@@ -515,6 +533,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         getSettings: function getSettings(attrib, key) {
             return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : '';
+        }
+    },
+
+    watch: {
+        'collapsed': function collapsed() {
+            this.isCollapsed = this.collapsed;
         }
     }
 });
@@ -533,14 +557,14 @@ var render = function() {
     [
       _c("div", { staticClass: "bg-30 flex p-2 border-b border-40" }, [
         _c("span", [
-          _vm.collapsed
+          _vm.isCollapsed
             ? _c(
                 "button",
                 {
                   staticClass: "btn btn-default btn-icon btn-white mr-3 p-1",
                   on: {
                     click: function($event) {
-                      _vm.collapsed = false
+                      _vm.isCollapsed = false
                     }
                   }
                 },
@@ -573,7 +597,7 @@ var render = function() {
                   staticClass: "btn btn-default btn-icon btn-white mr-3 p-1",
                   on: {
                     click: function($event) {
-                      _vm.collapsed = true
+                      _vm.isCollapsed = true
                     }
                   }
                 },
@@ -607,10 +631,10 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("transition", { attrs: { name: "slide-fade" } }, [
-        !_vm.collapsed
+        !_vm.isCollapsed
           ? _c(
               "div",
-              _vm._l(_vm.value, function(parameter, attrib) {
+              _vm._l(_vm.fields, function(parameter, attrib) {
                 return _c(
                   "div",
                   { key: attrib, staticClass: "w-full px-6" },
@@ -656,7 +680,7 @@ var render = function() {
       [
         _vm._t("default", [
           _c("h4", { staticClass: "font-normal text-80" }, [
-            _vm._v("\n        " + _vm._s(_vm.field.name) + "\n      ")
+            _vm._v("\n        " + _vm._s(_vm.field.singularLabel) + "\n      ")
           ])
         ])
       ],
@@ -672,7 +696,7 @@ var render = function() {
             attrs: {
               id: index,
               value: item,
-              label: _vm.field.name,
+              label: _vm.field.singularLabel,
               settings: _vm.field.settings,
               collapsed: _vm.collapsed
             }
@@ -17096,7 +17120,7 @@ var render = function() {
           _c("h4", { staticClass: "font-normal text-80" }, [
             _vm._v(
               "\n        " +
-                _vm._s(_vm.field.name) +
+                _vm._s(_vm.field.singularLabel) +
                 " " +
                 _vm._s(_vm.id + 1) +
                 "\n      "
@@ -17265,7 +17289,7 @@ var render = function() {
                       [
                         _vm._v(
                           "\n          Add new " +
-                            _vm._s(_vm.field.name) +
+                            _vm._s(_vm.field.singularLabel.toLowerCase()) +
                             "\n        "
                         )
                       ]
