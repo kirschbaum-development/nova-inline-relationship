@@ -54,6 +54,8 @@
         :field="field"
         :full-width-content="true"
         :errors="errors"
+        :resource-id="modelId"
+        :resource-name="modelKey"
       />
     </div>
   </div>
@@ -68,6 +70,8 @@
             'value',
             'label',
             'id',
+            'modelId',
+            'modelKey',
             'errors',
             'field'
         ],
@@ -83,8 +87,11 @@
                                 },
                                 ...this.value[attrib].meta,
                                 ...{
-                                    'attribute': this.field.attribute + '_' + this.id + '_' + attrib,
+                                    'attribute': (this.value[attrib].meta.component === "file-field") ?
+                                        attrib :
+                                        this.field.attribute + '_' + this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
                                     'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
+                                    'deletable': this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                                     'attrib': attrib
                                 }
                             }
@@ -117,9 +124,13 @@
                 this.getValueFromChildren().forEach(
                     (value, key) => {
                         let keyParts = key.split('_');
-                        let parentParts = parentAttrib.split('_');
-                        let attrib = keyParts.slice(parentParts.length+1).join('_');
-                        formData.append(`${parentAttrib}[${this.id}][${attrib}]`,  value);
+                        if(keyParts.length === 1){
+                            formData.append(`${parentAttrib}[${this.id}][${key}]`,  value);
+                        }else{
+                            let parentParts = parentAttrib.split('_');
+                            let attrib = keyParts.slice(parentParts.length+1).join('_');
+                            formData.append(`${parentAttrib}[${this.id}][${attrib}]`,  value);
+                        }
                     }
                 );
             },
