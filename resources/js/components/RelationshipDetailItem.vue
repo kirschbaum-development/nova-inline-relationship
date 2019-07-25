@@ -3,9 +3,9 @@
     <div class="bg-30 flex p-2 border-b border-40">
       <span>
         <button
-          v-if="collapsed"
+          v-if="isCollapsed"
           class="btn btn-default btn-icon btn-white mr-3 p-1"
-          @click="collapsed=false"
+          @click="isCollapsed=false"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +20,7 @@
         <button
           v-else
           class="btn btn-default btn-icon btn-white mr-3 p-1"
-          @click="collapsed=true"
+          @click="isCollapsed=true"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -38,9 +38,9 @@
       </span>
     </div>
     <transition name="slide-fade">
-      <div v-if="! collapsed">
+      <div v-if="! isCollapsed">
         <div
-          v-for="(parameter, attrib) in value"
+          v-for="(parameter, attrib) in fields"
           :key="attrib"
           class="w-full px-6"
         >
@@ -58,7 +58,7 @@
     export default {
         name: "RelationshipDetailItem",
 
-        props:{
+        props: {
             'value': Object,
             'settings': Object,
             'collapsed':{
@@ -69,14 +69,40 @@
             'id': Number
         },
 
-        methods:{
-            getLabel:function(attrib){
+        data: function (){
+            return {
+                isCollapsed : false
+            }
+        },
+
+        computed: {
+            fields: function (){
+                let fields = {...this.value};
+                Object.keys(fields).map(
+                    attrib => {
+                        fields[attrib].meta['name'] = fields[attrib].meta['singularLabel'];
+                    }
+                );
+                return fields;
+            }
+        },
+
+        methods: {
+            getLabel: function (attrib){
                 return this.getSettings(attrib, 'label') || attrib;
             },
 
-            getSettings:function(attrib, key){
+            getSettings: function (attrib, key){
                 return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : ''
             },
+        },
+
+
+
+        watch : {
+            'collapsed' : function (){
+                this.isCollapsed = this.collapsed;
+            }
         }
     }
 </script>
