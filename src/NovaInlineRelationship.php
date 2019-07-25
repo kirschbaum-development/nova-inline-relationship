@@ -29,8 +29,12 @@ class NovaInlineRelationship extends Field
     {
         parent::resolve($resource, $attribute);
 
+        if (empty($attribute)) {
+            $attribute = $this->attribute;
+        }
+
         $propMap = $resource::getPropertyMap();
-        $properties = $propMap[$attribute ?? $this->attribute];
+        $properties = $propMap[$attribute];
 
         $properties = collect($properties)->map(function ($value, $key) {
             return $this->setMetaFromClass($value, $key);
@@ -42,7 +46,7 @@ class NovaInlineRelationship extends Field
             })->all();
         })->all();
 
-        $this->rules = [$this->getRelationshipRule($attribute ?? $this->attribute, $properties)];
+        $this->rules = [$this->getRelationshipRule($attribute, $properties)];
 
         $this->withMeta([
             'defaults' => array_map(
@@ -52,7 +56,9 @@ class NovaInlineRelationship extends Field
                 $properties
             ),
             'settings' => $properties,
-            'singular' => $resource->isSingularRelationship($attribute ?? $this->attribute),
+            'singularLabel' => Str::title(Str::singular($attribute)),
+            'pluralLabel' => Str::title(Str::plural($attribute)),
+            'singular' => $resource->isSingularRelationship($attribute),
         ]);
     }
 
@@ -76,9 +82,9 @@ class NovaInlineRelationship extends Field
 
         $item['meta'] = $class->jsonSerialize();
         // We are using Singular Label instead of name to display labels as compound name will be used in Vue
-        $item['meta']['singularLabel'] = Str::studly($item['label'] ?? $attrib);
+        $item['meta']['singularLabel'] = Str::singular(Str::studly($item['label'] ?? $attrib));
 
-        $item['meta']['placeholder'] = 'Add ' . Str::studly($item['label'] ?? $attrib);
+        $item['meta']['placeholder'] = 'Add ' . $item['meta']['singularLabel'];
 
         return $item;
     }
