@@ -188,6 +188,8 @@ Nova.booting(function (Vue, router, store) {
     Vue.component('index-nova-inline-relationship', __webpack_require__(3));
     Vue.component('detail-nova-inline-relationship', __webpack_require__(6));
     Vue.component('form-nova-inline-relationship', __webpack_require__(12));
+
+    Vue.config.devtools = true;
 });
 
 /***/ }),
@@ -361,6 +363,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
     components: { RelationshipDetailItem: __WEBPACK_IMPORTED_MODULE_0__RelationshipDetailItem___default.a },
 
@@ -369,6 +372,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     computed: {
         collapsed: function collapsed() {
             return this.field.collapsed === true;
+        },
+
+        value: function value() {
+            if (Array.isArray(this.field.value)) {
+                return this.field.value;
+            }
+
+            return [];
         }
     }
 });
@@ -426,10 +437,8 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 //
 //
 //
@@ -501,6 +510,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         'id': Number
     },
 
+    data: function data() {
+        return {
+            isCollapsed: false
+        };
+    },
+
+    computed: {
+        fields: function fields() {
+            var fields = _extends({}, this.value);
+            Object.keys(fields).map(function (attrib) {
+                fields[attrib].meta['name'] = fields[attrib].meta['singularLabel'];
+            });
+            return fields;
+        }
+    },
+
     methods: {
         getLabel: function getLabel(attrib) {
             return this.getSettings(attrib, 'label') || attrib;
@@ -508,6 +533,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         getSettings: function getSettings(attrib, key) {
             return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : '';
+        }
+    },
+
+    watch: {
+        'collapsed': function collapsed() {
+            this.isCollapsed = this.collapsed;
         }
     }
 });
@@ -526,14 +557,14 @@ var render = function() {
     [
       _c("div", { staticClass: "bg-30 flex p-2 border-b border-40" }, [
         _c("span", [
-          _vm.collapsed
+          _vm.isCollapsed
             ? _c(
                 "button",
                 {
                   staticClass: "btn btn-default btn-icon btn-white mr-3 p-1",
                   on: {
                     click: function($event) {
-                      _vm.collapsed = false
+                      _vm.isCollapsed = false
                     }
                   }
                 },
@@ -566,7 +597,7 @@ var render = function() {
                   staticClass: "btn btn-default btn-icon btn-white mr-3 p-1",
                   on: {
                     click: function($event) {
-                      _vm.collapsed = true
+                      _vm.isCollapsed = true
                     }
                   }
                 },
@@ -600,28 +631,20 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("transition", { attrs: { name: "slide-fade" } }, [
-        !_vm.collapsed
+        !_vm.isCollapsed
           ? _c(
               "div",
-              _vm._l(_vm.value, function(parameter, attrib) {
+              _vm._l(_vm.fields, function(parameter, attrib) {
                 return _c(
                   "div",
-                  { key: attrib, staticClass: "flex p-2 border-b border-40" },
+                  { key: attrib, staticClass: "w-full px-6" },
                   [
-                    _c("div", { staticClass: "w-1/4 py-2 px-2" }, [
-                      _c("h4", { staticClass: "font-normal text-80" }, [
-                        _vm._v(
-                          "\n            " +
-                            _vm._s(_vm.getLabel(attrib)) +
-                            "\n          "
-                        )
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "w-3/4 py-2 px-2" }, [
-                      _vm._v("\n          " + _vm._s(parameter) + "\n        ")
-                    ])
-                  ]
+                    _c("detail-" + parameter.meta.component, {
+                      tag: "component",
+                      attrs: { field: parameter.meta }
+                    })
+                  ],
+                  1
                 )
               }),
               0
@@ -657,7 +680,7 @@ var render = function() {
       [
         _vm._t("default", [
           _c("h4", { staticClass: "font-normal text-80" }, [
-            _vm._v("\n        " + _vm._s(_vm.field.name) + "\n      ")
+            _vm._v("\n        " + _vm._s(_vm.field.singularLabel) + "\n      ")
           ])
         ])
       ],
@@ -667,13 +690,13 @@ var render = function() {
     _c("div", { staticClass: "w-3/4 py-4" }, [
       _c(
         "div",
-        _vm._l(_vm.field.value, function(item, index) {
+        _vm._l(_vm.value, function(item, index) {
           return _c("RelationshipDetailItem", {
             key: index,
             attrs: {
               id: index,
               value: item,
-              label: _vm.field.name,
+              label: _vm.field.singularLabel,
               settings: _vm.field.settings,
               collapsed: _vm.collapsed
             }
@@ -801,6 +824,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
 
 
 
@@ -818,13 +842,26 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
     data: function data() {
         return {
-            errorBag: []
+            id: 0,
+            items: [],
+            errorList: new __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["Errors"]()
         };
     },
 
     watch: {
-        'errors': function errors(_errors) {
-            this.errorList = _errors.errors.hasOwnProperty(this.field.attribute) ? _errors.errors[this.field.attribute][0] : {};
+        errors: function errors(_errors) {
+            var errObj = _errors.errors.hasOwnProperty(this.field.attribute) ? _errors.errors[this.field.attribute][0] : {};
+            Object.keys(errObj).forEach(function (key) {
+                errObj[key.replace(/\./g, '_')] = errObj[key];
+                delete errObj[key];
+            });
+            this.errorList = new __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["Errors"](errObj);
+        }
+    },
+
+    computed: {
+        valueAsArray: function valueAsArray() {
+            return Array.isArray(this.items) ? this.items : [];
         }
     },
 
@@ -833,13 +870,19 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * Set the initial, internal value for the field.
          */
         setInitialValue: function setInitialValue() {
-            this.value = Array.isArray(this.field.value) ? this.field.value : [];
+            var _this = this;
+
+            this.items = Array.isArray(this.field.value) ? this.field.value : [];
+            this.items = this.items.map(function (item) {
+                return { 'id': _this.getNextId(), 'fields': item };
+            });
+
             if (this.field.singular) {
-                this.value = this.value.splice(1);
+                this.items.splice(1);
             }
 
-            if (this.field.addChildAtStart && this.value.length == 0) {
-                this.value.push(_extends({}, this.field.defaults));
+            if (this.field.addChildAtStart && this.items.length === 0) {
+                this.items.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.settings) });
             }
         },
 
@@ -848,24 +891,42 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * Fill the given FormData object with the field's internal value.
          */
         fill: function fill(formData) {
-            formData.append(this.field.attribute, JSON.stringify(this.value) || '{}');
+            try {
+                this.fillValueFromChildren(formData);
+            } catch (error) {
+                console.log(error);
+            }
         },
 
+
+        fillValueFromChildren: function fillValueFromChildren(formData) {
+            var _this2 = this;
+
+            _(this.$refs).each(function (item) {
+                if (item && Array.isArray(item) && item[0]) {
+                    item[0].fill(formData, _this2.field.attribute);
+                }
+            });
+        },
 
         /**
          * Update the field's internal value.
          */
         handleChange: function handleChange(value) {
-            this.value = value;
+            this.items = Array.isArray(value) ? value : [];
+        },
+        getNextId: function getNextId() {
+            this.id += 1;
+            return this.id;
         },
         removeItem: function removeItem(index) {
-            var value = [].concat(_toConsumableArray(this.value));
+            var value = [].concat(_toConsumableArray(this.items));
             value.splice(index, 1);
             this.handleChange(value);
         },
         addItem: function addItem() {
-            var value = [].concat(_toConsumableArray(this.value));
-            value.push(_extends({}, this.field.defaults));
+            var value = [].concat(_toConsumableArray(this.items));
+            value.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.settings) });
             this.handleChange(value);
         }
     }
@@ -13328,8 +13389,8 @@ module.exports = Object.keys || function keys(O) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return removeNode; });
 /* harmony import */ var core_js_modules_es6_regexp_replace__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("a481");
 /* harmony import */ var core_js_modules_es6_regexp_replace__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es6_regexp_replace__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var C_Users_david_desmaisons_Documents_project_source_Vue_Draggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("4aa6");
-/* harmony import */ var C_Users_david_desmaisons_Documents_project_source_Vue_Draggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(C_Users_david_desmaisons_Documents_project_source_Vue_Draggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var F_source_vuedraggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("4aa6");
+/* harmony import */ var F_source_vuedraggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(F_source_vuedraggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1__);
 
 
 
@@ -13344,7 +13405,7 @@ function getConsole() {
 var console = getConsole();
 
 function cached(fn) {
-  var cache = C_Users_david_desmaisons_Documents_project_source_Vue_Draggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1___default()(null);
+  var cache = F_source_vuedraggable_node_modules_babel_runtime_corejs2_core_js_object_create__WEBPACK_IMPORTED_MODULE_1___default()(null);
 
   return function cachedFn(str) {
     var hit = cache[str];
@@ -13719,12 +13780,6 @@ var es6_string_starts_with = __webpack_require__("f559");
 var keys = __webpack_require__("a4bb");
 var keys_default = /*#__PURE__*/__webpack_require__.n(keys);
 
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es7.array.includes.js
-var es7_array_includes = __webpack_require__("6762");
-
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es6.string.includes.js
-var es6_string_includes = __webpack_require__("2fdb");
-
 // EXTERNAL MODULE: ./node_modules/@babel/runtime-corejs2/core-js/array/is-array.js
 var is_array = __webpack_require__("a745");
 var is_array_default = /*#__PURE__*/__webpack_require__.n(is_array);
@@ -13776,6 +13831,12 @@ function _nonIterableRest() {
 function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
 }
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es7.array.includes.js
+var es7_array_includes = __webpack_require__("6762");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es6.string.includes.js
+var es6_string_includes = __webpack_require__("2fdb");
+
 // CONCATENATED MODULE: ./node_modules/@babel/runtime-corejs2/helpers/esm/arrayWithoutHoles.js
 
 function _arrayWithoutHoles(arr) {
@@ -13885,6 +13946,10 @@ function delegateAndEmit(evtName) {
   };
 }
 
+function isTransitionName(name) {
+  return ["transition-group", "TransitionGroup"].includes(name);
+}
+
 function vuedraggable_isTransition(slots) {
   if (!slots || slots.length !== 1) {
     return false;
@@ -13897,19 +13962,24 @@ function vuedraggable_isTransition(slots) {
     return false;
   }
 
-  return ["transition-group", "TransitionGroup"].includes(componentOptions.tag);
+  return isTransitionName(componentOptions.tag);
 }
 
-function computeChildrenAndOffsets(children, _ref) {
-  var header = _ref.header,
-      footer = _ref.footer;
+function getSlot(slot, scopedSlot, key) {
+  return slot[key] || (scopedSlot[key] ? scopedSlot[key]() : undefined);
+}
+
+function computeChildrenAndOffsets(children, slot, scopedSlot) {
   var headerOffset = 0;
   var footerOffset = 0;
+  var header = getSlot(slot, scopedSlot, "header");
 
   if (header) {
     headerOffset = header.length;
     children = children ? [].concat(_toConsumableArray(header), _toConsumableArray(children)) : _toConsumableArray(header);
   }
+
+  var footer = getSlot(slot, scopedSlot, "footer");
 
   if (footer) {
     footerOffset = footer.length;
@@ -13955,7 +14025,7 @@ function getComponentAttributes($attrs, componentData) {
 }
 
 var eventsListened = ["Start", "Add", "Remove", "Update", "End"];
-var eventsToEmit = ["Choose", "Sort", "Filter", "Clone"];
+var eventsToEmit = ["Choose", "Unchoose", "Sort", "Filter", "Clone"];
 var readonlyProperties = ["Move"].concat(eventsListened, eventsToEmit).map(function (evt) {
   return "on" + evt;
 });
@@ -14007,15 +14077,14 @@ var draggableComponent = {
   data: function data() {
     return {
       transitionMode: false,
-      noneFunctionalComponentMode: false,
-      init: false
+      noneFunctionalComponentMode: false
     };
   },
   render: function render(h) {
     var slots = this.$slots.default;
     this.transitionMode = vuedraggable_isTransition(slots);
 
-    var _computeChildrenAndOf = computeChildrenAndOffsets(slots, this.$slots),
+    var _computeChildrenAndOf = computeChildrenAndOffsets(slots, this.$slots, this.$scopedSlots),
         children = _computeChildrenAndOf.children,
         headerOffset = _computeChildrenAndOf.headerOffset,
         footerOffset = _computeChildrenAndOf.footerOffset;
@@ -14041,7 +14110,7 @@ var draggableComponent = {
   mounted: function mounted() {
     var _this3 = this;
 
-    this.noneFunctionalComponentMode = this.getTag().toLowerCase() !== this.$el.nodeName.toLowerCase();
+    this.noneFunctionalComponentMode = this.getTag().toLowerCase() !== this.$el.nodeName.toLowerCase() && !this.getIsFunctional();
 
     if (this.noneFunctionalComponentMode && this.transitionMode) {
       throw new Error("Transition-group inside component is not supported. Please alter tag value or remove transition-group. Current tag value: ".concat(this.getTag()));
@@ -14099,6 +14168,10 @@ var draggableComponent = {
     }
   },
   methods: {
+    getIsFunctional: function getIsFunctional() {
+      var fnOptions = this._vnode.fnOptions;
+      return fnOptions && fnOptions.functional;
+    },
     getTag: function getTag() {
       return this.tag || this.element;
     },
@@ -14112,11 +14185,6 @@ var draggableComponent = {
       }
     },
     getChildrenNodes: function getChildrenNodes() {
-      if (!this.init) {
-        this.noneFunctionalComponentMode = this.noneFunctionalComponentMode && this.$children.length === 1;
-        this.init = true;
-      }
-
       if (this.noneFunctionalComponentMode) {
         return this.$children[0].$slots.default;
       }
@@ -14146,14 +14214,15 @@ var draggableComponent = {
         element: element
       };
     },
-    getUnderlyingPotencialDraggableComponent: function getUnderlyingPotencialDraggableComponent(_ref2) {
-      var __vue__ = _ref2.__vue__;
+    getUnderlyingPotencialDraggableComponent: function getUnderlyingPotencialDraggableComponent(_ref) {
+      var vue = _ref.__vue__;
 
-      if (!__vue__ || !__vue__.$options || __vue__.$options._componentTag !== "transition-group") {
-        return __vue__;
+      if (!vue || !vue.$options || !isTransitionName(vue.$options._componentTag)) {
+        if (!("realList" in vue) && vue.$children.length === 1 && "realList" in vue.$children[0]) return vue.$children[0];
+        return vue;
       }
 
-      return __vue__.$parent;
+      return vue.$parent;
     },
     emitChanges: function emitChanges(evt) {
       var _this5 = this;
@@ -14189,9 +14258,9 @@ var draggableComponent = {
 
       this.alterList(updatePosition);
     },
-    getRelatedContextFromMoveEvent: function getRelatedContextFromMoveEvent(_ref3) {
-      var to = _ref3.to,
-          related = _ref3.related;
+    getRelatedContextFromMoveEvent: function getRelatedContextFromMoveEvent(_ref2) {
+      var to = _ref2.to,
+          related = _ref2.related;
       var component = this.getUnderlyingPotencialDraggableComponent(to);
 
       if (!component) {
@@ -16879,6 +16948,8 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 //
 //
 //
@@ -16942,62 +17013,69 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "RelationshipFormItem",
 
-    props: ['value', 'label', 'name', 'id', 'settings', 'singular', 'errors'],
+    props: ['value', 'label', 'id', 'modelId', 'modelKey', 'errors', 'field'],
+
+    computed: {
+        fields: function fields() {
+            var _this = this;
+
+            return _.keyBy(Object.keys(_extends({}, this.value)).map(function (attrib) {
+                return _extends({
+                    'options': {}
+                }, _this.value[attrib].meta, {
+                    'attribute': _this.value[attrib].meta.component === "file-field" ? attrib : _this.field.attribute + '_' + _this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
+                    'name': _this.field.attribute + '[' + _this.id + '][' + attrib + ']',
+                    'deletable': _this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
+                    'attrib': attrib
+                });
+            }), 'attrib');
+        }
+    },
 
     methods: {
+        getValueFromChildren: function getValueFromChildren() {
+            var _this2 = this;
+
+            return _.tap(new FormData(), function (formData) {
+                _(_this2.$refs).each(function (item) {
+                    if (item[0].field.component === 'file-field') {
+                        if (item[0].file) {
+                            formData.append(item[0].field.attribute, item[0].file, item[0].fileName);
+                        } else if (item[0].value) {
+                            formData.append(item[0].field.attribute, String(item[0].value));
+                        }
+                    } else if (item[0].field.component === 'boolean-field') {
+                        formData.append(item[0].field.attribute, item[0].trueValue);
+                    } else {
+                        item[0].fill(formData);
+                    }
+                });
+            });
+        },
+
+        fill: function fill(formData, parentAttrib) {
+            var _this3 = this;
+
+            this.getValueFromChildren().forEach(function (value, key) {
+                var keyParts = key.split('_');
+                if (keyParts.length === 1) {
+                    formData.append(parentAttrib + '[' + _this3.id + '][' + key + ']', value);
+                } else {
+                    var parentParts = parentAttrib.split('_');
+                    var attrib = keyParts.slice(parentParts.length + 1).join('_');
+                    formData.append(parentAttrib + '[' + _this3.id + '][' + attrib + ']', value);
+                }
+            });
+        },
+
+
         removeItem: function removeItem() {
             this.$emit('deleted', this.id);
-        },
-
-        getLabel: function getLabel(attrib) {
-            return this.getSettings(attrib, 'label') || attrib;
-        },
-
-        getType: function getType(attrib) {
-            return this.getSettings(attrib, 'type') || 'text';
-        },
-
-        getPlaceholder: function getPlaceholder(attrib) {
-            return this.getSettings(attrib, 'placeholder') || 'Add ' + this.getLabel(attrib);
-        },
-
-        getOptions: function getOptions(attrib) {
-            var options = this.getSettings(attrib, 'options');
-            return Array.isArray(options) ? options : [];
-        },
-
-        getSettings: function getSettings(attrib, key) {
-            return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : '';
-        },
-
-        getName: function getName(id, attrib) {
-            return this.name + '.' + id + '.' + attrib;
-        },
-
-        hasError: function hasError(id, attrib) {
-            return this.errors && this.errors.hasOwnProperty(this.getName(id, attrib));
-        },
-
-        getError: function getError(id, attrib) {
-            return this.hasError(id, attrib) ? this.errors[this.getName(id, attrib)][0] : '';
         }
     }
 });
@@ -17015,7 +17093,7 @@ var render = function() {
     { staticClass: "card shadow-md mb-4" },
     [
       _c("div", { staticClass: "bg-30 flex p-2 border-b border-40" }, [
-        !_vm.singular
+        !_vm.field.singular
           ? _c("div", { staticClass: "w-1/8 text-left py-2 px-2" }, [
               _c(
                 "span",
@@ -17052,7 +17130,7 @@ var render = function() {
           _c("h4", { staticClass: "font-normal text-80" }, [
             _vm._v(
               "\n        " +
-                _vm._s(_vm.label) +
+                _vm._s(_vm.field.singularLabel) +
                 " " +
                 _vm._s(_vm.id + 1) +
                 "\n      "
@@ -17103,143 +17181,25 @@ var render = function() {
         ])
       ]),
       _vm._v(" "),
-      _vm._l(_vm.value, function(parameter, attrib) {
+      _vm._l(_vm.fields, function(field, attrib) {
         return _c(
           "div",
-          {
-            key: attrib,
-            staticClass:
-              "nova-items-field-input-wrapper flex p-2 border-b border-40"
-          },
+          { key: attrib, staticClass: "nova-items-field-input-wrapper w-full" },
           [
-            _c("div", { staticClass: "w-1/4 py-2 px-2" }, [
-              _c("h4", { staticClass: "font-normal text-80" }, [
-                _vm._v("\n        " + _vm._s(_vm.getLabel(attrib)) + "\n      ")
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "w-3/4" }, [
-              _c("div", { staticClass: "flex" }, [
-                _vm.getType(attrib) === "checkbox"
-                  ? _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.value[attrib],
-                          expression: "value[attrib]"
-                        }
-                      ],
-                      staticClass:
-                        "flex-1 form-control form-input form-input-bordered",
-                      class: { "border-danger": _vm.hasError(_vm.id, attrib) },
-                      attrs: {
-                        name: "profile[" + _vm.id + "][" + attrib + "]",
-                        placeholder: _vm.getPlaceholder(attrib),
-                        type: "checkbox"
-                      },
-                      domProps: {
-                        checked: Array.isArray(_vm.value[attrib])
-                          ? _vm._i(_vm.value[attrib], null) > -1
-                          : _vm.value[attrib]
-                      },
-                      on: {
-                        change: function($event) {
-                          var $$a = _vm.value[attrib],
-                            $$el = $event.target,
-                            $$c = $$el.checked ? true : false
-                          if (Array.isArray($$a)) {
-                            var $$v = null,
-                              $$i = _vm._i($$a, $$v)
-                            if ($$el.checked) {
-                              $$i < 0 &&
-                                _vm.$set(_vm.value, attrib, $$a.concat([$$v]))
-                            } else {
-                              $$i > -1 &&
-                                _vm.$set(
-                                  _vm.value,
-                                  attrib,
-                                  $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                )
-                            }
-                          } else {
-                            _vm.$set(_vm.value, attrib, $$c)
-                          }
-                        }
-                      }
-                    })
-                  : _vm.getType(attrib) === "radio"
-                  ? _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.value[attrib],
-                          expression: "value[attrib]"
-                        }
-                      ],
-                      staticClass:
-                        "flex-1 form-control form-input form-input-bordered",
-                      class: { "border-danger": _vm.hasError(_vm.id, attrib) },
-                      attrs: {
-                        name: "profile[" + _vm.id + "][" + attrib + "]",
-                        placeholder: _vm.getPlaceholder(attrib),
-                        type: "radio"
-                      },
-                      domProps: { checked: _vm._q(_vm.value[attrib], null) },
-                      on: {
-                        change: function($event) {
-                          return _vm.$set(_vm.value, attrib, null)
-                        }
-                      }
-                    })
-                  : _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.value[attrib],
-                          expression: "value[attrib]"
-                        }
-                      ],
-                      staticClass:
-                        "flex-1 form-control form-input form-input-bordered",
-                      class: { "border-danger": _vm.hasError(_vm.id, attrib) },
-                      attrs: {
-                        name: "profile[" + _vm.id + "][" + attrib + "]",
-                        placeholder: _vm.getPlaceholder(attrib),
-                        type: _vm.getType(attrib)
-                      },
-                      domProps: { value: _vm.value[attrib] },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.value, attrib, $event.target.value)
-                        }
-                      }
-                    })
-              ]),
-              _vm._v(" "),
-              _vm.hasError(_vm.id, attrib)
-                ? _c(
-                    "div",
-                    {
-                      staticClass:
-                        "flex help-text error-text text-danger px-2 py-2"
-                    },
-                    [
-                      _c("p", {
-                        domProps: {
-                          innerHTML: _vm._s(_vm.getError(_vm.id, attrib))
-                        }
-                      })
-                    ]
-                  )
-                : _vm._e()
-            ])
-          ]
+            _c("form-" + field.component, {
+              ref: attrib,
+              refInFor: true,
+              tag: "component",
+              attrs: {
+                field: field,
+                "full-width-content": true,
+                errors: _vm.errors,
+                "resource-id": _vm.modelId,
+                "resource-name": _vm.modelKey
+              }
+            })
+          ],
+          1
         )
       })
     ],
@@ -17266,7 +17226,14 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "default-field",
-    { attrs: { field: _vm.field, errors: _vm.errors, "show-errors": false } },
+    {
+      attrs: {
+        field: _vm.field,
+        errors: _vm.errors,
+        "show-errors": false,
+        "full-width-content": true
+      }
+    },
     [
       _c(
         "template",
@@ -17285,24 +17252,25 @@ var render = function() {
                 }
               },
               model: {
-                value: _vm.value,
+                value: _vm.items,
                 callback: function($$v) {
-                  _vm.value = $$v
+                  _vm.items = $$v
                 },
-                expression: "value"
+                expression: "items"
               }
             },
-            _vm._l(_vm.value, function(item, index) {
+            _vm._l(_vm.items, function(items, index) {
               return _c("relationship-form-item", {
-                key: index,
+                key: items.id,
+                ref: index,
+                refInFor: true,
                 attrs: {
                   id: index,
-                  value: item,
+                  "model-id": _vm.field.models[index] || 0,
+                  "model-key": _vm.field.modelKey,
+                  value: items.fields,
                   errors: _vm.errorList,
-                  name: _vm.field.attribute,
-                  label: _vm.field.name,
-                  singular: _vm.field.singular,
-                  settings: _vm.field.settings
+                  field: _vm.field
                 },
                 on: {
                   deleted: function($event) {
@@ -17314,7 +17282,7 @@ var render = function() {
             1
           ),
           _vm._v(" "),
-          !_vm.field.singular
+          !_vm.field.singular || !_vm.items.length
             ? _c(
                 "div",
                 { staticClass: "bg-30 flex p-2 border-b border-40 rounded-lg" },
@@ -17335,7 +17303,7 @@ var render = function() {
                       [
                         _vm._v(
                           "\n          Add new " +
-                            _vm._s(_vm.field.name) +
+                            _vm._s(_vm.field.singularLabel.toLowerCase()) +
                             "\n        "
                         )
                       ]

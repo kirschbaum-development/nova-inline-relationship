@@ -2,7 +2,7 @@
   <div class="card shadow-md mb-4">
     <div class="bg-30 flex p-2 border-b border-40">
       <div
-        v-if="!singular"
+        v-if="!field.singular"
         class="w-1/8 text-left py-2 px-2"
       >
         <span class="relationship-item-handle py-2 px-2 cursor-move">
@@ -19,7 +19,7 @@
       </div>
       <div class="w-5/8 flex-grow text-left py-2 px-2">
         <h4 class="font-normal text-80">
-          {{ label }} {{ id+1 }}
+          {{ field.singularLabel }} {{ id+1 }}
         </h4>
       </div>
       <div class="w-1/4 text-right">
@@ -44,88 +44,100 @@
       </div>
     </div>
     <div
-      v-for="(parameter, attrib) in value"
+      v-for="(field, attrib) in fields"
       :key="attrib"
-      class="nova-items-field-input-wrapper flex p-2 border-b border-40"
+      class="nova-items-field-input-wrapper w-full"
     >
-      <div class="w-1/4 py-2 px-2">
-        <h4 class="font-normal text-80">
-          {{ getLabel(attrib) }}
-        </h4>
-      </div>
-      <div class="w-3/4">
-        <div class="flex">
-          <input
-            v-model="value[attrib]"
-            :type="getType(attrib)"
-            :name="'profile['+id+']['+attrib+']'"
-            :placeholder="getPlaceholder(attrib)"
-            :class="{'border-danger': hasError(id, attrib)}"
-            class="flex-1 form-control form-input form-input-bordered"
-          >
-        </div>
-        <div
-          v-if="hasError(id, attrib)"
-          class="flex help-text error-text text-danger px-2 py-2"
-        >
-          <p v-html="getError(id, attrib)" />
-        </div>
-      </div>
+      <component
+        :is="'form-' + field.component"
+        :ref="attrib"
+        :field="field"
+        :full-width-content="true"
+        :errors="errors"
+        :resource-id="modelId"
+        :resource-name="modelKey"
+      />
     </div>
   </div>
 </template>
 
 <script>
+
     export default {
         name: "RelationshipFormItem",
 
         props:[
             'value',
             'label',
-            'name',
             'id',
-            'settings',
-            'singular',
-            'errors'
+            'modelId',
+            'modelKey',
+            'errors',
+            'field'
         ],
 
+        computed:{
+            fields: function(){
+                return _.keyBy(
+                    Object.keys({...this.value}).map(
+                        attrib => {
+                            return {
+                                ...{
+                                    'options':{}
+                                },
+                                ...this.value[attrib].meta,
+                                ...{
+                                    'attribute': (this.value[attrib].meta.component === "file-field") ?
+                                        attrib :
+                                        this.field.attribute + '_' + this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
+                                    'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
+                                    'deletable': this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
+                                    'attrib': attrib
+                                }
+                            }
+                        }
+                    ), 'attrib'
+                )
+            }
+        },
+
         methods:{
-            removeItem:function(){
+            getValueFromChildren: function() {
+                return _.tap(new FormData(), formData => {
+                    _(this.$refs).each(item => {
+                        if (item[0].field.component === 'file-field'){
+                            if (item[0].file){
+                                formData.append(item[0].field.attribute, item[0].file, item[0].fileName);
+                            } else if (item[0].value){
+                                formData.append(item[0].field.attribute, String(item[0].value))
+                            }
+                        } else if (item[0].field.component === 'boolean-field'){
+                            formData.append(item[0].field.attribute, item[0].trueValue);
+                        } else {
+                            item[0].fill(formData);
+                        }
+                    })
+                })
+            },
+
+            fill(formData, parentAttrib) {
+                this.getValueFromChildren().forEach(
+                    (value, key) => {
+                        let keyParts = key.split('_');
+                        if(keyParts.length === 1){
+                            formData.append(`${parentAttrib}[${this.id}][${key}]`,  value);
+                        }else{
+                            let parentParts = parentAttrib.split('_');
+                            let attrib = keyParts.slice(parentParts.length+1).join('_');
+                            formData.append(`${parentAttrib}[${this.id}][${attrib}]`,  value);
+                        }
+                    }
+                );
+            },
+
+            removeItem: function (){
                 this.$emit('deleted', this.id);
             },
-
-            getLabel:function(attrib){
-                return this.getSettings(attrib, 'label') || attrib;
-            },
-
-            getType:function(attrib){
-                return this.getSettings(attrib, 'type') || 'text';
-            },
-
-            getPlaceholder:function(attrib){
-                return this.getSettings(attrib, 'placeholder') || `Add ${this.getLabel(attrib)}`;
-            },
-
-            getOptions:function(attrib){
-                let options = this.getSettings(attrib, 'options');
-                return Array.isArray(options) ? options : [];
-            },
-
-            getSettings:function(attrib, key){
-                return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : ''
-            },
-
-            getName:function(id, attrib){
-                return this.name + '.' + id + '.' + attrib
-            },
-
-            hasError:function(id, attrib){
-                return this.errors && this.errors.hasOwnProperty(this.getName(id, attrib))
-            },
-
-            getError:function(id, attrib){
-                return this.hasError(id, attrib) ? this.errors[this.getName(id, attrib)][0] : '';
-            }
-        }
+        },
     }
 </script>

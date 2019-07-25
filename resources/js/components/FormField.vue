@@ -3,29 +3,30 @@
     :field="field"
     :errors="errors"
     :show-errors="false"
+    :full-width-content="true"
   >
     <template slot="field">
       <draggable
-        v-model="value"
+        v-model="items"
         handle=".relationship-item-handle"
         @start="drag=true"
         @end="drag=false"
       >
         <relationship-form-item
-          v-for="(item, index) in value"
+          v-for="(items, index) in items"
+          :ref="index"
+          :key="items.id"
           :id="index"
-          :key="index"
-          :value="item"
+          :model-id="field.models[index]||0"
+          :model-key="field.modelKey"
+          :value="items.fields"
           :errors="errorList"
-          :name="field.attribute"
-          :label="field.name"
-          :singular="field.singular"
-          :settings="field.settings"
+          :field="field"
           @deleted="removeItem(index)"
         />
       </draggable>
       <div
-        v-if="!field.singular"
+        v-if="!field.singular || !items.length"
         class="bg-30 flex p-2 border-b border-40 rounded-lg"
       >
         <div class="w-full text-right">
@@ -34,7 +35,7 @@
             class="btn btn-default bg-transparent hover:bg-primary text-primary hover:text-white border border-primary hover:border-transparent inline-flex items-center relative mr-3"
             @click="addItem()"
           >
-            Add new {{ field.name }}
+            Add new {{ field.singularLabel.toLowerCase() }}
           </button>
         </div>
       </div>
@@ -43,7 +44,7 @@
 </template>
 
 <script>
-import { FormField, HandlesValidationErrors } from 'laravel-nova'
+import { FormField, HandlesValidationErrors, Errors } from 'laravel-nova'
 import draggable from 'vuedraggable'
 import RelationshipFormItem from './RelationshipFormItem.vue'
 
@@ -59,13 +60,26 @@ export default {
 
     data: function(){
         return {
-            errorBag: []
+            id: 0,
+            items: [],
+            errorList: new Errors()
         }
     },
 
-    watch:{
-        'errors': function (errors) {
-            this.errorList = errors.errors.hasOwnProperty(this.field.attribute) ? errors.errors[this.field.attribute][0] : {};
+    watch: {
+        errors: function (errors) {
+            let errObj = errors.errors.hasOwnProperty(this.field.attribute) ? errors.errors[this.field.attribute][0] : {};
+            Object.keys(errObj).forEach(key=>{
+                errObj[key.replace(/\./g , '_')] = errObj[key];
+                delete errObj[key];
+            });
+            this.errorList =  new Errors(errObj);
+        },
+    },
+
+    computed: {
+        valueAsArray: function (){
+            return Array.isArray(this.items) ? this.items : [];
         }
     },
 
@@ -74,13 +88,17 @@ export default {
          * Set the initial, internal value for the field.
          */
         setInitialValue() {
-            this.value = Array.isArray(this.field.value) ? this.field.value : [];
+            this.items = Array.isArray(this.field.value) ? this.field.value : [];
+            this.items = this.items.map(item=>{
+                return { 'id': this.getNextId(), 'fields':item }
+            });
+
             if(this.field.singular){
-                this.value = this.value.splice(1);
+                this.items.splice(1);
             }
 
-            if(this.field.addChildAtStart && (this.value.length == 0)){
-                this.value.push({...this.field.defaults});
+            if(this.field.addChildAtStart && (this.items.length === 0)){
+                this.items.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
             }
         },
 
@@ -88,25 +106,42 @@ export default {
          * Fill the given FormData object with the field's internal value.
          */
         fill(formData) {
-            formData.append(this.field.attribute, JSON.stringify(this.value) || '{}')
+            try{
+                this.fillValueFromChildren(formData)
+            }catch(error){
+                console.log(error);
+            }
+        },
+
+        fillValueFromChildren: function(formData) {
+            _(this.$refs).each(item => {
+                if(item && Array.isArray(item) && item[0]){
+                    item[0].fill(formData, this.field.attribute);
+                }
+            });
         },
 
         /**
          * Update the field's internal value.
          */
         handleChange(value) {
-            this.value = value
+            this.items = Array.isArray(value) ? value : [];
+        },
+
+        getNextId(){
+            this.id += 1;
+            return this.id;
         },
 
         removeItem (index) {
-            let value = [...this.value];
+            let value = [...this.items];
             value.splice(index, 1);
             this.handleChange(value);
         },
 
         addItem(){
-            let value = [...this.value];
-            value.push({...this.field.defaults});
+            let value = [...this.items];
+            value.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
             this.handleChange(value);
         },
     }
