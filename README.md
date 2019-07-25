@@ -60,57 +60,57 @@ class Employee extends Model implements MappableRelationships
             'profile' => [
                 'nickname' => [
                     'label' => 'nickname',
-                    'component' => Text::class,
+                    'component' => \Laravel\Nova\Fields\Text::class,
                     'rules' => 'required',
                     'placeholder' => 'Add Nickname',
                     'messages' => ['required' => 'You must add a :attribute for this profile.'],
                 ],
                 'phone' => [
-                    'component' => Number::class,
+                    'component' => \Laravel\Nova\Fields\Number::class,
                     'label' => 'Phone',
                     'rules' => 'required|numeric',
                     'placeholder' => 'Add Phone',
                 ],
                 'photo' => [
-                    'component' => Image::class,
+                    'component' => \Laravel\Nova\Fields\Image::class,
                 ],
                 'snippet' => [
-                    'component' => Code::class,
+                    'component' => \Laravel\Nova\Fields\Code::class,
                 ],
                 'country' => [
-                    'component' => Country::class,
+                    'component' => \Laravel\Nova\Fields\Country::class,
                 ],
                 'settings' => [
-                    'component' => KeyValue::class,
+                    'component' => \Laravel\Nova\Fields\KeyValue::class,
                 ],
                 'dob' => [
-                    'component' => Date::class,
+                    'component' => \Laravel\Nova\Fields\Date::class,
                 ],
             ],
             'bills' => [
                 'pending' => [
-                    'component' => Boolean::class,
+                    'component' => \Laravel\Nova\Fields\Boolean::class,
                     'label' => 'Pending',
                 ],
                 'description' => [
-                    'component' => Trix::class,
+                    'component' => \Laravel\Nova\Fields\Trix::class,
                     'label' => 'Description',
                     'placeholder' => 'Add your description here',
                 ],
                 'address' => [
-                    'component' => Place::class,
+                    'component' => \Laravel\Nova\Fields\Place::class,
                 ],
                 'amount' => [
-                    'component' => Currency::class,
+                    'component' => \Laravel\Nova\Fields\Currency::class,
                 ],
                 'submitted_at' => [
-                    'component' => DateTime::class,
+                    'component' => \Laravel\Nova\Fields\DateTime::class,
                 ],
                 'auth_code' => [
-                    'component' => Password::class,
+                    'component' => \Laravel\Nova\Fields\Password::class,
                 ],
                 'notes' => [
-                    'component' => Markdown::class,
+                    'component' => \Laravel\Nova\Fields\Markdown::class,
                 ],
             ],
         ];
