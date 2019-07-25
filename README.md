@@ -21,7 +21,8 @@ composer require kirschbaum-development/nova-inline-relationship
 
 After installation, your model should include the `KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes` trait and you must implement the `KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships` Contract.
 
-You must also define a static `getPropertyMap` function in the model which should return the required list of properties from your related model you want to show inline.
+You must also define a static `getPropertyMap` function in the model which should return the required list of properties from your related models you want to show inline.
+In this example `Employee` model has two related models `EmployeProfile` and `EmployeeBill`
 
 ```php
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
@@ -38,6 +39,15 @@ class Employee extends Model implements MappableRelationships
     {
         return $this->hasOne(EmployeeProfile::class);
     }
+    
+    /**
+     * @return HasMany
+     */
+    public function bills(): HasMany
+    {
+        return $this->hasMany(EmployeeBill::class);
+    }
+
 
     /**
      * Should return property map as key value pair.
@@ -61,17 +71,8 @@ class Employee extends Model implements MappableRelationships
                     'rules' => 'required|numeric',
                     'placeholder' => 'Add Phone',
                 ],
-                'active' => [
-                    'component' => Boolean::class,
-                    'label' => 'Active',
-                ],
-                'signature' => [
-                    'component' => Trix::class,
-                    'label' => 'Signature',
-                    'placeholder' => 'Add your signature here',
-                ],
-                'avatar' => [
-                    'component' => Avatar::class,
+                'photo' => [
+                    'component' => Image::class,
                 ],
                 'snippet' => [
                     'component' => Code::class,
@@ -79,28 +80,39 @@ class Employee extends Model implements MappableRelationships
                 'country' => [
                     'component' => Country::class,
                 ],
-                'address' => [
-                    'component' => Place::class,
-                ],
-                'password' => [
-                    'component' => Password::class,
-                ],
                 'settings' => [
                     'component' => KeyValue::class,
-                ],
-                'bio' => [
-                    'component' => Markdown::class,
-                ],
-                'rate' => [
-                    'component' => Currency::class,
                 ],
                 'dob' => [
                     'component' => Date::class,
                 ],
-                'joined_at' => [
+            ],
+            'bills' => [
+                'pending' => [
+                    'component' => Boolean::class,
+                    'label' => 'Pending',
+                ],
+                'description' => [
+                    'component' => Trix::class,
+                    'label' => 'Description',
+                    'placeholder' => 'Add your description here',
+                ],
+                'address' => [
+                    'component' => Place::class,
+                ],
+                'amount' => [
+                    'component' => Currency::class,
+                ],
+                'submitted_at' => [
                     'component' => DateTime::class,
                 ],
-            ]
+                'auth_code' => [
+                    'component' => Password::class,
+                ],
+                'notes' => [
+                    'component' => Markdown::class,
+                ],
+            ],
         ];
     }
     
@@ -125,6 +137,8 @@ class Employee extends Resource
             //...
 
             NovaInlineRelationship::make('Profile'),
+            
+            NovaInlineRelationship::make('Bills'),
         ];
     }
 }
