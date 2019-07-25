@@ -262,8 +262,8 @@ You can use any field you can add to your Nova resource with `Field::make` synta
 
 ## Things to Fix
 
-1. Currently for all three file field (File, Image and Avatar) File deletion is not working.
-2. relationship names with underscore might cause some issues returning values correctly.
+1. ~~Currently for all three file field (File, Image and Avatar) File deletion is not working.~~
+2. ~~relationship names with underscore might cause some issues returning values correctly.~~
 
 ## Changelog
 
