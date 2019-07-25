@@ -1,7 +1,7 @@
 # Nova Inline Relationship
 
 ## Introduction
-Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource. This project is under active development, and currently only supports singular relationships. You are welcome to request or contribute by opening an issue.
+Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource. You are welcome to request or contribute by opening an issue.
 
 ![Nova Inline Relationship](screenshots/NovaInlineRelationship.png "Nova Inline Relationship")
 
@@ -22,7 +22,7 @@ composer require kirschbaum-development/nova-inline-relationship
 After installation, your model should include the `KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes` trait and you must implement the `KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships` Contract.
 
 You must also define a static `getPropertyMap` function in the model which should return the required list of properties from your related models you want to show inline.
-In this example `Employee` model has two related models `EmployeProfile` and `EmployeeBill`
+In this example `Employee` model has two related models `EmployeeProfile` and `EmployeeBill`
 
 ```php
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
@@ -236,29 +236,6 @@ You can pass on following items for your related model's attributes:-
 5. `placeholder`: A placeholder for your field.
 6. `options`: Additional options for your components
 
-### Select Component
-To pass dropdown options to your select component, pass an array of key values to options
-```php
-'component => Select::class,
-'options' => [
-    'options' => [
-        ['label' => 'Yes', 'value' => true],
-        ['label' => 'No', 'value' => false],
-    ],
-]
-```
-
-### Number/Currency Component
-You can pass `min`, `max` and `step` to number and currency field
-```php
-'component' => Currency::class,
-'options' => [
-    'min' => 0,
-    'max' => 100,
-    'step' => 10,
-],
-``` 
-
 ## Supported fields
 
 You can use any field you can add to your Nova resource with `Field::make` syntax. The following native Nova 2.0 fields are confirmed to work.
@@ -282,12 +259,28 @@ You can use any field you can add to your Nova resource with `Field::make` synta
 - Image Field
 - File Field
 
-**_NOTE:_** You can pass any additional arguments (like options for your select field) with your settings map using `options`.
+### Select Component
+To pass dropdown options to your select component, pass an array of key values to options
+```php
+'component => Select::class,
+'options' => [
+    'options' => [
+        ['label' => 'Yes', 'value' => true],
+        ['label' => 'No', 'value' => false],
+    ],
+]
+```
 
-## Things to Fix
-
-1. ~~Currently for all three file field (File, Image and Avatar) File deletion is not working.~~
-2. ~~relationship names with underscore might cause some issues returning values correctly.~~
+### Number/Currency Component
+You can pass `min`, `max` and `step` to number and currency field
+```php
+'component' => Currency::class,
+'options' => [
+    'min' => 0,
+    'max' => 100,
+    'step' => 10,
+],
+``` 
 
 ## Changelog
 
