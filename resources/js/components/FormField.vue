@@ -7,16 +7,18 @@
   >
     <template slot="field">
       <draggable
-        v-model="valueAsArray"
+        v-model="items"
         handle=".relationship-item-handle"
         @start="drag=true"
         @end="drag=false"
       >
         <relationship-form-item
-          v-for="(items, index) in value"
+          v-for="(items, index) in items"
           :ref="index"
           :key="items.id"
           :id="index"
+          :model-id="field.models[index]||0"
+          :model-key="field.modelKey"
           :value="items.fields"
           :errors="errorList"
           :field="field"
@@ -24,7 +26,7 @@
         />
       </draggable>
       <div
-        v-if="!field.singular || !valueAsArray.length"
+        v-if="!field.singular || !items.length"
         class="bg-30 flex p-2 border-b border-40 rounded-lg"
       >
         <div class="w-full text-right">
@@ -59,6 +61,7 @@ export default {
     data: function(){
         return {
             id: 0,
+            items: [],
             errorList: new Errors()
         }
     },
@@ -76,7 +79,7 @@ export default {
 
     computed: {
         valueAsArray: function (){
-            return Array.isArray(this.value) ? this.value : [];
+            return Array.isArray(this.items) ? this.items : [];
         }
     },
 
@@ -85,17 +88,17 @@ export default {
          * Set the initial, internal value for the field.
          */
         setInitialValue() {
-            this.value = Array.isArray(this.field.value) ? this.field.value : [];
-            this.value = this.value.map(item=>{
+            this.items = Array.isArray(this.field.value) ? this.field.value : [];
+            this.items = this.items.map(item=>{
                 return { 'id': this.getNextId(), 'fields':item }
             });
 
             if(this.field.singular){
-                this.value.splice(1);
+                this.items.splice(1);
             }
 
-            if(this.field.addChildAtStart && (this.value.length == 0)){
-                this.value.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
+            if(this.field.addChildAtStart && (this.items.length === 0)){
+                this.items.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
             }
         },
 
@@ -122,7 +125,7 @@ export default {
          * Update the field's internal value.
          */
         handleChange(value) {
-            this.value = Array.isArray(value) ? value : [];
+            this.items = Array.isArray(value) ? value : [];
         },
 
         getNextId(){
@@ -131,13 +134,13 @@ export default {
         },
 
         removeItem (index) {
-            let value = [...this.value];
+            let value = [...this.items];
             value.splice(index, 1);
             this.handleChange(value);
         },
 
         addItem(){
-            let value = [...this.value];
+            let value = [...this.items];
             value.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
             this.handleChange(value);
         },
