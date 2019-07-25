@@ -33,6 +33,9 @@ class NovaInlineRelationship extends Field
             $attribute = $this->attribute;
         }
 
+        $models = $resource->{$attribute}()->pluck('id')->all();
+        $modelKey = Str::plural(Str::kebab(class_basename($resource->{$attribute}()->first())));
+
         $propMap = $resource::getPropertyMap();
         $properties = $propMap[$attribute];
 
@@ -56,6 +59,8 @@ class NovaInlineRelationship extends Field
                 $properties
             ),
             'settings' => $properties,
+            'models' => $models,
+            'modelKey' => $modelKey,
             'singularLabel' => Str::title(Str::singular($attribute)),
             'pluralLabel' => Str::title(Str::plural($attribute)),
             'singular' => $resource->isSingularRelationship($attribute),
