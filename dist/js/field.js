@@ -823,6 +823,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
 
 
 
@@ -841,6 +843,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     data: function data() {
         return {
             id: 0,
+            items: [],
             errorList: new __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["Errors"]()
         };
     },
@@ -858,7 +861,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
     computed: {
         valueAsArray: function valueAsArray() {
-            return Array.isArray(this.value) ? this.value : [];
+            return Array.isArray(this.items) ? this.items : [];
         }
     },
 
@@ -869,17 +872,17 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         setInitialValue: function setInitialValue() {
             var _this = this;
 
-            this.value = Array.isArray(this.field.value) ? this.field.value : [];
-            this.value = this.value.map(function (item) {
+            this.items = Array.isArray(this.field.value) ? this.field.value : [];
+            this.items = this.items.map(function (item) {
                 return { 'id': _this.getNextId(), 'fields': item };
             });
 
             if (this.field.singular) {
-                this.value.splice(1);
+                this.items.splice(1);
             }
 
-            if (this.field.addChildAtStart && this.value.length == 0) {
-                this.value.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.settings) });
+            if (this.field.addChildAtStart && this.items.length === 0) {
+                this.items.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.settings) });
             }
         },
 
@@ -910,19 +913,19 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * Update the field's internal value.
          */
         handleChange: function handleChange(value) {
-            this.value = Array.isArray(value) ? value : [];
+            this.items = Array.isArray(value) ? value : [];
         },
         getNextId: function getNextId() {
             this.id += 1;
             return this.id;
         },
         removeItem: function removeItem(index) {
-            var value = [].concat(_toConsumableArray(this.value));
+            var value = [].concat(_toConsumableArray(this.items));
             value.splice(index, 1);
             this.handleChange(value);
         },
         addItem: function addItem() {
-            var value = [].concat(_toConsumableArray(this.value));
+            var value = [].concat(_toConsumableArray(this.items));
             value.push({ 'id': this.getNextId(), 'fields': _extends({}, this.field.settings) });
             this.handleChange(value);
         }
@@ -17008,12 +17011,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "RelationshipFormItem",
 
-    props: ['value', 'label', 'id', 'errors', 'field'],
+    props: ['value', 'label', 'id', 'modelId', 'modelKey', 'errors', 'field'],
 
     computed: {
         fields: function fields() {
@@ -17023,8 +17028,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 return _extends({
                     'options': {}
                 }, _this.value[attrib].meta, {
-                    'attribute': _this.field.attribute + '_' + _this.id + '_' + attrib,
+                    'attribute': _this.value[attrib].meta.component === "file-field" ? attrib : _this.field.attribute + '_' + _this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
                     'name': _this.field.attribute + '[' + _this.id + '][' + attrib + ']',
+                    'deletable': _this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                     'attrib': attrib
                 });
             }), 'attrib');
@@ -17057,9 +17063,13 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
             this.getValueFromChildren().forEach(function (value, key) {
                 var keyParts = key.split('_');
-                var parentParts = parentAttrib.split('_');
-                var attrib = keyParts.slice(parentParts.length + 1).join('_');
-                formData.append(parentAttrib + '[' + _this3.id + '][' + attrib + ']', value);
+                if (keyParts.length === 1) {
+                    formData.append(parentAttrib + '[' + _this3.id + '][' + key + ']', value);
+                } else {
+                    var parentParts = parentAttrib.split('_');
+                    var attrib = keyParts.slice(parentParts.length + 1).join('_');
+                    formData.append(parentAttrib + '[' + _this3.id + '][' + attrib + ']', value);
+                }
             });
         },
 
@@ -17183,7 +17193,9 @@ var render = function() {
               attrs: {
                 field: field,
                 "full-width-content": true,
-                errors: _vm.errors
+                errors: _vm.errors,
+                "resource-id": _vm.modelId,
+                "resource-name": _vm.modelKey
               }
             })
           ],
@@ -17240,20 +17252,22 @@ var render = function() {
                 }
               },
               model: {
-                value: _vm.valueAsArray,
+                value: _vm.items,
                 callback: function($$v) {
-                  _vm.valueAsArray = $$v
+                  _vm.items = $$v
                 },
-                expression: "valueAsArray"
+                expression: "items"
               }
             },
-            _vm._l(_vm.value, function(items, index) {
+            _vm._l(_vm.items, function(items, index) {
               return _c("relationship-form-item", {
                 key: items.id,
                 ref: index,
                 refInFor: true,
                 attrs: {
                   id: index,
+                  "model-id": _vm.field.models[index] || 0,
+                  "model-key": _vm.field.modelKey,
                   value: items.fields,
                   errors: _vm.errorList,
                   field: _vm.field
@@ -17268,7 +17282,7 @@ var render = function() {
             1
           ),
           _vm._v(" "),
-          !_vm.field.singular || !_vm.valueAsArray.length
+          !_vm.field.singular || !_vm.items.length
             ? _c(
                 "div",
                 { staticClass: "bg-30 flex p-2 border-b border-40 rounded-lg" },
