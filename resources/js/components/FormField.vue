@@ -24,7 +24,7 @@
         />
       </draggable>
       <div
-        v-if="!field.singular"
+        v-if="!field.singular || !valueAsArray.length"
         class="bg-30 flex p-2 border-b border-40 rounded-lg"
       >
         <div class="w-full text-right">
@@ -91,7 +91,7 @@ export default {
             });
 
             if(this.field.singular){
-                this.value = this.value.splice(1);
+                this.value.splice(1);
             }
 
             if(this.field.addChildAtStart && (this.value.length == 0)){

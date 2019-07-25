@@ -875,7 +875,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             });
 
             if (this.field.singular) {
-                this.value = this.value.splice(1);
+                this.value.splice(1);
             }
 
             if (this.field.addChildAtStart && this.value.length == 0) {
@@ -17268,7 +17268,7 @@ var render = function() {
             1
           ),
           _vm._v(" "),
-          !_vm.field.singular
+          !_vm.field.singular || !_vm.valueAsArray.length
             ? _c(
                 "div",
                 { staticClass: "bg-30 flex p-2 border-b border-40 rounded-lg" },
