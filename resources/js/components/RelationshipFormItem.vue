@@ -19,7 +19,7 @@
       </div>
       <div class="w-5/8 flex-grow text-left py-2 px-2">
         <h4 class="font-normal text-80">
-          {{ field.name }} {{ id+1 }}
+          {{ field.singularLabel }} {{ id+1 }}
         </h4>
       </div>
       <div class="w-1/4 text-right">

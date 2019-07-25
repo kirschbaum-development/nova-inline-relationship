@@ -3,7 +3,7 @@
     <div class="w-1/4 py-4">
       <slot>
         <h4 class="font-normal text-80">
-          {{ field.name }}
+          {{ field.singularLabel }}
         </h4>
       </slot>
     </div>
@@ -14,7 +14,7 @@
           :id="index"
           :key="index"
           :value="item"
-          :label="field.name"
+          :label="field.singularLabel"
           :settings="field.settings"
           :collapsed="collapsed"
         />
