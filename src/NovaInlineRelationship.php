@@ -32,6 +32,8 @@ class NovaInlineRelationship extends Field
     {
         parent::resolve($resource, $attribute);
 
+        $resource::observe(NovaInlineRelationshipObserver::class);
+
         if (empty($attribute)) {
             $attribute = $this->attribute;
         }
@@ -117,6 +119,8 @@ class NovaInlineRelationship extends Field
     protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
         if ($request->exists($requestAttribute)) {
+            $model::observe(NovaInlineRelationshipObserver::class);
+
             $response = is_array($request[$requestAttribute]) ? $request[$requestAttribute] : json_decode($request[$requestAttribute], true);
 
             //$propMap = $model::getPropertyMap();
