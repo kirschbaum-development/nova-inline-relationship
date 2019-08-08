@@ -28,9 +28,9 @@ trait HasRelatedAttributes
      */
     public function hasSetMutator($key)
     {
-        if (Arr::has(static::getPropertyMap(), $key)) {
+        /*if (Arr::has(static::getPropertyMap(), $key)) {
             return true;
-        }
+        }*/
 
         return parent::hasSetMutator($key);
     }
@@ -94,7 +94,7 @@ trait HasRelatedAttributes
     {
         Model::boot();
 
-        static::updating(function ($model) {
+        /*static::updating(function ($model) {
             $relationships = array_keys(static::getPropertyMap());
 
             foreach ($relationships as $relationship) {
@@ -132,7 +132,7 @@ trait HasRelatedAttributes
                     $model->{$relationship}()->createMany($model->relatedModelAttribs[$relationship]);
                 }
             }
-        });
+        });*/
     }
 
     /**
@@ -210,12 +210,12 @@ trait HasRelatedAttributes
      */
     protected function setMutatedAttributeValue($key, $value)
     {
-        if (Arr::has(static::getPropertyMap(), $key)) {
+        /*if (Arr::has(static::getPropertyMap(), $key)) {
             $this->relatedModelAttribs[$key] = $value;
             $this->isDirty = true;
 
             return true;
-        }
+        }*/
 
         return parent::setMutatedAttributeValue($key, $value);
     }
@@ -230,9 +230,9 @@ trait HasRelatedAttributes
      */
     protected function hasChanges($changes, $attributes = null)
     {
-        if ($this->isDirty) {
+        /*if ($this->isDirty) {
             return true;
-        }
+        }*/
 
         return parent::hasChanges($changes, $attributes);
     }
