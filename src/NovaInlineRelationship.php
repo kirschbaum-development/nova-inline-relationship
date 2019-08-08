@@ -39,7 +39,7 @@ class NovaInlineRelationship extends Field
         $models = $resource->{$attribute}()->pluck('id')->all();
         $modelKey = Str::plural(Str::kebab(class_basename($resource->{$attribute}()->first())));
 
-        $attribResource = Nova::newResourceFromModel($resource->{$attribute}()->first());
+        $attribResource = Nova::newResourceFromModel($resource->{$attribute}()->getRelated());
         $properties = collect($attribResource->fields(request()))->map(function ($value, $key) {
             return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
         })->keyBy('attribute')->toArray();
@@ -121,7 +121,7 @@ class NovaInlineRelationship extends Field
 
             //$propMap = $model::getPropertyMap();
             //$properties = $propMap[$attribute ?? $this->attribute];
-            $attribResource = Nova::newResourceFromModel($model->{$attribute}()->first());
+            $attribResource = Nova::newResourceFromModel($model->{$attribute}()->getRelated());
             $properties = collect($attribResource->fields(request()))->map(function ($value, $key) {
                 return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
             })->keyBy('attribute')->toArray();
