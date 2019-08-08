@@ -2,11 +2,14 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship;
 
+use App\Nova\Resource;
+use Laravel\Nova\Nova;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Field;
 use Illuminate\Http\UploadedFile;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
+use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
 class NovaInlineRelationship extends Field
 {
@@ -36,8 +39,15 @@ class NovaInlineRelationship extends Field
         $models = $resource->{$attribute}()->pluck('id')->all();
         $modelKey = Str::plural(Str::kebab(class_basename($resource->{$attribute}()->first())));
 
-        $propMap = $resource::getPropertyMap();
-        $properties = $propMap[$attribute];
+        $attribResource = Nova::newResourceFromModel($resource->{$attribute}()->first());
+        $properties = collect($attribResource->fields(request()))->map(function ($value, $key) {
+            return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
+        })->keyBy('attribute')->toArray();
+
+        //$propMap = $resource::getPropertyMap();
+        //$properties = $propMap[$attribute];
+
+        //dd($attribFields);
 
         $properties = collect($properties)->map(function ($value, $key) {
             return $this->setMetaFromClass($value, $key);
@@ -109,8 +119,12 @@ class NovaInlineRelationship extends Field
         if ($request->exists($requestAttribute)) {
             $response = is_array($request[$requestAttribute]) ? $request[$requestAttribute] : json_decode($request[$requestAttribute], true);
 
-            $propMap = $model::getPropertyMap();
-            $properties = $propMap[$attribute ?? $this->attribute];
+            //$propMap = $model::getPropertyMap();
+            //$properties = $propMap[$attribute ?? $this->attribute];
+            $attribResource = Nova::newResourceFromModel($model->{$attribute}()->first());
+            $properties = collect($attribResource->fields(request()))->map(function ($value, $key) {
+                return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
+            })->keyBy('attribute')->toArray();
 
             $modResponse = collect($response)->map(function ($item) use ($properties, $request) {
                 return collect($item)->map(function ($value, $key) use ($properties, $item, $request) {
