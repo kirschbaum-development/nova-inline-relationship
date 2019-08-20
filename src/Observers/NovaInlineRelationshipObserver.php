@@ -2,21 +2,26 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
+use Laravel\Nova\Nova;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
+use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 
 class NovaInlineRelationshipObserver
 {
     public function updating(Model $model)
     {
-        $relationships = array_keys($model::getPropertyMap());
+        $modelClass = get_class($model);
 
-        $relatedModelAttribs = $model->getAttributes();
+        $relationships = $this->getModelRelationships($model);
+
+        $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
 
         foreach ($relationships as $relationship) {
             $count = count($relatedModelAttribs[$relationship] ?? []);
-            //ToDo: Deduce how to fix
+
             if ($count) {
-                if ($model->isSingularRelationship($relationship)) {
+                if ($this->isSingularRelationship($model, $relationship)) {
                     $count = 1;
                 }
 
@@ -41,16 +46,47 @@ class NovaInlineRelationshipObserver
 
     public function created(Model $model)
     {
-        $relationships = array_keys($model::getPropertyMap());
+        $modelClass = get_class($model);
 
-        $relatedModelAttribs = $model->getAttributes();
+        $relationships = $this->getModelRelationships($model);
+
+        $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
 
         foreach ($relationships as $relationship) {
-            if ($model->isSingularRelationship($relationship)) {
+            if ($this->isSingularRelationship($model, $relationship)) {
                 $model->{$relationship}()->create($relatedModelAttribs[$relationship][0]);
             } else {
                 $model->{$relationship}()->createMany($relatedModelAttribs[$relationship]);
             }
         }
+    }
+
+    /**
+     * Checks if a relationship is singular
+     *
+     * @param Model $model
+     * @param $key
+     *
+     * @return bool
+     */
+    public function isSingularRelationship(Model $model, $key): bool
+    {
+        $relation = $model->{$key}();
+
+        return ! ($relation->getResults() instanceof Collection);
+    }
+
+    /**
+     * @param Model $model
+     *
+     * @return mixed
+     */
+    protected function getModelRelationships(Model $model)
+    {
+        $relationships = collect(Nova::newResourceFromModel($model)->fields(request()))->filter(function ($value) {
+            return $value->component === 'nova-inline-relationship';
+        })->pluck('attribute')->all();
+
+        return $relationships;
     }
 }
