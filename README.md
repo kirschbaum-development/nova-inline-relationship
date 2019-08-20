@@ -17,113 +17,12 @@ You can install this package in a Laravel app that uses [Nova](https://nova.lara
 composer require kirschbaum-development/nova-inline-relationship
 ```
 
-## Setup
-
-After installation, your model should include the `KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes` trait and you must implement the `KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships` Contract.
-
-You must also define a static `getPropertyMap` function in the model which should return the required list of properties from your related models you want to show inline.
-In this example `Employee` model has two related models `EmployeeProfile` and `EmployeeBill`
-
-```php
-use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
-use KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships;
-
-class Employee extends Model implements MappableRelationships
-{
-    use HasRelatedAttributes;
-
-    /**
-     * @return HasOne
-     */
-    public function profile(): HasOne
-    {
-        return $this->hasOne(EmployeeProfile::class);
-    }
-    
-    /**
-     * @return HasMany
-     */
-    public function bills(): HasMany
-    {
-        return $this->hasMany(EmployeeBill::class);
-    }
-
-
-    /**
-     * Should return property map as key value pair.
-     *
-     * @return array
-     */
-    public static function getPropertyMap(): array
-    {
-        return [
-            'profile' => [
-                'nickname' => [
-                    'label' => 'nickname',
-                    'component' => \Laravel\Nova\Fields\Text::class,
-                    'rules' => 'required',
-                    'placeholder' => 'Add Nickname',
-                    'messages' => ['required' => 'You must add a :attribute for this profile.'],
-                ],
-                'phone' => [
-                    'component' => \Laravel\Nova\Fields\Number::class,
-                    'label' => 'Phone',
-                    'rules' => 'required|numeric',
-                    'placeholder' => 'Add Phone',
-                ],
-                'photo' => [
-                    'component' => \Laravel\Nova\Fields\Image::class,
-                ],
-                'snippet' => [
-                    'component' => \Laravel\Nova\Fields\Code::class,
-                ],
-                'country' => [
-                    'component' => \Laravel\Nova\Fields\Country::class,
-                ],
-                'settings' => [
-                    'component' => \Laravel\Nova\Fields\KeyValue::class,
-                ],
-                'dob' => [
-                    'component' => \Laravel\Nova\Fields\Date::class,
-                ],
-            ],
-            'bills' => [
-                'pending' => [
-                    'component' => \Laravel\Nova\Fields\Boolean::class,
-                    'label' => 'Pending',
-                ],
-                'description' => [
-                    'component' => \Laravel\Nova\Fields\Trix::class,
-                    'label' => 'Description',
-                    'placeholder' => 'Add your description here',
-                ],
-                'address' => [
-                    'component' => \Laravel\Nova\Fields\Place::class,
-                ],
-                'amount' => [
-                    'component' => \Laravel\Nova\Fields\Currency::class,
-                ],
-                'submitted_at' => [
-                    'component' => \Laravel\Nova\Fields\DateTime::class,
-                ],
-                'auth_code' => [
-                    'component' => \Laravel\Nova\Fields\Password::class,
-                ],
-                'notes' => [
-                    'component' => \Laravel\Nova\Fields\Markdown::class,
-                ],
-            ],
-        ];
-    }
-    
-    // ...
-}
-````
-
 ## Usage
 
-Once you add this relationship map you can add `NovaInlineRelationship` to your Model's resource with a relationship. 
+To use `NovaInlineRelationship` to your Model's resource all you need to do is to add an inline method to the regular syntax of your related Model's Resource. 
 
+If we assume that an Employee Models has a one-to-one relationship with `EmployeeProfile` and one-to-many relationship with `EmployeeBill` model then the code will look like:
+ 
 ```php
 namespace App\Nova;
 
@@ -136,14 +35,14 @@ class Employee extends Resource
         return [
             //...
 
-            NovaInlineRelationship::make('Profile'),
+            HasOne::make('Profile', 'profile', EmployeeProfile::class)->inline(),
             
-            NovaInlineRelationship::make('Bills'),
+            HasMany::make('Bills', 'bills', EmployeeBill::class)->inline(),
         ];
     }
 }
 ``` 
-**_NOTE:_** These fields are in essence [Computed Fields](https://nova.laravel.com/docs/2.0/resources/fields.html#computed-fields), and are subjected to the same limitations. Since they are not associated with a database column, these fields will not be `sortable`.
+**_NOTE:_** You will need to add NovaResources for `EmployeeProfile` and `EmployeeBill` Model and all the field and rules will be fetch from it.
 
 ## Adding related models
 
@@ -177,65 +76,6 @@ For `one-to-many` relationships you can drag and drop related models to rearrang
 
 You can delete related models from the base model's update view by using the `delete button` at the top right corner.
 
-## Validating related models
-
-You can specify the validation rule for the fields in your related model using the `getPropertyMap()` function.
-
-An error will be displayed next to field if a validation rule is not met.
-
-![Validating Models](screenshots/Validation.png "Validating Models")
-
-### Specifying custom error messages
-
-You can specify custom error messages for field in format specified in the [laravel documentation](https://laravel.com/docs/5.8/validation#customizing-the-error-messages).
-
-For every field you can specify validation messages for each rule. You can use attribute wildcards like `:attribute` in your error messages as well.
-
-```php
-use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
-use KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships;
-
-class Employee extends Model implements MappableRelationships
-{
-    // ...
-
-    /**
-     * Should return property map as key value pair.
-     *
-     * @return array
-     */
-    public static function getPropertyMap(): array
-    {
-        return [
-            'profile' => [
-                'phone' => [
-                    'component => Number::class,
-                    'label' => 'Phone',
-                    'rules' => 'required|numeric',
-                    'placeholder' => 'Add Phone',
-                    'messages' => [
-                        'required' => 'You must add a :attribute for this profile.',
-                        'numeric' => 'Your :attribute must be numeric'
-                    ],
-                ],
-            ],
-        ];
-    }
-    
-    // ...
-}
-```
-
-## Settings
-
-You can pass on following items for your related model's attributes:-
-1. `component`: The component use to render the field. You should provide the component name specified in the field like Text::class, Number::class, Boolean::class and so on.
-2. `label`: Label for your field. This will also be used as the field name in error messages.
-3. `rules`: A rule string in [Laravel Validation format](https://laravel.com/docs/5.8/validation#available-validation-rules).
-4. `messages`: An array of error messages to be used in validation.
-5. `placeholder`: A placeholder for your field.
-6. `options`: Additional options for your components
-
 ## Supported fields
 
 You can use any field you can add to your Nova resource with `Field::make` syntax. The following native Nova 2.0 fields are confirmed to work.
@@ -259,29 +99,6 @@ You can use any field you can add to your Nova resource with `Field::make` synta
 - Image Field
 - File Field
 
-### Select Component
-To pass dropdown options to your select component, pass an array of key values to options
-```php
-'component => Select::class,
-'options' => [
-    'options' => [
-        ['label' => 'Yes', 'value' => true],
-        ['label' => 'No', 'value' => false],
-    ],
-]
-```
-
-### Number/Currency Component
-You can pass `min`, `max` and `step` to number and currency field
-```php
-'component' => Currency::class,
-'options' => [
-    'min' => 0,
-    'max' => 100,
-    'step' => 10,
-],
-``` 
-
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
@@ -292,7 +109,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Security
 
-If you discover any security related issues, please email brandon@kirschbaumdevelopment.com or nathan@kirschbaumdevelopment.com instead of using the issue tracker.
+If you discover any security related issues, please email navneet@kirschbaumdevelopment.com or nathan@kirschbaumdevelopment.com instead of using the issue tracker.
 
 ## Sponsorship
 
