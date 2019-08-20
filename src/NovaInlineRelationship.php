@@ -2,12 +2,15 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship;
 
+use Carbon\Carbon;
 use App\Nova\Resource;
 use Laravel\Nova\Nova;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Field;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Illuminate\Database\Eloquent\Collection;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
@@ -19,6 +22,24 @@ class NovaInlineRelationship extends Field
      * @var string
      */
     public $component = 'nova-inline-relationship';
+
+    public static $observedModels = [];
+
+    private $resourceClass;
+
+    /**
+     * Pass resourceClass to NovaInlineRelationship.
+     *
+     * @param $class
+     *
+     * @return NovaInlineRelationship
+     */
+    public function resourceClass($class): self
+    {
+        $this->resourceClass = $class;
+
+        return $this;
+    }
 
     /**
      * Resolve the field's value.
@@ -32,8 +53,6 @@ class NovaInlineRelationship extends Field
     {
         parent::resolve($resource, $attribute);
 
-        $resource::observe(NovaInlineRelationshipObserver::class);
-
         if (empty($attribute)) {
             $attribute = $this->attribute;
         }
@@ -41,24 +60,20 @@ class NovaInlineRelationship extends Field
         $models = $resource->{$attribute}()->pluck('id')->all();
         $modelKey = Str::plural(Str::kebab(class_basename($resource->{$attribute}()->first())));
 
-        $attribResource = Nova::newResourceFromModel($resource->{$attribute}()->getRelated());
-        $properties = collect($attribResource->fields(request()))->map(function ($value, $key) {
-            return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
-        })->keyBy('attribute')->toArray();
-
-        //$propMap = $resource::getPropertyMap();
-        //$properties = $propMap[$attribute];
-
-        //dd($attribFields);
+        $properties = $this->getPropertiesFromResource($resource, $attribute);
 
         $properties = collect($properties)->map(function ($value, $key) {
             return $this->setMetaFromClass($value, $key);
         })->all();
 
-        $this->value = collect($this->value)->map(function ($items, $id) use ($properties) {
+        if ($this->isSingularRelationship($resource, $attribute)) {
+            $this->value = collect([$this->value]);
+        }
+
+        $this->value = $this->value->map(function ($items, $id) use ($properties) {
             return collect($items)->map(function ($value, $key) use ($properties) {
-                return $this->setMetaFromClass($properties[$key] ?? [], $key, $value);
-            })->all();
+                return ! empty($properties[$key]) ? $this->setMetaFromClass($properties[$key], $key, $value) : null;
+            })->filter()->all();
         })->all();
 
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
@@ -75,10 +90,34 @@ class NovaInlineRelationship extends Field
             'modelKey' => $modelKey,
             'singularLabel' => Str::title(Str::singular($attribute)),
             'pluralLabel' => Str::title(Str::plural($attribute)),
-            'singular' => $resource->isSingularRelationship($attribute),
+            'singular' => $this->isSingularRelationship($resource, $attribute),
         ]);
     }
 
+    /**
+     * Checks if a relationship is singular
+     *
+     * @param Model $model
+     * @param $key
+     *
+     * @return bool
+     */
+    public function isSingularRelationship(Model $model, $key): bool
+    {
+        $relation = $model->{$key}();
+
+        return ! ($relation->getResults() instanceof Collection);
+    }
+
+    /**
+     * Set Meta Values using Field
+     *
+     * @param array $item
+     * @param $attrib
+     * @param null $value
+     *
+     * @return array
+     */
     protected function setMetaFromClass(array $item, $attrib, $value = null)
     {
         $attrs = ['name' => $attrib, 'attribute' => $attrib];
@@ -119,16 +158,9 @@ class NovaInlineRelationship extends Field
     protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
         if ($request->exists($requestAttribute)) {
-            $model::observe(NovaInlineRelationshipObserver::class);
-
             $response = is_array($request[$requestAttribute]) ? $request[$requestAttribute] : json_decode($request[$requestAttribute], true);
 
-            //$propMap = $model::getPropertyMap();
-            //$properties = $propMap[$attribute ?? $this->attribute];
-            $attribResource = Nova::newResourceFromModel($model->{$attribute}()->getRelated());
-            $properties = collect($attribResource->fields(request()))->map(function ($value, $key) {
-                return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
-            })->keyBy('attribute')->toArray();
+            $properties = $this->getPropertiesFromResource($model, $attribute);
 
             $modResponse = collect($response)->map(function ($item) use ($properties, $request) {
                 return collect($item)->map(function ($value, $key) use ($properties, $item, $request) {
@@ -153,7 +185,14 @@ class NovaInlineRelationship extends Field
                 })->all();
             })->all();
 
-            $model->{$attribute} = $this->isNullValue($modResponse) ? null : $modResponse;
+            $modelClass = get_class($model);
+
+            if (! array_key_exists($modelClass, static::$observedModels)) {
+                $model::observe(NovaInlineRelationshipObserver::class);
+                $model->updated_at = Carbon::now();
+            }
+
+            static::$observedModels[$modelClass][$attribute] = $this->isNullValue($modResponse) ? null : $modResponse;
         }
     }
 
@@ -204,5 +243,22 @@ class NovaInlineRelationship extends Field
         }
 
         return new RelationshipRule($ruleArray, $messageArray, $attribArray);
+    }
+
+    /**
+     * Get Properties From Resource File
+     *
+     * @param $model
+     * @param $attribute
+     *
+     * @return array
+     */
+    protected function getPropertiesFromResource($model, $attribute): array
+    {
+        $attribResource = ! empty($this->resourceClass) ? new $this->resourceClass($model) : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
+
+        return collect($attribResource->fields(request()))->map(function ($value, $key) {
+            return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
+        })->keyBy('attribute')->toArray();
     }
 }
