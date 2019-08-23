@@ -255,9 +255,10 @@ class NovaInlineRelationship extends Field
      */
     protected function getPropertiesFromResource($model, $attribute): array
     {
+        /** @var Resource $attribResource */
         $attribResource = ! empty($this->resourceClass) ? new $this->resourceClass($model) : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
-        return collect($attribResource->fields(request()))->map(function ($value, $key) {
+        return collect($attribResource->updateFields(new NovaRequest()))->map(function ($value, $key) {
             return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
         })->keyBy('attribute')->toArray();
     }
