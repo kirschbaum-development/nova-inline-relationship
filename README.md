@@ -1,4 +1,4 @@
-# Nova Inline Relationship
+![Banner](resources/imgs/banner.jpg "Banner")
 
 ## Introduction
 Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource. You are welcome to request or contribute by opening an issue.
