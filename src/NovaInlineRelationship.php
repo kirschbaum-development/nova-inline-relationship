@@ -10,7 +10,6 @@ use Laravel\Nova\Fields\Field;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Illuminate\Database\Eloquent\Collection;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
@@ -104,9 +103,7 @@ class NovaInlineRelationship extends Field
      */
     public function isSingularRelationship(Model $model, $key): bool
     {
-        $relation = $model->{$key}();
-
-        return ! ($relation->getResults() instanceof Collection);
+        return ! (Str::contains(class_basename($model->{$key}()), 'Many'));
     }
 
     /**

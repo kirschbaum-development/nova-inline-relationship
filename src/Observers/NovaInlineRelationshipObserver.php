@@ -4,7 +4,6 @@ namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Laravel\Nova\Nova;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 
 class NovaInlineRelationshipObserver
@@ -71,9 +70,7 @@ class NovaInlineRelationshipObserver
      */
     public function isSingularRelationship(Model $model, $key): bool
     {
-        $relation = $model->{$key}();
-
-        return ! ($relation->getResults() instanceof Collection);
+        return ! (Str::contains(class_basename($model->{$key}()), 'Many'));
     }
 
     /**
