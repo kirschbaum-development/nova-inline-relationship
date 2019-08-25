@@ -257,6 +257,8 @@ class NovaInlineRelationship extends Field
 
         return collect($attribResource->updateFields(new NovaRequest()))->map(function ($value, $key) {
             return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
+        })->filter(function ($value, $key) {
+            return $value['component'] !== get_class($this);
         })->keyBy('attribute')->toArray();
     }
 }
