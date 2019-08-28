@@ -3,8 +3,10 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Laravel\Nova\Nova;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
+use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
 
 class NovaInlineRelationshipObserver
 {
@@ -17,7 +19,13 @@ class NovaInlineRelationshipObserver
         $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
 
         foreach ($relationships as $relationship) {
-            $count = count($relatedModelAttribs[$relationship] ?? []);
+            $observer = $this->getRelationshipObserver($model, $relationship);
+
+            if ($observer instanceof RelationshipObservable) {
+                $observer->updating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
+            }
+
+            /*$count = count($relatedModelAttribs[$relationship] ?? []);
 
             if ($count) {
                 if ($this->isSingularRelationship($model, $relationship)) {
@@ -39,7 +47,7 @@ class NovaInlineRelationshipObserver
                         $models[$i]->delete();
                     }
                 }
-            }
+            }*/
         }
     }
 
@@ -52,11 +60,39 @@ class NovaInlineRelationshipObserver
         $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
 
         foreach ($relationships as $relationship) {
-            if ($this->isSingularRelationship($model, $relationship)) {
+            $observer = $this->getRelationshipObserver($model, $relationship);
+
+            if ($observer instanceof RelationshipObservable) {
+                $observer->updating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
+            }
+            /*if ($this->isSingularRelationship($model, $relationship)) {
                 $model->{$relationship}()->create($relatedModelAttribs[$relationship][0]);
             } else {
                 $model->{$relationship}()->createMany($relatedModelAttribs[$relationship]);
+            }*/
+        }
+    }
+
+    public function creating(Model $model)
+    {
+        $modelClass = get_class($model);
+
+        $relationships = $this->getModelRelationships($model);
+
+        $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
+
+        foreach ($relationships as $relationship) {
+            $observer = $this->getRelationshipObserver($model, $relationship);
+
+            if ($observer instanceof RelationshipObservable) {
+                $observer->updating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
             }
+            /*if ($this->isSingularRelationship($model, $relationship)) {
+                $parentModel = $model->{$relationship}()->getRelated()->newInstance($relatedModelAttribs[$relationship][0]);
+                $parentModel->save();
+                $model->{$relationship}()->associate($parentModel);
+            } else {
+            }*/
         }
     }
 
@@ -70,7 +106,35 @@ class NovaInlineRelationshipObserver
      */
     public function isSingularRelationship(Model $model, $key): bool
     {
-        return ! (Str::contains(class_basename($model->{$key}()), 'Many'));
+        return ! (Str::contains($this->getRelationshipName($model, $key), 'Many'));
+    }
+
+    /**
+     * Checks if a relationship is singular
+     *
+     * @param Model $model
+     * @param $key
+     *
+     * @return bool
+     */
+    public function getRelationshipName(Model $model, $key): bool
+    {
+        return class_basename($model->{$key}());
+    }
+
+    /**
+     * Checks if a relationship is singular
+     *
+     * @param Model $model
+     * @param $key
+     *
+     * @return RelationshipObservable
+     */
+    public function getRelationshipObserver(Model $model, $key): RelationshipObservable
+    {
+        $className = '\\KirschbaumDevelopment\\NovaInlineRelationship\\Observers\\' . class_basename($model->{$key}()) . 'Observer';
+
+        return class_exists($className) ? app($className) : null;
     }
 
     /**
