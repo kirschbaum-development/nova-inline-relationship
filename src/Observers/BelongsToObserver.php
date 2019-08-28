@@ -1,0 +1,29 @@
+<?php
+
+namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
+
+use Illuminate\Database\Eloquent\Model;
+use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
+
+class BelongsToObserver implements RelationshipObservable
+{
+    public function updating(Model $model, $attribute, $value)
+    {
+        $childModel = $model->{$attribute}()->first();
+
+        if (count($value)) {
+            $childModel->update($value[0]);
+        }
+    }
+
+    public function creating(Model $model, $attribute, $value)
+    {
+        $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]);
+        $parentModel->save();
+        $model->{$attribute}()->associate($parentModel);
+    }
+
+    public function created(Model $model, $attribute, $value)
+    {
+    }
+}
