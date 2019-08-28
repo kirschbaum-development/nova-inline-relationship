@@ -63,7 +63,7 @@ class NovaInlineRelationshipObserver
             $observer = $this->getRelationshipObserver($model, $relationship);
 
             if ($observer instanceof RelationshipObservable) {
-                $observer->updating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
+                $observer->created($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
             }
             /*if ($this->isSingularRelationship($model, $relationship)) {
                 $model->{$relationship}()->create($relatedModelAttribs[$relationship][0]);
@@ -85,7 +85,7 @@ class NovaInlineRelationshipObserver
             $observer = $this->getRelationshipObserver($model, $relationship);
 
             if ($observer instanceof RelationshipObservable) {
-                $observer->updating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
+                $observer->creating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
             }
             /*if ($this->isSingularRelationship($model, $relationship)) {
                 $parentModel = $model->{$relationship}()->getRelated()->newInstance($relatedModelAttribs[$relationship][0]);
