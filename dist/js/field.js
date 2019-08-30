@@ -902,11 +902,15 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         fillValueFromChildren: function fillValueFromChildren(formData) {
             var _this2 = this;
 
-            _(this.$refs).each(function (item) {
-                if (item && Array.isArray(item) && item[0]) {
-                    item[0].fill(formData, _this2.field.attribute);
-                }
-            });
+            if (!_.isEmpty(this.$refs[0])) {
+                _(this.$refs).each(function (item) {
+                    if (item && Array.isArray(item) && item[0]) {
+                        item[0].fill(formData, _this2.field.attribute);
+                    }
+                });
+            } else {
+                formData.append(this.field.attribute, []);
+            }
         },
 
         /**
@@ -17020,7 +17024,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 return _extends({
                     'options': {}
                 }, _this.value[attrib].meta, {
-                    'attribute': _this.value[attrib].meta.component === "file-field" ? attrib : _this.field.attribute + '_' + _this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
+                    'attribute': _this.value[attrib].meta.component === "file-field" ? attrib + '?' + _this.id : _this.field.attribute + '_' + _this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
                     'name': _this.field.attribute + '[' + _this.id + '][' + attrib + ']',
                     'deletable': _this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                     'attrib': attrib
@@ -17037,9 +17041,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 _(_this2.$refs).each(function (item) {
                     if (item[0].field.component === 'file-field') {
                         if (item[0].file) {
-                            formData.append(item[0].field.attribute, item[0].file, item[0].fileName);
+                            formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
                         } else if (item[0].value) {
-                            formData.append(item[0].field.attribute, String(item[0].value));
+                            formData.append(item[0].field.attrib, String(item[0].value));
                         }
                     } else if (item[0].field.component === 'boolean-field') {
                         formData.append(item[0].field.attribute, item[0].trueValue);
