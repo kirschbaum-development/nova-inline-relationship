@@ -16,6 +16,7 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\ResolvesReverseRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
+use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
 class NovaInlineRelationship extends Field
