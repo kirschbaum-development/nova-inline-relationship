@@ -22,7 +22,7 @@
           {{ field.singularLabel }} {{ id+1 }}
         </h4>
       </div>
-      <div class="w-1/4 text-right">
+      <div v-if="field.deletable" class="w-1/4 text-right">
         <button
           class="btn btn-default btn-icon btn bg-transparent hover:bg-danger text-danger hover:text-white border border-danger hover:border-transparent inline-flex items-center relative mr-3"
           title="Delete"

@@ -90,6 +90,7 @@ class NovaInlineRelationship extends Field
             'singularLabel' => Str::title(Str::singular($attribute)),
             'pluralLabel' => Str::title(Str::plural($attribute)),
             'singular' => $this->isSingularRelationship($resource, $attribute),
+            'deletable' => $this->isRelationshipDeletable($resource, $attribute),
         ]);
     }
 
@@ -104,6 +105,19 @@ class NovaInlineRelationship extends Field
     public function isSingularRelationship(Model $model, $key): bool
     {
         return ! (Str::contains(class_basename($model->{$key}()), 'Many'));
+    }
+
+    /**
+     * Checks if a relationship is deletable
+     *
+     * @param Model $model
+     * @param $relation
+     *
+     * @return bool
+     */
+    public function isRelationshipDeletable(Model $model, $relation): bool
+    {
+        return ! ($model->{$relation}() instanceof BelongsTo);
     }
 
     /**
