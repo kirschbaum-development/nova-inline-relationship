@@ -114,11 +114,15 @@ export default {
         },
 
         fillValueFromChildren: function(formData) {
-            _(this.$refs).each(item => {
-                if(item && Array.isArray(item) && item[0]){
-                    item[0].fill(formData, this.field.attribute);
-                }
-            });
+        	if(!_.isEmpty(this.$refs[0])){
+	          _(this.$refs).each(item => {
+		          if(item && Array.isArray(item) && item[0]){
+			          item[0].fill(formData, this.field.attribute);
+		          }
+	          });
+	        }else{
+	          formData.append(this.field.attribute, []);
+	        }
         },
 
         /**
