@@ -7,6 +7,7 @@ use App\Nova\Resource;
 use Laravel\Nova\Nova;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Field;
 use Illuminate\Http\UploadedFile;
 use Laravel\Nova\ResourceToolElement;
@@ -318,7 +319,7 @@ class NovaInlineRelationship extends Field
 
                     $class->fillAttribute($newRequest, $key, $temp, $key);
 
-                    return $temp->{$key} ?? null;
+                    return $temp->{$key} ?? ((($class instanceof File) && ! empty($value)) ? $value : null);
                 }
 
                 return $value;
