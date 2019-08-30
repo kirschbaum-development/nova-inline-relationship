@@ -3,7 +3,6 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Laravel\Nova\Nova;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
@@ -24,30 +23,6 @@ class NovaInlineRelationshipObserver
             if ($observer instanceof RelationshipObservable) {
                 $observer->updating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
             }
-
-            /*$count = count($relatedModelAttribs[$relationship] ?? []);
-
-            if ($count) {
-                if ($this->isSingularRelationship($model, $relationship)) {
-                    $count = 1;
-                }
-
-                $models = $model->{$relationship}()->get()->all();
-
-                for ($i = 0; $i < $count; $i++) {
-                    if ($i < count($models)) {
-                        $models[$i]->update($relatedModelAttribs[$relationship][$i]);
-                    } else {
-                        $model->{$relationship}()->create($relatedModelAttribs[$relationship][$i]);
-                    }
-                }
-
-                if ($count < count($models)) {
-                    for ($i = $count; $i < count($models); $i++) {
-                        $models[$i]->delete();
-                    }
-                }
-            }*/
         }
     }
 
@@ -65,11 +40,6 @@ class NovaInlineRelationshipObserver
             if ($observer instanceof RelationshipObservable) {
                 $observer->created($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
             }
-            /*if ($this->isSingularRelationship($model, $relationship)) {
-                $model->{$relationship}()->create($relatedModelAttribs[$relationship][0]);
-            } else {
-                $model->{$relationship}()->createMany($relatedModelAttribs[$relationship]);
-            }*/
         }
     }
 
@@ -87,26 +57,7 @@ class NovaInlineRelationshipObserver
             if ($observer instanceof RelationshipObservable) {
                 $observer->creating($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
             }
-            /*if ($this->isSingularRelationship($model, $relationship)) {
-                $parentModel = $model->{$relationship}()->getRelated()->newInstance($relatedModelAttribs[$relationship][0]);
-                $parentModel->save();
-                $model->{$relationship}()->associate($parentModel);
-            } else {
-            }*/
         }
-    }
-
-    /**
-     * Checks if a relationship is singular
-     *
-     * @param Model $model
-     * @param $key
-     *
-     * @return bool
-     */
-    public function isSingularRelationship(Model $model, $key): bool
-    {
-        return ! (Str::contains($this->getRelationshipName($model, $key), 'Many'));
     }
 
     /**
