@@ -45,7 +45,7 @@ class BlogPost extends Resource
 
 After setup you can add new related models directly while creating a new base model. You can use the `Add new Image` button to add a new `Image` to the `BlogPost`:
 
-![Create Related Model](screenshots/CreateRelatedModel.png "Create Related Model")
+![Create Related Model](screenshots/CreateViewExpanded.png "Create Related Model")
 
 ## Viewing related models
 
@@ -57,7 +57,7 @@ Related models will also now be displayed inline as well:
 
 You can also update, re-arrange (for one-to-many relationships), and delete related models:
 
-![Rearrange Models](screenshots/RearrangeModels.png "Rearrange Models")
+![Rearrange Models](screenshots/UpdateView.png "Rearrange Models")
 
 ## Supported fields
 
