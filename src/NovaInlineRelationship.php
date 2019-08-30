@@ -6,10 +6,15 @@ use Carbon\Carbon;
 use App\Nova\Resource;
 use Laravel\Nova\Nova;
 use Illuminate\Support\Str;
+use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Field;
 use Illuminate\Http\UploadedFile;
+use Laravel\Nova\ResourceToolElement;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Nova\Contracts\ListableField;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Fields\ResolvesReverseRelation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
@@ -98,13 +103,13 @@ class NovaInlineRelationship extends Field
      * Checks if a relationship is singular
      *
      * @param Model $model
-     * @param $key
+     * @param $relation
      *
      * @return bool
      */
-    public function isSingularRelationship(Model $model, $key): bool
+    public function isSingularRelationship(Model $model, $relation): bool
     {
-        return ! (Str::contains(class_basename($model->{$key}()), 'Many'));
+        return collect(class_uses($model->{$relation}()))->contains(SupportsDefaultModels::class);
     }
 
     /**
@@ -269,10 +274,16 @@ class NovaInlineRelationship extends Field
         /** @var Resource $attribResource */
         $attribResource = ! empty($this->resourceClass) ? new $this->resourceClass($model) : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
-        return collect($attribResource->updateFields(new NovaRequest()))->map(function ($value, $key) {
+        return collect($attribResource->availableFields(new NovaRequest()))->reject(function ($field) use ($attribResource) {
+            return $field instanceof ListableField ||
+                $field instanceof ResourceToolElement ||
+                $field->attribute === 'ComputedField' ||
+                ($field instanceof ID && $field->attribute === $attribResource->resource->getKeyName()) ||
+                collect(class_uses($field))->contains(ResolvesReverseRelation::class) ||
+                $field instanceof self ||
+                ! $field->showOnUpdate;
+        })->map(function ($value, $key) {
             return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
-        })->filter(function ($value, $key) {
-            return $value['component'] !== get_class($this);
         })->keyBy('attribute')->toArray();
     }
 }
