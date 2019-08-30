@@ -3,9 +3,8 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Illuminate\Database\Eloquent\Model;
-use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
 
-class BelongsToObserver implements RelationshipObservable
+class BelongsToObserver extends BaseObserver
 {
     public function updating(Model $model, $attribute, $value)
     {
@@ -21,9 +20,5 @@ class BelongsToObserver implements RelationshipObservable
         $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]);
         $parentModel->save();
         $model->{$attribute}()->associate($parentModel);
-    }
-
-    public function created(Model $model, $attribute, $value)
-    {
     }
 }

@@ -3,9 +3,8 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Illuminate\Database\Eloquent\Model;
-use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
 
-class HasOneObserver implements RelationshipObservable
+class HasOneObserver extends BaseObserver
 {
     public function updating(Model $model, $attribute, $value)
     {
@@ -25,9 +24,5 @@ class HasOneObserver implements RelationshipObservable
     public function created(Model $model, $attribute, $value)
     {
         $model->{$attribute}()->create($value[0]);
-    }
-
-    public function creating(Model $model, $attribute, $value)
-    {
     }
 }
