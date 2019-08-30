@@ -28,18 +28,28 @@ class NovaInlineRelationship extends Field
      */
     public $component = 'nova-inline-relationship';
 
+    /**
+     * All the Models observed by the field
+     *
+     * @var array
+     */
     public static $observedModels = [];
 
+    /**
+     * Name of resource class to be used
+     *
+     * @var string
+     */
     private $resourceClass;
 
     /**
      * Pass resourceClass to NovaInlineRelationship.
      *
-     * @param $class
+     * @param Resource $class
      *
      * @return NovaInlineRelationship
      */
-    public function resourceClass($class): self
+    public function resourceClass(string $class): self
     {
         $this->resourceClass = $class;
 
@@ -71,15 +81,7 @@ class NovaInlineRelationship extends Field
             return $this->setMetaFromClass($value, $key);
         })->all();
 
-        if ($this->isSingularRelationship($resource, $attribute)) {
-            $this->value = collect($this->value ? [$this->value] : []);
-        }
-
-        $this->value = $this->value->map(function ($items, $id) use ($properties) {
-            return collect($items)->map(function ($value, $key) use ($properties) {
-                return ! empty($properties[$key]) ? $this->setMetaFromClass($properties[$key], $key, $value) : null;
-            })->filter()->all();
-        })->all();
+        $this->updateFieldValue($resource, $attribute, $properties);
 
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
 
@@ -179,28 +181,7 @@ class NovaInlineRelationship extends Field
 
             $properties = $this->getPropertiesFromResource($model, $attribute);
 
-            $modResponse = collect($response)->map(function ($item) use ($properties, $request) {
-                return collect($item)->map(function ($value, $key) use ($properties, $item, $request) {
-                    if (! empty($properties[$key])) {
-                        $class = $this->getFieldClassFromProps($properties[$key], $key);
-
-                        $temp = new \stdClass();
-
-                        $files = collect($item)->filter(function ($itemData) {
-                            return $itemData instanceof UploadedFile;
-                        })->all();
-
-                        $newRequest = NovaInlineRelationshipRequest::createFrom($request)->duplicate($item);
-                        $newRequest->updateFiles($files);
-
-                        $class->fillAttribute($newRequest, $key, $temp, $key);
-
-                        return $temp->{$key} ?? null;
-                    }
-
-                    return $value;
-                })->all();
-            })->all();
+            $modResponse = $this->getResourceResponse($request, $response, $properties);
 
             $modelClass = get_class($model);
 
@@ -214,6 +195,8 @@ class NovaInlineRelationship extends Field
     }
 
     /**
+     * Resolve Field class from child Resource attribute
+     *
      * @param array $props
      * @param string $key
      *
@@ -223,7 +206,7 @@ class NovaInlineRelationship extends Field
     {
         $attrs = ['name' => $key, 'attribute' => $key];
 
-        return app($props['component'], $attrs);
+        return resolve($props['component'], $attrs);
     }
 
     /**
@@ -286,5 +269,62 @@ class NovaInlineRelationship extends Field
         })->map(function ($value, $key) {
             return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
         })->keyBy('attribute')->toArray();
+    }
+
+    /**
+     * Update value for the field
+     *
+     * @param $resource
+     * @param $attribute
+     * @param array $properties
+     */
+    protected function updateFieldValue($resource, $attribute, array $properties): void
+    {
+        if ($this->isSingularRelationship($resource, $attribute)) {
+            $this->value = collect($this->value ? [$this->value] : []);
+        }
+
+        $this->value = $this->value->map(function ($items, $id) use ($properties) {
+            return collect($items)->map(function ($value, $key) use ($properties) {
+                return ! empty($properties[$key]) ? $this->setMetaFromClass($properties[$key], $key, $value) : null;
+            })->filter()->all();
+        })->all();
+    }
+
+    /**
+     * Generate response object for a child resource by passing request to each field
+     *
+     * @param NovaRequest $request
+     * @param $response
+     * @param array $properties
+     *
+     * @return array
+     */
+    protected function getResourceResponse(NovaRequest $request, $response, array $properties): array
+    {
+        $modResponse = collect($response)->map(function ($item) use ($properties, $request) {
+            return collect($item)->map(function ($value, $key) use ($properties, $item, $request) {
+                if (! empty($properties[$key])) {
+                    $class = $this->getFieldClassFromProps($properties[$key], $key);
+
+                    $temp = new \stdClass();
+
+                    $files = collect($item)->filter(function ($itemData) {
+                        return $itemData instanceof UploadedFile;
+                    })->all();
+
+                    $newRequest = NovaInlineRelationshipRequest::createFrom($request)->duplicate($item, array_merge($request->all(), $item));
+                    $newRequest->updateFiles($files);
+
+                    $class->fillAttribute($newRequest, $key, $temp, $key);
+
+                    return $temp->{$key} ?? null;
+                }
+
+                return $value;
+            })->all();
+        })->all();
+
+        return $modResponse;
     }
 }
