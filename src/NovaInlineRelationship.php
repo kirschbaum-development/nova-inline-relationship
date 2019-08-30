@@ -72,7 +72,7 @@ class NovaInlineRelationship extends Field
         })->all();
 
         if ($this->isSingularRelationship($resource, $attribute)) {
-            $this->value = collect([$this->value]);
+            $this->value = collect($this->value ? [$this->value] : []);
         }
 
         $this->value = $this->value->map(function ($items, $id) use ($properties) {
