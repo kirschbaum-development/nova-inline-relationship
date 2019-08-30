@@ -59,6 +59,16 @@ You can also update, re-arrange (for one-to-many relationships), and delete rela
 
 ![Rearrange Models](screenshots/UpdateView.png "Rearrange Models")
 
+## Supported Relationships
+
+The following eloquent relationships are currently support with plans to add additional ones in the future:
+
+- BelongsTo
+- HasOne
+- HasMany
+- MorphOne
+- MorphMany
+
 ## Supported fields
 
 The following native Nova 2.0 fields are confirmed to work.
