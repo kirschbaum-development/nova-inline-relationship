@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class HasManyObserver extends BaseObserver
 {
+    /**
+     * {@inheritdoc}
+     */
     public function updating(Model $model, $attribute, $value)
     {
         $count = count($value);
@@ -27,6 +30,9 @@ class HasManyObserver extends BaseObserver
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function created(Model $model, $attribute, $value)
     {
         $model->{$attribute}()->createMany($value);

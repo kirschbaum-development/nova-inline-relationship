@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class HasOneObserver extends BaseObserver
 {
+    /**
+     * {@inheritdoc}
+     */
     public function updating(Model $model, $attribute, $value)
     {
         $childModel = $model->{$attribute}()->first();
@@ -21,6 +24,9 @@ class HasOneObserver extends BaseObserver
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function created(Model $model, $attribute, $value)
     {
         $model->{$attribute}()->create($value[0]);

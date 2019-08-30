@@ -9,11 +9,19 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class NovaInlineRelationshipRequest extends NovaRequest
 {
+    /**
+     * {@inheritdoc}
+     */
     public function duplicate(array $query = null, array $request = null, array $attributes = null, array $cookies = null, array $files = null, array $server = null)
     {
         return parent::duplicate($query, $request, $attributes, $cookies, $files, $server);
     }
 
+    /**
+     *
+     *
+     * @param array $files
+     */
     public function updateFiles(array $files)
     {
         if (! empty($files)) {
@@ -27,6 +35,11 @@ class NovaInlineRelationshipRequest extends NovaRequest
         }
     }
 
+    /**
+     * Set route parameters
+     *
+     * @param array $params
+     */
     public function setRouteParams(array $params)
     {
         foreach ($params as $key => $value) {
@@ -34,6 +47,11 @@ class NovaInlineRelationshipRequest extends NovaRequest
         }
     }
 
+    /**
+     * Create a new NovaRequest object using an existing one
+     *
+     * @param NovaRequest $request
+     */
     public static function createFromNovaRequest(NovaRequest $request)
     {
         (new static)->duplicate($request);
@@ -116,6 +134,9 @@ class NovaInlineRelationshipRequest extends NovaRequest
         return $request;
     }
 
+    /**
+     * Clear all the converted files
+     */
     public function clearConvertedFiles()
     {
         $this->convertedFiles = null;
