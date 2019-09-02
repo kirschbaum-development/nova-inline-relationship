@@ -77,8 +77,6 @@ class NovaInlineRelationship extends Field
 
         $properties = $this->getPropertiesWithMeta($resource, $attribute);
 
-        $this->updateFieldValue($resource, $attribute, $properties);
-
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
 
         $this->withMeta([
@@ -91,6 +89,8 @@ class NovaInlineRelationship extends Field
             'singular' => $this->isSingularRelationship($resource, $attribute),
             'deletable' => $this->isRelationshipDeletable($resource, $attribute),
         ]);
+
+        $this->updateFieldValue($resource, $attribute, $properties);
     }
 
     /**
