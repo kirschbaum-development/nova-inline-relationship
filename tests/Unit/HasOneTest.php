@@ -54,9 +54,40 @@ class HasOneTest extends TestCase
     {
         $request = [
             'name' => 'Test',
+            'profile' => [
+                [
+                    'phone' => '123123123',
+                ],
+            ],
         ];
 
         $newEmployee = new Employee();
-        //$this->employeeResource->fill(new NovaRequest($request), $newEmployee));
+        $this->employeeResource->fill(new NovaRequest($request), $newEmployee);
+
+        $this->assertEmpty($newEmployee->profile);
+
+        $newEmployee->save();
+
+        tap($newEmployee->fresh()->profile, function ($profile) {
+            $this->assertNotEmpty($profile);
+            $this->assertEquals($profile->phone, '123123123');
+        });
+
+        $updateRequest = [
+            'name' => 'Test 2',
+            'profile' => [
+                [
+                    'phone' => '456456456',
+                ],
+            ],
+        ];
+
+        $this->employeeResource->fillForUpdate(new NovaRequest($updateRequest), $newEmployee);
+
+        $newEmployee->save();
+
+        tap($newEmployee->fresh()->profile, function ($profile) {
+            $this->assertEquals($profile->phone, '456456456');
+        });
     }
 }
