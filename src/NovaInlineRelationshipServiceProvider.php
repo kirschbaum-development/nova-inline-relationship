@@ -6,6 +6,7 @@ use Laravel\Nova\Nova;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Events\ServingNova;
 use Illuminate\Support\ServiceProvider;
+use KirschbaumDevelopment\NovaInlineRelationship\Helpers\NovaInlineRelationshipHelper;
 use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\UnsupportedRelationshipType;
 
 class NovaInlineRelationshipServiceProvider extends ServiceProvider
@@ -23,9 +24,7 @@ class NovaInlineRelationshipServiceProvider extends ServiceProvider
         });
 
         Field::macro('inline', function () {
-            $className = '\\KirschbaumDevelopment\\NovaInlineRelationship\\Observers\\' . class_basename($this) . 'Observer';
-
-            if (! class_exists($className)) {
+            if (! class_exists(NovaInlineRelationshipHelper::getObserver($this))) {
                 throw UnsupportedRelationshipType::create(class_basename($this), $this->attribute);
             }
 

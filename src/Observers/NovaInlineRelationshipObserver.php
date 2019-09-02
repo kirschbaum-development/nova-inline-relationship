@@ -6,6 +6,7 @@ use Laravel\Nova\Nova;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
+use KirschbaumDevelopment\NovaInlineRelationship\Helpers\NovaInlineRelationshipHelper;
 
 class NovaInlineRelationshipObserver
 {
@@ -74,15 +75,15 @@ class NovaInlineRelationshipObserver
      * Checks if a relationship is singular
      *
      * @param Model $model
-     * @param $key
+     * @param $relationship
      *
      * @return RelationshipObservable
      */
-    public function getRelationshipObserver(Model $model, $key): RelationshipObservable
+    public function getRelationshipObserver(Model $model, $relationship): RelationshipObservable
     {
-        $className = '\\KirschbaumDevelopment\\NovaInlineRelationship\\Observers\\' . class_basename($model->{$key}()) . 'Observer';
+        $className = NovaInlineRelationshipHelper::getObserver($model->{$relationship}());
 
-        return class_exists($className) ? app($className) : null;
+        return class_exists($className) ? resolve($className) : null;
     }
 
     /**
