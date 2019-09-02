@@ -3,13 +3,9 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Tests;
 
 use Illuminate\Database\Eloquent\Model;
-use KirschbaumDevelopment\NovaInlineRelationship\Traits\HasRelatedAttributes;
-use KirschbaumDevelopment\NovaInlineRelationship\Contracts\MappableRelationships;
 
-class Employee extends Model implements MappableRelationships
+class Employee extends Model
 {
-    use HasRelatedAttributes;
-
     /* timestamps not needed it test class */
     public $timestamps = false;
 
@@ -20,18 +16,13 @@ class Employee extends Model implements MappableRelationships
      */
     protected $fillable = ['name'];
 
-    /**
-     * Should return property map as key value pair.
-     *
-     * @return array
-     */
-    public static function getPropertyMap(): array
-    {
-        return [];
-    }
-
     public function profile()
     {
         return $this->hasOne(Profile::class);
+    }
+
+    public function teams()
+    {
+        $this->belongsToMany(Team::class);
     }
 }
