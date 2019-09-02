@@ -2,13 +2,24 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Tests;
 
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
+use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationshipServiceProvider;
+use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\Employee as EmployeeResource;
 
 abstract class TestCase extends Orchestra
 {
-    /** @var Employee */
-    protected $testRelationshipMappableModel;
+    /**
+     * @var Employee
+     */
+    protected $employeeModel;
+
+    /**
+     * @var Resource\Employee
+     */
+    protected $employeeResource;
 
     /**
      * Setup the Tests.
@@ -17,21 +28,15 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->withFactories(realpath(dirname(__DIR__) . '/tests/factories'));
+        $this->setUpDatabase();
 
-        $this->loadMigrationsFrom(realpath(dirname(__DIR__)) . '/migrations');
-
-        $this->setUpDatabase($this->app);
-
-        $this->createTestModels();
-
-        $this->testRelationshipMappableModel = Employee::first();
+        $this->createTestModelsAndResources();
     }
 
     /**
      * Set up the environment.
      *
-     * @param \Illuminate\Foundation\Application $app
+     * @param Application $app
      */
     protected function getEnvironmentSetUp($app): void
     {
@@ -47,28 +52,67 @@ abstract class TestCase extends Orchestra
     /**
      * Set up the database.
      *
-     * @param \Illuminate\Foundation\Application $app
+     * @param Application $app
      */
-    protected function setUpDatabase($app): void
+    protected function setUpDatabase(): void
     {
-        $app['db']->connection()->getSchemaBuilder()->create('employees', function (Blueprint $table) {
+        $this->cleanupDatabase();
+        $this->createTables();
+    }
+
+    protected function cleanupDatabase()
+    {
+        Schema::dropIfExists('employees');
+        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('teams');
+        Schema::dropIfExists('employee_team');
+    }
+
+    protected function createTables()
+    {
+        $this->app['db']->connection()->getSchemaBuilder()->create('employees', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->softDeletes();
+            $table->timestamps();
         });
 
-        $app['db']->connection()->getSchemaBuilder()->create('profiles', function (Blueprint $table) {
+        $this->app['db']->connection()->getSchemaBuilder()->create('profiles', function (Blueprint $table) {
             $table->increments('id');
             $table->string('phone');
-            $table->softDeletes();
+            $table->integer('employee_id');
+            $table->timestamps();
+        });
+
+        $this->app['db']->connection()->getSchemaBuilder()->create('teams', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->timestamps();
+        });
+
+        $this->app['db']->connection()->getSchemaBuilder()->create('employee_team', function (Blueprint $table) {
+            $table->increments('employee_id');
+            $table->string('team_id');
         });
     }
 
     /**
      * Create RelationshipMappableModel Model for Testing.
      */
-    protected function createTestModels(): void
+    protected function createTestModelsAndResources(): void
     {
-        Employee::create(['name' => 'TestRelationshipMappableModel']);
+        $this->employeeModel = Employee::create(['name' => 'test']);
+        $this->employeeResource = new EmployeeResource($this->employeeModel);
+    }
+
+    /**
+     * Load package service provider.
+     *
+     * @param Application $app
+     *
+     * @return array
+     */
+    protected function getPackageProviders($app)
+    {
+        return [NovaInlineRelationshipServiceProvider::class];
     }
 }
