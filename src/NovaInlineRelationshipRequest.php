@@ -4,8 +4,8 @@ namespace KirschbaumDevelopment\NovaInlineRelationship;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class NovaInlineRelationshipRequest extends NovaRequest
 {
@@ -20,18 +20,18 @@ class NovaInlineRelationshipRequest extends NovaRequest
     /**
      *
      *
-     * @param array $files
+     * @param Collection $files
      */
-    public function updateFiles(array $files)
+    public function updateConvertedFiles(Collection $files)
     {
         if (! empty($files)) {
             $this->clearConvertedFiles();
 
-            foreach ($files as $key => $file) {
+            $files->each(function ($file, $key) {
                 if ($file instanceof UploadedFile) {
                     $this->convertedFiles[$key] = $file;
                 }
-            }
+            });
         }
     }
 
