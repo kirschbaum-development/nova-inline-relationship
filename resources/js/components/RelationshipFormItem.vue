@@ -106,10 +106,8 @@
                 return _.tap(new FormData(), formData => {
                     _(this.$refs).each(item => {
                         if (item[0].field.component === 'file-field'){
-	                          if (item[0].file){
+                            if (item[0].file){
                                 formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
-                            } else if (item[0].value){
-                                formData.append(item[0].field.attrib, String(item[0].value))
                             }
                         } else if (item[0].field.component === 'boolean-field'){
                             formData.append(item[0].field.attribute, item[0].trueValue);
