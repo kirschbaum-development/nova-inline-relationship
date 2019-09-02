@@ -18,7 +18,7 @@ class NovaInlineRelationshipRequest extends NovaRequest
     }
 
     /**
-     *
+     * Update list of converted files
      *
      * @param Collection $files
      */
@@ -36,12 +36,7 @@ class NovaInlineRelationshipRequest extends NovaRequest
     }
 
     /**
-     * Create a new request instance from the given Laravel request.
-     *
-     * @param  \Illuminate\Http\Request  $from
-     * @param  \Illuminate\Http\Request|null  $to
-     *
-     * @return static
+     * {@inheritdoc}
      */
     public static function createFrom(Request $from, $to = null)
     {
