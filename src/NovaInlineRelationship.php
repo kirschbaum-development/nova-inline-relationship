@@ -283,7 +283,7 @@ class NovaInlineRelationship extends Field
         /** @var array $attribArray */
         $attribArray = [];
 
-        $properties->each(function ($child, $childAttribute) use ($attribute, $ruleArray, $messageArray, $attribArray) {
+        $properties->each(function ($child, $childAttribute) use ($attribute, &$ruleArray, &$messageArray, &$attribArray) {
             if (! empty($child['rules'])) {
                 $name = sprintf('%s.*.%s', $attribute, $childAttribute);
                 $ruleArray[$name] = $child['rules'];
