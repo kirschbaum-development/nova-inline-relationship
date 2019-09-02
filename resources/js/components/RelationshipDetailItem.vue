@@ -47,6 +47,8 @@
           <component
             :is="'detail-' + parameter.meta.component"
             :field="parameter.meta"
+            :resource-id="modelId"
+            :resource-name="modelKey"
           />
         </div>
       </div>
@@ -59,14 +61,16 @@
         name: "RelationshipDetailItem",
 
         props: {
-            'value': Object,
-            'settings': Object,
-            'collapsed':{
+            value: Object,
+            settings: Object,
+            collapsed:{
                 type: Boolean,
                 default: false
             },
-            'label': String,
-            'id': Number
+            label: String,
+            id: Number,
+            modelId: Number,
+            modelKey: String,
         },
 
         data: function (){
@@ -96,8 +100,6 @@
                 return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : ''
             },
         },
-
-
 
         watch : {
             'collapsed' : function (){

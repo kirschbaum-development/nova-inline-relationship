@@ -14,6 +14,8 @@
           :id="index"
           :key="index"
           :value="item"
+          :model-id="field.models[index]||0"
+          :model-key="field.modelKey"
           :label="field.singularLabel"
           :settings="field.settings"
           :collapsed="collapsed"
