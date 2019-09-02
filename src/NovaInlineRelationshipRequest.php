@@ -36,64 +36,6 @@ class NovaInlineRelationshipRequest extends NovaRequest
     }
 
     /**
-     * Set route parameters
-     *
-     * @param array $params
-     */
-    public function setRouteParams(array $params)
-    {
-        foreach ($params as $key => $value) {
-            $this->route()->setParameter($key, $value);
-        }
-    }
-
-    /**
-     * Create a new NovaRequest object using an existing one
-     *
-     * @param NovaRequest $request
-     */
-    public static function createFromNovaRequest(NovaRequest $request)
-    {
-        (new static)->duplicate($request);
-    }
-
-    /**
-     * Create an Illuminate request from a Symfony instance.
-     *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
-     *
-     * @return static
-     */
-    public static function createFromBase(SymfonyRequest $request)
-    {
-        if ($request instanceof static) {
-            return $request;
-        }
-
-        $content = $request->content;
-
-        $newRequest = (new static)->duplicate(
-            $request->query->all(),
-            $request->request->all(),
-            $request->attributes->all(),
-            $request->cookies->all(),
-            $request->files->all(),
-            $request->server->all()
-        );
-
-        $newRequest->headers->replace($request->headers->all());
-
-        $newRequest->content = $content;
-
-        $newRequest->request = $newRequest->getInputSource();
-
-        $newRequest->setRouteResolver(function () {
-        });
-
-        return $newRequest;
-    }
-
-    /**
      * Create a new request instance from the given Laravel request.
      *
      * @param  \Illuminate\Http\Request  $from
