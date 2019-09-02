@@ -361,6 +361,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 
@@ -495,19 +497,23 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "RelationshipDetailItem",
 
     props: {
-        'value': Object,
-        'settings': Object,
-        'collapsed': {
+        value: Object,
+        settings: Object,
+        collapsed: {
             type: Boolean,
             default: false
         },
-        'label': String,
-        'id': Number
+        label: String,
+        id: Number,
+        modelId: Number,
+        modelKey: String
     },
 
     data: function data() {
@@ -641,7 +647,11 @@ var render = function() {
                   [
                     _c("detail-" + parameter.meta.component, {
                       tag: "component",
-                      attrs: { field: parameter.meta }
+                      attrs: {
+                        field: parameter.meta,
+                        "resource-id": _vm.modelId,
+                        "resource-name": _vm.modelKey
+                      }
                     })
                   ],
                   1
@@ -696,6 +706,8 @@ var render = function() {
             attrs: {
               id: index,
               value: item,
+              "model-id": _vm.field.models[index] || 0,
+              "model-key": _vm.field.modelKey,
               label: _vm.field.singularLabel,
               settings: _vm.field.settings,
               collapsed: _vm.collapsed
@@ -17042,8 +17054,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                     if (item[0].field.component === 'file-field') {
                         if (item[0].file) {
                             formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
-                        } else if (item[0].value) {
-                            formData.append(item[0].field.attrib, String(item[0].value));
                         }
                     } else if (item[0].field.component === 'boolean-field') {
                         formData.append(item[0].field.attribute, item[0].trueValue);
