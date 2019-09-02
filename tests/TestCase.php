@@ -2,6 +2,7 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Tests;
 
+use Laravel\Nova\Nova;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -100,6 +101,8 @@ abstract class TestCase extends Orchestra
      */
     protected function createTestModelsAndResources(): void
     {
+        Nova::$resourcesByModel[Employee::class] = EmployeeResource::class;
+
         $this->employeeModel = Employee::create(['name' => 'test']);
         $this->employeeResource = new EmployeeResource($this->employeeModel);
     }
