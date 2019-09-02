@@ -1,9 +1,7 @@
 ![Banner](resources/imgs/banner.jpg "Banner")
 
-## Introduction
-Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource. You are welcome to request or contribute by opening an issue.
-
-![Nova Inline Relationship](screenshots/NovaInlineRelationship.png "Nova Inline Relationship")
+## Nova Inline Relationship
+Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource.
 
 ## Requirements
 
@@ -19,85 +17,80 @@ composer require kirschbaum-development/nova-inline-relationship
 
 ## Usage
 
-To use `NovaInlineRelationship` to your Model's resource all you need to do is to add an inline method to the regular syntax of your related Model's Resource. 
+To use `NovaInlineRelationship` in your Model's resource all you need to do is to add an inline method to the regular syntax of your related Model's Resource field(s).
 
-If we assume that an Employee Models has a one-to-one relationship with `EmployeeProfile` and one-to-many relationship with `EmployeeBill` model then the code will look like:
- 
+If we assume that a `BlogPost` model has a one-to-many relationship with `Image`, your `BlogPost` resource would like the following:
+
 ```php
 namespace App\Nova;
 
-class Employee extends Resource
+class BlogPost extends Resource
 {
-    
     //...
     public function fields(Request $request)
     {
         return [
             //...
 
-            HasOne::make('Profile', 'profile', EmployeeProfile::class)->inline(),
-            
-            HasMany::make('Bills', 'bills', EmployeeBill::class)->inline(),
+            HasMany::make('Images', 'images', Image::class)->inline(),
         ];
     }
 }
-``` 
-**_NOTE:_** You will need to add NovaResources for `EmployeeProfile` and `EmployeeBill` Model and all the field and rules will be fetch from it.
+```
+**_NOTE:_** You will need to add a Nova Resource for `Image` - all of the fields and rules will be retrieved from the specified resource. You must specify the resource as the third argument to the Relationship field.
 
 ## Adding related models
 
 ![Create View](screenshots/CreateView.png "Create View")
 
-After setup you can add new related models directly while creating a new base model. For example, If you have added an `EmployeeProfile` model as a related model for your `Employee` model, you can infact add information for a related `EmployeeProfile` model without going through an additional step. You can use the `Add new Profile` button to add a new  blank profile
+After setup you can add new related models directly while creating a new base model. You can use the `Add new Image` button to add a new `Image` to the `BlogPost`:
 
-![Create Related Model](screenshots/CreateRelatedModel.png "Create Related Model")
-
-## Adding multiple related models
-
-If your relationship is a `one-to-many` relationship you can add multiple related models in a one go. 
-
-![Multiple Related Model](screenshots/MultipleRelatedModels.png "Multiple Related Model")
+![Create Related Model](screenshots/CreateViewExpanded.png "Create Related Model")
 
 ## Viewing related models
 
-Once you add your related models and visit your base model's detail view you can watch your related models in a collapsible view. So when you will watch an `Employee` model, you can watch `EmployeeProfile` models in a collapsible view.
+Related models will also now be displayed inline as well:
 
 ![Detail View](screenshots/DetailView.png "Detail View")
 
-## Updating related models 
+## Updating related models
 
-When you will edit your base model, you will be able to add, update and remove your related model's in a view similar to create form.
+You can also update, re-arrange (for one-to-many relationships), and delete related models:
 
-For `one-to-many` relationships you can drag and drop related models to rearrange them in relation to your base model.
+![Rearrange Models](screenshots/UpdateView.png "Rearrange Models")
 
-![Rearrange Models](screenshots/RearrangeModels.png "Rearrange Models")
+## Supported Relationships
 
-## Deleting related models
+The following eloquent relationships are currently support with plans to add additional ones in the future:
 
-You can delete related models from the base model's update view by using the `delete button` at the top right corner.
+- BelongsTo
+- HasOne
+- HasMany
+- MorphOne
+- MorphMany
 
 ## Supported fields
 
-You can use any field you can add to your Nova resource with `Field::make` syntax. The following native Nova 2.0 fields are confirmed to work.
+The following native Nova 2.0 fields are confirmed to work.
 
-- Boolean Field
-- Code Field
-- Country Field
-- Currency Field
-- Date Field
-- DateTime Field
-- Markdown Field
-- Number Field
-- Password Field
-- Place Field
-- Select Field
-- Text Field
-- Textarea Field
-- Timezone Field
-- Trix Field
-- Avatar Field
-- Image Field
-- File Field
+- Boolean
+- Code
+- Country
+- Currency
+- Date
+- DateTime
+- Markdown
+- Number
+- Password
+- Place
+- Select
+- Text
+- Textarea
+- Timezone
+- Trix
+- Avatar
+- Image
+- File
 
 ## Changelog
 
