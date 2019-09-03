@@ -9,6 +9,13 @@ use Laravel\Nova\Fields\HasMany;
 
 class Employee extends Resource
 {
+    /**
+     * The model the resource corresponds to.
+     *
+     * @var string
+     */
+    public static $model = \KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee::class;
+
     public function fields(Request $request)
     {
         return [

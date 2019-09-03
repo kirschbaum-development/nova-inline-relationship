@@ -11,7 +11,7 @@ class Profile extends Resource
     public function fields(Request $request)
     {
         return [
-            Text::make('Phone'),
+            Text::make('Phone')->rules('required'),
         ];
     }
 }
