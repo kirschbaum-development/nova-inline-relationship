@@ -2,11 +2,14 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Tests;
 
+use App\Nova\Resource;
 use Laravel\Nova\Nova;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
+use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationshipServiceProvider;
 use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\Employee as EmployeeResource;
 
@@ -32,6 +35,17 @@ abstract class TestCase extends Orchestra
         $this->setUpDatabase();
 
         $this->createTestModelsAndResources();
+    }
+
+    /**
+     * Set resource for a model in Nova
+     *
+     * @param string $model
+     * @param string $resource
+     */
+    public function setResourceForModel(string $model, string $resource)
+    {
+        Nova::$resourcesByModel[$model] = $resource;
     }
 
     /**
@@ -61,16 +75,40 @@ abstract class TestCase extends Orchestra
         $this->createTables();
     }
 
+    /**
+     * Remove existing tables
+     */
     protected function cleanupDatabase()
     {
+        Schema::dropIfExists('departments');
+        Schema::dropIfExists('users');
         Schema::dropIfExists('employees');
         Schema::dropIfExists('profiles');
+        Schema::dropIfExists('bills');
+        Schema::dropIfExists('summaries');
+        Schema::dropIfExists('comments');
         Schema::dropIfExists('teams');
         Schema::dropIfExists('employee_team');
     }
 
+    /**
+     * Generate tables required for tests
+     */
     protected function createTables()
     {
+        $this->app['db']->connection()->getSchemaBuilder()->create('departments', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->timestamps();
+        });
+
+        $this->app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('department_id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
         $this->app['db']->connection()->getSchemaBuilder()->create('employees', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
@@ -84,6 +122,27 @@ abstract class TestCase extends Orchestra
             $table->timestamps();
         });
 
+        $this->app['db']->connection()->getSchemaBuilder()->create('bills', function (Blueprint $table) {
+            $table->increments('id');
+            $table->decimal('amount', 5, 2);
+            $table->integer('employee_id');
+            $table->timestamps();
+        });
+
+        $this->app['db']->connection()->getSchemaBuilder()->create('summaries', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('text');
+            $table->morphs('summarizable');
+            $table->timestamps();
+        });
+
+        $this->app['db']->connection()->getSchemaBuilder()->create('comments', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('text');
+            $table->morphs('commentable');
+            $table->timestamps();
+        });
+
         $this->app['db']->connection()->getSchemaBuilder()->create('teams', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
@@ -93,6 +152,7 @@ abstract class TestCase extends Orchestra
         $this->app['db']->connection()->getSchemaBuilder()->create('employee_team', function (Blueprint $table) {
             $table->increments('employee_id');
             $table->string('team_id');
+            $table->timestamps();
         });
     }
 
@@ -101,7 +161,7 @@ abstract class TestCase extends Orchestra
      */
     protected function createTestModelsAndResources(): void
     {
-        Nova::$resourcesByModel[Employee::class] = EmployeeResource::class;
+        $this->setResourceForModel(Employee::class, EmployeeResource::class);
 
         $this->employeeModel = Employee::create(['name' => 'test']);
         $this->employeeResource = new EmployeeResource($this->employeeModel);
@@ -117,5 +177,14 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [NovaInlineRelationshipServiceProvider::class];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        NovaInlineRelationship::$observedModels = [];
     }
 }
