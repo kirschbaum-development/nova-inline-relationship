@@ -73,6 +73,8 @@ class HasOneTest extends TestCase
             $this->assertEquals($profile->phone, '123123123');
         });
 
+        $id = $newEmployee->fresh()->profile->id;
+
         $updateRequest = [
             'name' => 'Test 2',
             'profile' => [
@@ -86,8 +88,9 @@ class HasOneTest extends TestCase
 
         $newEmployee->save();
 
-        tap($newEmployee->fresh()->profile, function ($profile) {
+        tap($newEmployee->fresh()->profile, function ($profile) use ($id) {
             $this->assertEquals($profile->phone, '456456456');
+            $this->assertEquals($profile->id, $id);
         });
     }
 }
