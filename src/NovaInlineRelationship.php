@@ -8,6 +8,7 @@ use App\Nova\Resource;
 use Laravel\Nova\Nova;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Field;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -364,7 +365,7 @@ class NovaInlineRelationship extends Field
 
                     $newRequest = $this->getDuplicateRequest($request, $item);
 
-                    return $this->getValueFromField($field, $newRequest, $key) ?? null;
+                    return $this->getValueFromField($field, $newRequest, $key) ?? ((($field instanceof File) && ! empty($value)) ? $value : null);
                 }
 
                 return $value;

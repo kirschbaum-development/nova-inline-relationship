@@ -19,7 +19,7 @@ class HasOneObserver extends BaseObserver
             } else {
                 $childModel->delete();
             }
-        } else {
+        } elseif (count($value)) {
             $model->{$attribute}()->create($value[0]);
         }
     }
@@ -29,6 +29,8 @@ class HasOneObserver extends BaseObserver
      */
     public function created(Model $model, $attribute, $value)
     {
-        $model->{$attribute}()->create($value[0]);
+        if (count($value)) {
+            $model->{$attribute}()->create($value[0]);
+        }
     }
 }

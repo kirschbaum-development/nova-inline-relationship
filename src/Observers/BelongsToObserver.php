@@ -23,8 +23,10 @@ class BelongsToObserver extends BaseObserver
      */
     public function creating(Model $model, $attribute, $value)
     {
-        $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]);
-        $parentModel->save();
-        $model->{$attribute}()->associate($parentModel);
+        if (count($value)) {
+            $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]);
+            $parentModel->save();
+            $model->{$attribute}()->associate($parentModel);
+        }
     }
 }
