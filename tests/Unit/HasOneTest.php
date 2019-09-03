@@ -5,6 +5,7 @@ namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Unit;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use KirschbaumDevelopment\NovaInlineRelationship\Tests\Profile;
 use KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee;
@@ -92,5 +93,22 @@ class HasOneTest extends TestCase
             $this->assertEquals($profile->phone, '456456456');
             $this->assertEquals($profile->id, $id);
         });
+    }
+
+    public function testRuleIsEnforced()
+    {
+        $request = [
+            'name' => 'Test',
+            'profile' => [
+                [
+                    'phone' => null,
+                ],
+            ],
+        ];
+
+        $this->employeeResource->resolveFieldForAttribute(new NovaRequest(), 'profile');
+
+        $this->expectException(ValidationException::class);
+        $this->employeeResource::validateForUpdate(new NovaRequest($request));
     }
 }
