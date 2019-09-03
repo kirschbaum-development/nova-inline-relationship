@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
-    /* timestamps not needed it test class */
-    public $timestamps = false;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -21,8 +18,23 @@ class Employee extends Model
         return $this->hasOne(Profile::class);
     }
 
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
+
+    public function summary()
+    {
+        return $this->morphOne(Summary::class, 'summarizable');
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
     public function teams()
     {
-        $this->belongsToMany(Team::class);
+        return $this->belongsToMany(Team::class);
     }
 }
