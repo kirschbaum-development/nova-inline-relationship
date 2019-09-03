@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use KirschbaumDevelopment\NovaInlineRelationship\Tests\Profile;
 use KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee;
 use KirschbaumDevelopment\NovaInlineRelationship\Tests\TestCase;
+use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\Employee as EmployeeResource;
 
 class HasOneTest extends TestCase
 {
@@ -21,6 +22,8 @@ class HasOneTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->employeeResource = new EmployeeResource($this->employeeModel);
     }
 
     public function testResolveEmpty()
@@ -41,11 +44,11 @@ class HasOneTest extends TestCase
         tap($inlineField->value->first(), function ($profile) {
             $this->assertArrayHasKey('phone', $profile->all());
             tap($profile->get('phone'), function ($phone) {
-                $this->assertEquals($phone['component'], Text::class);
-                $this->assertEquals($phone['attribute'], 'phone');
+                $this->assertEquals(Text::class, $phone['component']);
+                $this->assertEquals('phone', $phone['attribute']);
                 tap($phone['meta'], function ($meta) {
-                    $this->assertEquals($meta['component'], 'text-field');
-                    $this->assertEquals($meta['value'], '123234234');
+                    $this->assertEquals('text-field', $meta['component']);
+                    $this->assertEquals('123234234', $meta['value']);
                 });
             });
         });
@@ -63,6 +66,7 @@ class HasOneTest extends TestCase
         ];
 
         $newEmployee = new Employee();
+
         $this->employeeResource->fill(new NovaRequest($request), $newEmployee);
 
         $this->assertEmpty($newEmployee->profile);
@@ -71,8 +75,14 @@ class HasOneTest extends TestCase
 
         tap($newEmployee->fresh()->profile, function ($profile) {
             $this->assertNotEmpty($profile);
-            $this->assertEquals($profile->phone, '123123123');
+            $this->assertEquals('123123123', $profile->phone);
         });
+    }
+
+    public function testFillAttributeForUpdate()
+    {
+        $newEmployee = Employee::create(['name' => 'Test']);
+        $newEmployee->profile()->save(Profile::make(['phone' => '123123123']));
 
         $id = $newEmployee->fresh()->profile->id;
 
@@ -90,9 +100,31 @@ class HasOneTest extends TestCase
         $newEmployee->save();
 
         tap($newEmployee->fresh()->profile, function ($profile) use ($id) {
-            $this->assertEquals($profile->phone, '456456456');
-            $this->assertEquals($profile->id, $id);
+            $this->assertEquals('456456456', $profile->phone);
+            $this->assertEquals($id, $profile->id);
         });
+    }
+
+    public function testFillAttributeForDelete()
+    {
+        $newEmployee = Employee::create(['name' => 'Test']);
+        $newEmployee->profile()->save(Profile::make(['phone' => '123123123']));
+
+        $id = $newEmployee->fresh()->profile->id;
+
+        $updateRequest = [
+            'name' => 'Test 2',
+            'profile' => [
+            ],
+        ];
+
+        $this->employeeResource->fillForUpdate(new NovaRequest($updateRequest), $newEmployee);
+
+        $this->assertNotEmpty($newEmployee->profile);
+
+        $newEmployee->save();
+
+        $this->assertEmpty($newEmployee->fresh()->profile);
     }
 
     public function testRuleIsEnforced()
