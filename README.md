@@ -1,7 +1,7 @@
 ![Banner](resources/imgs/banner.jpg "Banner")
 
 ## Nova Inline Relationship
-Nova Inline Relationship is meant to present a relationship based property as an inline property for a Laravel Nova Resource.
+Nova Inline Relationship allows you to manage (add/edit/update/delete/reorder) an object's relationships directly from the parent object's create/edit screens. By presenting relationships as inline properties you can provide content editors with a streamlined and efficient workflow for managing complex data.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ composer require kirschbaum-development/nova-inline-relationship
 
 To use `NovaInlineRelationship` in your Model's resource all you need to do is to add an inline method to the regular syntax of your related Model's Resource field(s).
 
-If we assume that a `BlogPost` model has a one-to-many relationship with `Image`, your `BlogPost` resource would like the following:
+If we assume that a `BlogPost` model has a one-to-many relationship with `Image`, your `BlogPost` resource would look like the following:
 
 ```php
 namespace App\Nova;
