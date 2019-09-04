@@ -23,6 +23,7 @@ If we assume that a `BlogPost` model has a one-to-many relationship with `Image`
 
 ```php
 namespace App\Nova;
+use Laravel\Nova\Fields\Image;
 
 class BlogPost extends Resource
 {
@@ -37,7 +38,7 @@ class BlogPost extends Resource
     }
 }
 ```
-**_NOTE:_** You will need to add a Nova Resource for `Image` - all of the fields and rules will be retrieved from the specified resource. You must specify the resource as the third argument to the Relationship field.
+**_NOTE:_** You will need to add a Nova Resource for `Image` - all of the fields and rules will be retrieved from the specified resource. You must specify the resource as the third argument to the Relationship field as illustrated above.
 
 ## Adding related models
 
@@ -61,7 +62,7 @@ You can also update, re-arrange (for one-to-many relationships), and delete rela
 
 ## Supported Relationships
 
-The following eloquent relationships are currently support with plans to add additional ones in the future:
+The following eloquent relationships are currently supported:
 
 - BelongsTo
 - HasOne
