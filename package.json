@@ -16,6 +16,10 @@
     },
     "dependencies": {
         "vue": "^2.5.0",
-        "vuedraggable": "^2.20.0"
+        "vuedraggable": "^2.20.0",
+        "lodash.template": "^4.5.0",
+        "mem": "^4.0.0",
+        "js-yaml": "^3.13.1",
+        "webpack-dev-server": "^3.1.11"
     }
 }
