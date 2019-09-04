@@ -1,4 +1,4 @@
-![Banner](resources/imgs/banner.jpg "Banner")
+![Banner](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/resources/imgs/banner.jpg "Banner")
 
 ## Nova Inline Relationship
 Nova Inline Relationship allows you to manage (add/edit/update/delete/reorder) an object's relationships directly from the parent object's create/edit screens. By presenting relationships as inline properties you can provide content editors with a streamlined and efficient workflow for managing complex data.
@@ -47,19 +47,19 @@ class BlogPost extends Resource
 
 After setup you can add new related models directly while creating a new base model. You can use the `Add new Image` button to add a new `Image` to the `BlogPost`:
 
-![Create Related Model](screenshots/CreateViewExpanded.png "Create Related Model")
+![Create Related Model](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/screenshots/CreateViewExpanded.png "Create Related Model")
 
 ## Viewing related models
 
 Related models will also now be displayed inline as well:
 
-![Detail View](screenshots/DetailView.png "Detail View")
+![Detail View](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/screenshots/DetailView.png "Detail View")
 
 ## Updating related models
 
 You can also update, re-arrange (for one-to-many relationships), and delete related models:
 
-![Rearrange Models](screenshots/UpdateView.png "Rearrange Models")
+![Rearrange Models](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/screenshots/UpdateView.png "Rearrange Models")
 
 ## Supported Relationships
 
