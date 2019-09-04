@@ -22,7 +22,7 @@
           {{ field.singularLabel }} {{ id+1 }}
         </h4>
       </div>
-      <div class="w-1/4 text-right">
+      <div v-if="field.deletable" class="w-1/4 text-right">
         <button
           class="btn btn-default btn-icon btn bg-transparent hover:bg-danger text-danger hover:text-white border border-danger hover:border-transparent inline-flex items-center relative mr-3"
           title="Delete"
@@ -88,7 +88,7 @@
                                 ...this.value[attrib].meta,
                                 ...{
                                     'attribute': (this.value[attrib].meta.component === "file-field") ?
-                                        attrib :
+                                        attrib + '?' + this.id :
                                         this.field.attribute + '_' + this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
                                     'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
                                     'deletable': this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
@@ -107,9 +107,9 @@
                     _(this.$refs).each(item => {
                         if (item[0].field.component === 'file-field'){
                             if (item[0].file){
-                                formData.append(item[0].field.attribute, item[0].file, item[0].fileName);
+                                formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
                             } else if (item[0].value){
-                                formData.append(item[0].field.attribute, String(item[0].value))
+	                            formData.append(item[0].field.attrib, String(item[0].value))
                             }
                         } else if (item[0].field.component === 'boolean-field'){
                             formData.append(item[0].field.attribute, item[0].trueValue);

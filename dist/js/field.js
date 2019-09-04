@@ -361,6 +361,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 
@@ -495,19 +497,23 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "RelationshipDetailItem",
 
     props: {
-        'value': Object,
-        'settings': Object,
-        'collapsed': {
+        value: Object,
+        settings: Object,
+        collapsed: {
             type: Boolean,
             default: false
         },
-        'label': String,
-        'id': Number
+        label: String,
+        id: Number,
+        modelId: Number,
+        modelKey: String
     },
 
     data: function data() {
@@ -641,7 +647,11 @@ var render = function() {
                   [
                     _c("detail-" + parameter.meta.component, {
                       tag: "component",
-                      attrs: { field: parameter.meta }
+                      attrs: {
+                        field: parameter.meta,
+                        "resource-id": _vm.modelId,
+                        "resource-name": _vm.modelKey
+                      }
                     })
                   ],
                   1
@@ -696,6 +706,8 @@ var render = function() {
             attrs: {
               id: index,
               value: item,
+              "model-id": _vm.field.models[index] || 0,
+              "model-key": _vm.field.modelKey,
               label: _vm.field.singularLabel,
               settings: _vm.field.settings,
               collapsed: _vm.collapsed
@@ -902,11 +914,15 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         fillValueFromChildren: function fillValueFromChildren(formData) {
             var _this2 = this;
 
-            _(this.$refs).each(function (item) {
-                if (item && Array.isArray(item) && item[0]) {
-                    item[0].fill(formData, _this2.field.attribute);
-                }
-            });
+            if (!_.isEmpty(this.$refs[0])) {
+                _(this.$refs).each(function (item) {
+                    if (item && Array.isArray(item) && item[0]) {
+                        item[0].fill(formData, _this2.field.attribute);
+                    }
+                });
+            } else {
+                formData.append(this.field.attribute, []);
+            }
         },
 
         /**
@@ -17028,7 +17044,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 return _extends({
                     'options': {}
                 }, _this.value[attrib].meta, {
-                    'attribute': _this.value[attrib].meta.component === "file-field" ? attrib : _this.field.attribute + '_' + _this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
+                    'attribute': _this.value[attrib].meta.component === "file-field" ? attrib + '?' + _this.id : _this.field.attribute + '_' + _this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
                     'name': _this.field.attribute + '[' + _this.id + '][' + attrib + ']',
                     'deletable': _this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                     'attrib': attrib
@@ -17045,9 +17061,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 _(_this2.$refs).each(function (item) {
                     if (item[0].field.component === 'file-field') {
                         if (item[0].file) {
-                            formData.append(item[0].field.attribute, item[0].file, item[0].fileName);
+                            formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
                         } else if (item[0].value) {
-                            formData.append(item[0].field.attribute, String(item[0].value));
+                            formData.append(item[0].field.attrib, String(item[0].value));
                         }
                     } else if (item[0].field.component === 'boolean-field') {
                         formData.append(item[0].field.attribute, item[0].trueValue);
@@ -17138,47 +17154,49 @@ var render = function() {
           ])
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "w-1/4 text-right" }, [
-          _c(
-            "button",
-            {
-              staticClass:
-                "btn btn-default btn-icon btn bg-transparent hover:bg-danger text-danger hover:text-white border border-danger hover:border-transparent inline-flex items-center relative mr-3",
-              attrs: { title: "Delete" },
-              on: {
-                click: function($event) {
-                  $event.preventDefault()
-                  return _vm.removeItem()
-                }
-              }
-            },
-            [
+        _vm.field.deletable
+          ? _c("div", { staticClass: "w-1/4 text-right" }, [
               _c(
-                "svg",
+                "button",
                 {
-                  staticClass: "fill-current text-0",
-                  attrs: {
-                    xmlns: "http://www.w3.org/2000/svg",
-                    width: "20",
-                    height: "20",
-                    viewBox: "0 0 20 20",
-                    "aria-labelledby": "delete",
-                    role: "presentation"
+                  staticClass:
+                    "btn btn-default btn-icon btn bg-transparent hover:bg-danger text-danger hover:text-white border border-danger hover:border-transparent inline-flex items-center relative mr-3",
+                  attrs: { title: "Delete" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.removeItem()
+                    }
                   }
                 },
                 [
-                  _c("path", {
-                    attrs: {
-                      "fill-rule": "nonzero",
-                      d:
-                        "M6 4V2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2h5a1 1 0 0 1 0 2h-1v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6H1a1 1 0 1 1 0-2h5zM4 6v12h12V6H4zm8-2V2H8v2h4zM8 8a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1z"
-                    }
-                  })
+                  _c(
+                    "svg",
+                    {
+                      staticClass: "fill-current text-0",
+                      attrs: {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: "20",
+                        height: "20",
+                        viewBox: "0 0 20 20",
+                        "aria-labelledby": "delete",
+                        role: "presentation"
+                      }
+                    },
+                    [
+                      _c("path", {
+                        attrs: {
+                          "fill-rule": "nonzero",
+                          d:
+                            "M6 4V2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2h5a1 1 0 0 1 0 2h-1v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6H1a1 1 0 1 1 0-2h5zM4 6v12h12V6H4zm8-2V2H8v2h4zM8 8a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1z"
+                        }
+                      })
+                    ]
+                  )
                 ]
               )
-            ]
-          )
-        ])
+            ])
+          : _vm._e()
       ]),
       _vm._v(" "),
       _vm._l(_vm.fields, function(field, attrib) {

@@ -4,47 +4,57 @@ namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Laravel\Nova\Nova;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
+use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
+use KirschbaumDevelopment\NovaInlineRelationship\Helpers\NovaInlineRelationshipHelper;
 
 class NovaInlineRelationshipObserver
 {
+    /**
+     * Handle updating event for the model
+     *
+     * @param Model $model
+     *
+     * @return mixed
+     */
     public function updating(Model $model)
     {
-        $modelClass = get_class($model);
-
-        $relationships = $this->getModelRelationships($model);
-
-        $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
-
-        foreach ($relationships as $relationship) {
-            $count = count($relatedModelAttribs[$relationship] ?? []);
-
-            if ($count) {
-                if ($this->isSingularRelationship($model, $relationship)) {
-                    $count = 1;
-                }
-
-                $models = $model->{$relationship}()->get()->all();
-
-                for ($i = 0; $i < $count; $i++) {
-                    if ($i < count($models)) {
-                        $models[$i]->update($relatedModelAttribs[$relationship][$i]);
-                    } else {
-                        $model->{$relationship}()->create($relatedModelAttribs[$relationship][$i]);
-                    }
-                }
-
-                if ($count < count($models)) {
-                    for ($i = $count; $i < count($models); $i++) {
-                        $models[$i]->delete();
-                    }
-                }
-            }
-        }
+        $this->callEvent($model, 'updating');
     }
 
+    /**
+     * Handle updated event for the model
+     *
+     * @param Model $model
+     *
+     * @return mixed
+     */
     public function created(Model $model)
+    {
+        $this->callEvent($model, 'created');
+    }
+
+    /**
+     * Handle updating event for the model
+     *
+     * @param Model $model
+     *
+     * @return mixed
+     */
+    public function creating(Model $model)
+    {
+        $this->callEvent($model, 'creating');
+    }
+
+    /**
+     * Handle events for the model
+     *
+     * @param Model $model
+     * @param string $event
+     *
+     * @return mixed
+     */
+    public function callEvent(Model $model, string $event)
     {
         $modelClass = get_class($model);
 
@@ -53,10 +63,10 @@ class NovaInlineRelationshipObserver
         $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
 
         foreach ($relationships as $relationship) {
-            if ($this->isSingularRelationship($model, $relationship)) {
-                $model->{$relationship}()->create($relatedModelAttribs[$relationship][0]);
-            } else {
-                $model->{$relationship}()->createMany($relatedModelAttribs[$relationship]);
+            $observer = $this->getRelationshipObserver($model, $relationship);
+
+            if ($observer instanceof RelationshipObservable) {
+                $observer->{$event}($model, $relationship, $relatedModelAttribs[$relationship] ?? []);
             }
         }
     }
@@ -65,15 +75,15 @@ class NovaInlineRelationshipObserver
      * Checks if a relationship is singular
      *
      * @param Model $model
-     * @param $key
+     * @param $relationship
      *
-     * @return bool
+     * @return RelationshipObservable
      */
-    public function isSingularRelationship(Model $model, $key): bool
+    public function getRelationshipObserver(Model $model, $relationship): RelationshipObservable
     {
-        $relation = $model->{$key}();
+        $className = NovaInlineRelationshipHelper::getObserver($model->{$relationship}());
 
-        return ! ($relation->getResults() instanceof Collection);
+        return class_exists($className) ? resolve($className) : null;
     }
 
     /**
