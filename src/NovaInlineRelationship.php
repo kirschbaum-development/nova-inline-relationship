@@ -84,8 +84,8 @@ class NovaInlineRelationship extends Field
             'settings' => $properties->all(),
             'models' => $this->value ? $this->value->pluck('id')->all() : [],
             'modelKey' => Str::plural(Str::kebab(class_basename(optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance()))),
-            'singularLabel' => Str::title(Str::singular($attribute)),
-            'pluralLabel' => Str::title(Str::plural($attribute)),
+            'singularLabel' => Str::title(Str::singular($this->name)),
+            'pluralLabel' => Str::title(Str::plural($this->name)),
             'singular' => $this->isSingularRelationship($resource, $attribute),
             'deletable' => $this->isRelationshipDeletable($resource, $attribute),
         ]);
