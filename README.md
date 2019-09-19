@@ -1,4 +1,4 @@
-![Banner](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/resources/imgs/banner.jpg "Banner")
+![Banner](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/resources/imgs/banner.png "Banner")
 
 ## Nova Inline Relationship
 Nova Inline Relationship allows you to manage (add/edit/update/delete/reorder) an object's relationships directly from the parent object's create/edit screens. By presenting relationships as inline properties you can provide content editors with a streamlined and efficient workflow for managing complex data.
