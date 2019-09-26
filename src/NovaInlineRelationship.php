@@ -322,6 +322,8 @@ class NovaInlineRelationship extends Field
                 collect(class_uses($field))->contains(ResolvesReverseRelation::class) ||
                 $field instanceof self ||
                 ! $field->showOnUpdate;
+        })->reject(function($field){
+            return $field->seeCallback && !($field->seeCallback)(request());
         })->map(function ($value) {
             return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
         })->keyBy('attribute');
