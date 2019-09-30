@@ -237,6 +237,10 @@ class NovaInlineRelationship extends Field
             ]]);
         }
 
+        if (! empty($item['readonly'])) {
+            $class->readonly($item['readonly']);
+        }
+
         $item['meta'] = $class->jsonSerialize();
         // We are using Singular Label instead of name to display labels as compound name will be used in Vue
         $item['meta']['singularLabel'] = Str::title(Str::singular(str_replace('_', ' ', $item['label'] ?? $attrib)));
@@ -335,6 +339,8 @@ class NovaInlineRelationship extends Field
         /** @var Resource $resource */
         $resource = ! empty($this->resourceClass) ? new $this->resourceClass($model) : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
+        $request = app(NovaRequest::class);
+
         return collect($resource->availableFields(new NovaRequest()))->reject(function ($field) use ($resource) {
             return $field instanceof ListableField ||
                 $field instanceof ResourceToolElement ||
@@ -345,8 +351,15 @@ class NovaInlineRelationship extends Field
                 ! $field->showOnUpdate;
         })->reject(function($field){
             return $field->seeCallback && !($field->seeCallback)(request());
-        })->map(function ($value) {
-            return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
+        })->map(function ($value) use ($request) {
+            return [
+                'component' => get_class($value),
+                'label' => $value->name,
+                'options' => $value->meta,
+                'rules' => $value->rules,
+                'attribute' => $value->attribute,
+                'readonly' => $value->isReadonly($request),
+            ];
         })->keyBy('attribute');
     }
 
