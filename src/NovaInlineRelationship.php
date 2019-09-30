@@ -45,6 +45,10 @@ class NovaInlineRelationship extends Field
      */
     private $resourceClass;
 
+    /** closure to test if it can be deleted */
+    protected $deleteCallback;
+
+
     /**
      * Pass resourceClass to NovaInlineRelationship.
      *
@@ -55,6 +59,18 @@ class NovaInlineRelationship extends Field
     public function resourceClass(string $class): self
     {
         $this->resourceClass = $class;
+
+        return $this;
+    }
+
+    /**
+     * Pass closoure into the relationship to determine if it's deletable.
+     * @param  callable $callback
+     * @return NovaInlineRelationship
+     */
+    public function canDelete(callable $callback)
+    {
+        $this->deleteCallback = $callback;
 
         return $this;
     }
@@ -145,7 +161,12 @@ class NovaInlineRelationship extends Field
      */
     public function isRelationshipDeletable(Model $model, $relation): bool
     {
-        return ! ($model->{$relation}() instanceof BelongsTo);
+        if ($model->{$relation}() instanceof BelongsTo) {
+            return false;
+        } elseif ($this->deleteCallback) {
+            return ($this->deleteCallback)($model);
+        }
+        return true;
     }
 
     /**
