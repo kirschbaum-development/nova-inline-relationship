@@ -12,7 +12,8 @@
     "require-dev": {
         "orchestra/testbench": "^3.8",
         "phpunit/phpunit": "^7.5",
-        "mockery/mockery": "^1.1"
+        "mockery/mockery": "^1.1",
+        "laravel/nova": "^2.5"
     },
     "autoload": {
         "psr-4": {
