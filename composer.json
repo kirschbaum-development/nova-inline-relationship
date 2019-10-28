@@ -9,10 +9,17 @@
     "require": {
         "php": ">=7.1.0"
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://nova.laravel.com"
+        }
+    ],
     "require-dev": {
         "orchestra/testbench": "^3.8",
         "phpunit/phpunit": "^7.5",
-        "mockery/mockery": "^1.1"
+        "mockery/mockery": "^1.1",
+        "laravel/nova": "^2.5"
     },
     "autoload": {
         "psr-4": {
