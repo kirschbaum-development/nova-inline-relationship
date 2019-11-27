@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
 use KirschbaumDevelopment\NovaInlineRelationship\Helpers\NovaInlineRelationshipHelper;
+use Laravel\Nova\Panel;
 
 class NovaInlineRelationshipObserver
 {
@@ -93,7 +94,12 @@ class NovaInlineRelationshipObserver
      */
     protected function getModelRelationships(Model $model)
     {
-        $relationships = collect(Nova::newResourceFromModel($model)->fields(request()))->filter(function ($value) {
+        $relationships = collect(Nova::newResourceFromModel($model)->fields(request()))->flatMap(function ($value) {
+            if($value instanceof Panel) {
+                return $value->data;
+            }
+            return $value;
+        })->filter(function ($value) {
             return $value->component === 'nova-inline-relationship';
         })->pluck('attribute')->all();
 
