@@ -45,7 +45,10 @@ class NovaInlineRelationship extends Field
      */
     private $resourceClass;
 
-    /** closure to test if it can be deleted */
+    /**
+     * Closure to test if it can be deleted
+     * @var callable
+     */
     protected $deleteCallback;
 
 
