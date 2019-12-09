@@ -47,6 +47,7 @@ class NovaInlineRelationship extends Field
 
     /**
      * Closure to test if it can be deleted
+     *
      * @var callable
      */
     protected $deleteCallback;
@@ -68,7 +69,9 @@ class NovaInlineRelationship extends Field
 
     /**
      * Pass closoure into the relationship to determine if it's deletable.
+     *
      * @param  callable $callback
+     *
      * @return NovaInlineRelationship
      */
     public function canDelete(callable $callback)
