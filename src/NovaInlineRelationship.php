@@ -60,6 +60,24 @@ class NovaInlineRelationship extends Field
     }
 
     /**
+     * Resolve the field's value for display.
+     *
+     * @param  mixed  $resource
+     * @param  string|null  $attribute
+     * @return void
+     */
+    public function resolveForDisplay($resource, $attribute = null)
+    {
+        parent::resolveForDisplay($resource, $attribute);
+
+        $attribute = $attribute ?? $this->attribute;
+
+        $properties = $this->getPropertiesWithMetaForDisplay($resource, $attribute);
+
+        $this->resolveResourceFields($resource, $attribute, $properties);
+    }
+
+    /**
      * Resolve the field's value.
      *
      * @param  mixed  $resource
@@ -71,12 +89,26 @@ class NovaInlineRelationship extends Field
     {
         parent::resolve($resource, $attribute);
 
-        if (empty($attribute)) {
-            $attribute = $this->attribute;
+        $request = app(NovaRequest::class);
+
+        if ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest()) {
+            $attribute = $attribute ?? $this->attribute;
+
+            $properties = $this->getPropertiesWithMetaForForms($resource, $attribute);
+
+            $this->resolveResourceFields($resource, $attribute, $properties);
         }
+    }
 
-        $properties = $this->getPropertiesWithMeta($resource, $attribute);
-
+    /**
+     * Resolve the fields for the resource.
+     *
+     * @param $resource
+     * @param $attribute
+     * @param $properties
+     */
+    protected function resolveResourceFields($resource, $attribute, $properties)
+    {
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
 
         $this->withMeta([
@@ -115,11 +147,45 @@ class NovaInlineRelationship extends Field
      *
      * @return Collection
      */
-    public function getPropertiesWithMeta($resource, $attribute): Collection
+    public function getPropertiesWithMetaForDisplay($resource, $attribute): Collection
     {
-        return $this->getPropertiesFromResource($resource, $attribute)->map(function ($value, $key) {
-            return $this->setMetaFromClass($value, $key);
-        });
+        $fields = $this->getFieldsFromResource($resource, $attribute)
+            ->filter->authorize(app(NovaRequest::class))
+            ->filter(function ($field) {
+                return $field->showOnDetail;
+            });
+
+        return $this->getPropertiesFromFields($fields)
+            ->keyBy('attribute')
+            ->map(function ($value, $key) {
+                return $this->setMetaFromClass($value, $key);
+            });
+    }
+
+    /**
+     * Get Properties From Resource with Meta Information
+     *
+     * @param  mixed  $resource
+     * @param  string  $attribute
+     *
+     * @return Collection
+     */
+    public function getPropertiesWithMetaForForms($resource, $attribute): Collection
+    {
+        $fields = $this->getFieldsFromResource($resource, $attribute)
+            ->filter->authorize(app(NovaRequest::class))
+            ->filter(function ($field) {
+                $request = app(NovaRequest::class);
+
+                return ($request->isCreateOrAttachRequest() && $field->showOnCreation)
+                    || ($request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
+            });
+
+        return $this->getPropertiesFromFields($fields)
+            ->keyBy('attribute')
+            ->map(function ($value, $key) {
+                return $this->setMetaFromClass($value, $key);
+            });;
     }
 
     /**
@@ -275,24 +341,19 @@ class NovaInlineRelationship extends Field
      */
     protected function getRelationshipRule($attribute, Collection $properties): RelationshipRule
     {
-        /** @var array $ruleArray */
         $ruleArray = [];
-
-        /** @var array $messageArray */
         $messageArray = [];
-
-        /** @var array $attribArray */
         $attribArray = [];
 
         $properties->each(function ($child, $childAttribute) use ($attribute, &$ruleArray, &$messageArray, &$attribArray) {
             if (! empty($child['rules'])) {
-                $name = sprintf('%s.*.%s', $attribute, $childAttribute);
+                $name = "{$attribute}.*.{$childAttribute}";
                 $ruleArray[$name] = $child['rules'];
                 $attribArray[$name] = $child['label'] ?? $childAttribute;
 
                 if (! empty($child['messages']) && is_array($child['messages'])) {
                     foreach ($child['messages'] as $rule => $message) {
-                        $messageArray[sprintf('%s.%s', $name, $rule)] = $message;
+                        $messageArray["{$name}.{$rule}"] = $message;
                     }
                 }
             }
@@ -311,20 +372,55 @@ class NovaInlineRelationship extends Field
      */
     protected function getPropertiesFromResource($model, $attribute): Collection
     {
-        /** @var Resource $resource */
-        $resource = ! empty($this->resourceClass) ? new $this->resourceClass($model) : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
+        $fields = $this->getFieldsFromResource($model, $attribute);
 
-        return collect($resource->availableFields(new NovaRequest()))->reject(function ($field) use ($resource) {
-            return $field instanceof ListableField ||
-                $field instanceof ResourceToolElement ||
-                $field->attribute === 'ComputedField' ||
-                ($field instanceof ID && $field->attribute === $resource->resource->getKeyName()) ||
-                collect(class_uses($field))->contains(ResolvesReverseRelation::class) ||
-                $field instanceof self ||
-                ! $field->showOnUpdate;
-        })->map(function ($value) {
-            return ['component' => get_class($value), 'label' => $value->name, 'options' => $value->meta, 'rules' => $value->rules, 'attribute' => $value->attribute];
-        })->keyBy('attribute');
+        return $this->getPropertiesFromFields($fields)
+            ->keyBy('attribute');
+    }
+
+    /**
+     * Get all fields from resource.
+     *
+     * @param $model
+     * @param $attribute
+     *
+     * @return Collection
+     */
+    protected function getFieldsFromResource($model, $attribute): Collection
+    {
+        $resource = ! empty($this->resourceClass)
+            ? new $this->resourceClass($model)
+            : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
+
+        return collect($resource->availableFields(app(NovaRequest::class)))
+            ->reject(function ($field) use ($resource) {
+                return $field instanceof ListableField ||
+                    $field instanceof ResourceToolElement ||
+                    $field->attribute === 'ComputedField' ||
+                    ($field instanceof ID && $field->attribute === $resource->resource->getKeyName()) ||
+                    collect(class_uses($field))->contains(ResolvesReverseRelation::class) ||
+                    $field instanceof self;
+            });
+    }
+
+    /**
+     * Get properties for each field.
+     *
+     * @param Collection $fields
+     *
+     * @return Collection
+     */
+    protected function getPropertiesFromFields(Collection $fields): Collection
+    {
+        return $fields->map(function ($value) {
+            return [
+                'component' => get_class($value),
+                'label' => $value->name,
+                'options' => $value->meta,
+                'rules' => $value->rules,
+                'attribute' => $value->attribute
+            ];
+        });
     }
 
     /**
@@ -345,6 +441,7 @@ class NovaInlineRelationship extends Field
                 return $properties->has($key) ? $this->setMetaFromClass($properties->get($key), $key, $value) : null;
             })->filter();
         });
+
     }
 
     /**
@@ -362,7 +459,6 @@ class NovaInlineRelationship extends Field
             return collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
                 if ($properties->has($key)) {
                     $field = $this->getResourceField($properties->get($key), $key);
-
                     $newRequest = $this->getDuplicateRequest($request, $item);
 
                     return $this->getValueFromField($field, $newRequest, $key) ?? ((($field instanceof File) && ! empty($value)) ? $value : null);

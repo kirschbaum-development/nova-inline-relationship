@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Orchestra\Testbench\TestCase as Orchestra;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationshipServiceProvider;
@@ -35,6 +36,8 @@ abstract class TestCase extends Orchestra
         $this->setUpDatabase();
 
         $this->createTestModelsAndResources();
+
+        $this->createNovaRequestMock();
     }
 
     /**
@@ -165,6 +168,16 @@ abstract class TestCase extends Orchestra
 
         $this->employeeModel = Employee::create(['name' => 'test']);
         $this->employeeResource = new EmployeeResource($this->employeeModel);
+    }
+
+    protected function createNovaRequestMock()
+    {
+        $request = NovaRequest::create('', 'GET', [
+            'editing' => true,
+            'editMode' => 'create',
+        ]);
+
+        $this->app->instance(NovaRequest::class, $request);
     }
 
     /**
