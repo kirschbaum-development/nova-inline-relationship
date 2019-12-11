@@ -11,10 +11,14 @@ class BelongsToObserver extends BaseObserver
      */
     public function updating(Model $model, $attribute, $value)
     {
-        $childModel = $model->{$attribute}()->first();
+        $parentModel = $model->{$attribute}()->first();
+
+        if (empty($parentModel)) {
+            return $this->creating($model, $attribute, $value);
+        }
 
         if (count($value)) {
-            $childModel->update($value[0]);
+            $parentModel->update($value[0]);
         }
     }
 
