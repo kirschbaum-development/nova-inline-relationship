@@ -117,7 +117,7 @@ class NovaInlineRelationship extends Field
         $this->withMeta([
             'defaults' => $this->getDefaultsFromProperties($properties)->all(),
             'settings' => $properties->all(),
-            'models' => $this->value ? $this->value->pluck('id')->all() : [],
+            'models' => $this->modelIds(),
             'modelKey' => Str::plural(Str::kebab(class_basename(optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance()))),
             'singularLabel' => Str::title(Str::singular($this->name)),
             'pluralLabel' => Str::title(Str::plural($this->name)),
@@ -127,6 +127,23 @@ class NovaInlineRelationship extends Field
         ]);
 
         $this->updateFieldValue($resource, $attribute, $properties);
+    }
+
+    /**
+     * Pluck id's from the model or collection.
+     *
+     * @return array
+     */
+    protected function modelIds()
+    {
+        if ($this->value instanceof Model) {
+            $models = [$this->value->{$this->value->getKeyName()}];
+        } elseif ($this->value instanceof Collection) {
+            $key = $this->value->first()->getKeyName();
+            $models = $this->value->pluck($key)->all();
+        }
+
+        return $models ?? [];
     }
 
     /**
