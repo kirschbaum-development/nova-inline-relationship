@@ -66,14 +66,14 @@
             modelKey: String,
         },
 
-        data: function () {
+        data() {
             return {
                 isCollapsed: false
             }
         },
 
         computed: {
-            fields: function () {
+            fields() {
                 let fields = { ...this.value };
 
                 Object.keys(fields).map(
@@ -93,11 +93,11 @@
         },
 
         methods: {
-            getLabel: function (attrib) {
+            getLabel(attrib) {
                 return this.getSettings(attrib, 'label') || attrib;
             },
 
-            getSettings: function (attrib, key) {
+            getSettings(attrib, key) {
                 return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : ''
             },
         },

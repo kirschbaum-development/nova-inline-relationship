@@ -67,7 +67,7 @@
         ],
 
         computed: {
-            fields: function () {
+            fields() {
                 return _.keyBy(
                     Object.keys({ ...this.value }).map(
                         attrib => {
@@ -98,7 +98,7 @@
         },
 
         methods: {
-            getValueFromChildren: function () {
+            getValueFromChildren() {
                 return _.tap(new FormData(), formData => {
                     _(this.$refs).each(item => {
                         if (item[0].field.component === 'file-field') {
@@ -133,7 +133,7 @@
                 );
             },
 
-            removeItem: function () {
+            removeItem() {
                 this.$emit('deleted', this.id);
             },
         },

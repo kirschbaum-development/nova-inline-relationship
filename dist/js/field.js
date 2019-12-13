@@ -510,6 +510,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         };
     },
 
+
     computed: {
         fields: function fields() {
             var fields = _extends({}, this.value);
@@ -520,7 +521,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
             return fields;
         },
-
         labelText: function labelText() {
             return this.isSingular ? this.label : this.label + ' ' + (this.id + 1);
         }
@@ -530,7 +530,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         getLabel: function getLabel(attrib) {
             return this.getSettings(attrib, 'label') || attrib;
         },
-
         getSettings: function getSettings(attrib, key) {
             return this.settings && this.settings.hasOwnProperty(attrib) && this.settings[attrib].hasOwnProperty(key) ? this.settings[attrib][key] : '';
         }
@@ -17036,7 +17035,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 });
             }), 'attrib');
         },
-
         label: function label() {
             return this.field.singular ? this.field.singularLabel : this.field.singularLabel + ' ' + (this.id + 1);
         }
@@ -17062,7 +17060,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 });
             });
         },
-
         fill: function fill(formData, parentAttrib) {
             var _this3 = this;
 
@@ -17079,8 +17076,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 }
             });
         },
-
-
         removeItem: function removeItem() {
             this.$emit('deleted', this.id);
         }
