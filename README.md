@@ -64,6 +64,14 @@ You can also update, re-arrange (for one-to-many relationships), and delete rela
 
 ![Rearrange Models](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/screenshots/UpdateView.png "Rearrange Models")
 
+## Required Relationships
+
+Occasionally you may want to require a child relationship during the creation of a model. To do this, just use the `requireChild()` method. As an example, you may want to create a new user and enforce that a new profile for the user is also created.
+
+```php
+HasOne::make('Profile', 'profile', Profile::class)->inline()->requireChild(),
+```
+
 ## Supported Relationships
 
 The following eloquent relationships are currently supported:

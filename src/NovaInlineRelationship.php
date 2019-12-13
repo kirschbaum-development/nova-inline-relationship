@@ -20,10 +20,13 @@ use Laravel\Nova\Fields\ResolvesReverseRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
+use KirschbaumDevelopment\NovaInlineRelationship\Traits\RequireRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
 class NovaInlineRelationship extends Field
 {
+    use RequireRelationship;
+
     /**
      * The field's component.
      *
@@ -120,6 +123,7 @@ class NovaInlineRelationship extends Field
             'pluralLabel' => Str::title(Str::plural($this->name)),
             'singular' => $this->isSingularRelationship($resource, $attribute),
             'deletable' => $this->isRelationshipDeletable($resource, $attribute),
+            'addChildAtStart' => $this->requireChild,
         ]);
 
         $this->updateFieldValue($resource, $attribute, $properties);
