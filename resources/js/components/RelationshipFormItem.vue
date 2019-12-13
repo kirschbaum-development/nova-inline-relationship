@@ -54,7 +54,7 @@
 
 <script>
     export default {
-        name: "RelationshipFormItem",
+        name: "relationship-form-item",
 
         props: [
             'value',

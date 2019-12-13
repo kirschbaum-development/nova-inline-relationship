@@ -363,26 +363,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     components: { RelationshipDetailItem: __WEBPACK_IMPORTED_MODULE_0__RelationshipDetailItem___default.a },
 
-    props: ['resource', 'resourceName', 'resourceId', 'field'],
+    props: ['field', 'resource', 'resourceId', 'resourceName'],
 
     computed: {
         collapsed: function collapsed() {
             return this.field.collapsed === true;
         },
-
         value: function value() {
-            if (Array.isArray(this.field.value)) {
-                return this.field.value;
-            }
-
-            return [];
+            return Array.isArray(this.field.value) ? this.field.value : [];
         }
     }
 });
@@ -492,17 +486,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    name: "RelationshipDetailItem",
+    name: "relationship-detail-item",
 
     props: {
         value: Object,
@@ -512,6 +498,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             default: false
         },
         label: String,
+        isSingular: Boolean,
         id: Number,
         modelId: Number,
         modelKey: String
@@ -526,10 +513,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     computed: {
         fields: function fields() {
             var fields = _extends({}, this.value);
+
             Object.keys(fields).map(function (attrib) {
                 fields[attrib].meta['name'] = fields[attrib].meta['singularLabel'];
             });
+
             return fields;
+        },
+
+        labelText: function labelText() {
+            return this.isSingular ? this.label : this.label + ' ' + (this.id + 1);
         }
     },
 
@@ -544,7 +537,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
 
     watch: {
-        'collapsed': function collapsed() {
+        collapsed: function collapsed() {
             this.isCollapsed = this.collapsed;
         }
     }
@@ -630,11 +623,10 @@ var render = function() {
               )
         ]),
         _vm._v(" "),
-        _c("span", { staticClass: "font-normal text-90 py-2 px-2" }, [
-          _vm._v(
-            "\n      " + _vm._s(_vm.label) + " " + _vm._s(_vm.id + 1) + "\n    "
-          )
-        ])
+        _c("span", {
+          staticClass: "font-normal text-90 py-2 px-2",
+          domProps: { textContent: _vm._s(_vm.labelText) }
+        })
       ]),
       _vm._v(" "),
       _c("transition", { attrs: { name: "slide-fade" } }, [
@@ -690,9 +682,10 @@ var render = function() {
       { staticClass: "w-1/4 py-4" },
       [
         _vm._t("default", [
-          _c("h4", { staticClass: "font-normal text-80" }, [
-            _vm._v("\n        " + _vm._s(_vm.field.singularLabel) + "\n      ")
-          ])
+          _c("h4", {
+            staticClass: "font-normal text-80",
+            domProps: { textContent: _vm._s(_vm.field.singularLabel) }
+          })
         ])
       ],
       2
@@ -702,7 +695,7 @@ var render = function() {
       _c(
         "div",
         _vm._l(_vm.value, function(item, index) {
-          return _c("RelationshipDetailItem", {
+          return _c("relationship-detail-item", {
             key: index,
             attrs: {
               id: index,
@@ -710,6 +703,7 @@ var render = function() {
               "model-id": _vm.field.models[index] || 0,
               "model-key": _vm.field.modelKey,
               label: _vm.field.singularLabel,
+              "is-singular": _vm.field.singular,
               settings: _vm.field.settings,
               collapsed: _vm.collapsed
             }
@@ -17023,7 +17017,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    name: "RelationshipFormItem",
+    name: "relationship-form-item",
 
     props: ['value', 'label', 'id', 'modelId', 'modelKey', 'errors', 'field'],
 
