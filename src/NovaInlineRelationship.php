@@ -138,7 +138,7 @@ class NovaInlineRelationship extends Field
     {
         if ($this->value instanceof Model) {
             $models = [$this->value->{$this->value->getKeyName()}];
-        } elseif ($this->value instanceof Collection) {
+        } elseif ($this->value instanceof Collection && $this->value->isNotEmpty()) {
             $key = $this->value->first()->getKeyName();
             $models = $this->value->pluck($key)->all();
         }
