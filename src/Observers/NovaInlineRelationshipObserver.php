@@ -94,15 +94,16 @@ class NovaInlineRelationshipObserver
      */
     protected function getModelRelationships(Model $model)
     {
-        $relationships = collect(Nova::newResourceFromModel($model)->fields(request()))
+        return collect(Nova::newResourceFromModel($model)->fields(request()))
             ->flatMap(function ($value) {
                 return $value instanceof Panel
                     ? $value->data
                     : [$value];
-            })->filter(function ($value) {
+            })
+            ->filter(function ($value) {
                 return $value->component === 'nova-inline-relationship';
-            })->pluck('attribute')->all();
-
-        return $relationships;
+            })
+            ->pluck('attribute')
+            ->all();
     }
 }
