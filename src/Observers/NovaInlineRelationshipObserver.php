@@ -98,7 +98,7 @@ class NovaInlineRelationshipObserver
             ->flatMap(function ($value) {
                 return $value instanceof Panel
                     ? $value->data
-                    : $value;
+                    : [$value];
             })->filter(function ($value) {
                 return $value->component === 'nova-inline-relationship';
             })->pluck('attribute')->all();
