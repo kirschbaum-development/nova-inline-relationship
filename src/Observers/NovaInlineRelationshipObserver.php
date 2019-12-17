@@ -3,6 +3,7 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Laravel\Nova\Nova;
+use Laravel\Nova\Panel;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
@@ -93,9 +94,14 @@ class NovaInlineRelationshipObserver
      */
     protected function getModelRelationships(Model $model)
     {
-        $relationships = collect(Nova::newResourceFromModel($model)->fields(request()))->filter(function ($value) {
-            return $value->component === 'nova-inline-relationship';
-        })->pluck('attribute')->all();
+        $relationships = collect(Nova::newResourceFromModel($model)->fields(request()))
+            ->flatMap(function ($value) {
+                return $value instanceof Panel
+                    ? $value->data
+                    : [$value];
+            })->filter(function ($value) {
+                return $value->component === 'nova-inline-relationship';
+            })->pluck('attribute')->all();
 
         return $relationships;
     }
