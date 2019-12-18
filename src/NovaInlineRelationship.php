@@ -67,6 +67,7 @@ class NovaInlineRelationship extends Field
      *
      * @param  mixed  $resource
      * @param  string|null  $attribute
+     *
      * @return void
      */
     public function resolveForDisplay($resource, $attribute = null)
@@ -101,49 +102,6 @@ class NovaInlineRelationship extends Field
 
             $this->resolveResourceFields($resource, $attribute, $properties);
         }
-    }
-
-    /**
-     * Resolve the fields for the resource.
-     *
-     * @param $resource
-     * @param $attribute
-     * @param $properties
-     */
-    protected function resolveResourceFields($resource, $attribute, $properties)
-    {
-        $this->rules = [$this->getRelationshipRule($attribute, $properties)];
-
-        $this->withMeta([
-            'defaults' => $this->getDefaultsFromProperties($properties)->all(),
-            'settings' => $properties->all(),
-            'models' => $this->modelIds(),
-            'modelKey' => Str::plural(Str::kebab(class_basename(optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance()))),
-            'singularLabel' => Str::title(Str::singular($this->name)),
-            'pluralLabel' => Str::title(Str::plural($this->name)),
-            'singular' => $this->isSingularRelationship($resource, $attribute),
-            'deletable' => $this->isRelationshipDeletable($resource, $attribute),
-            'addChildAtStart' => $this->requireChild,
-        ]);
-
-        $this->updateFieldValue($resource, $attribute, $properties);
-    }
-
-    /**
-     * Pluck id's from the model or collection.
-     *
-     * @return array
-     */
-    protected function modelIds()
-    {
-        if ($this->value instanceof Model) {
-            $models = [$this->value->{$this->value->getKeyName()}];
-        } elseif ($this->value instanceof Collection && $this->value->isNotEmpty()) {
-            $key = $this->value->first()->getKeyName();
-            $models = $this->value->pluck($key)->all();
-        }
-
-        return $models ?? [];
     }
 
     /**
@@ -206,7 +164,7 @@ class NovaInlineRelationship extends Field
             ->keyBy('attribute')
             ->map(function ($value, $key) {
                 return $this->setMetaFromClass($value, $key);
-            });;
+            });
     }
 
     /**
@@ -274,6 +232,49 @@ class NovaInlineRelationship extends Field
         $field->fillAttribute($request, $attribute, $temp, $attribute);
 
         return $temp->{$attribute} ?? null;
+    }
+
+    /**
+     * Resolve the fields for the resource.
+     *
+     * @param $resource
+     * @param $attribute
+     * @param $properties
+     */
+    protected function resolveResourceFields($resource, $attribute, $properties)
+    {
+        $this->rules = [$this->getRelationshipRule($attribute, $properties)];
+
+        $this->withMeta([
+            'defaults' => $this->getDefaultsFromProperties($properties)->all(),
+            'settings' => $properties->all(),
+            'models' => $this->modelIds(),
+            'modelKey' => Str::plural(Str::kebab(class_basename(optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance()))),
+            'singularLabel' => Str::title(Str::singular($this->name)),
+            'pluralLabel' => Str::title(Str::plural($this->name)),
+            'singular' => $this->isSingularRelationship($resource, $attribute),
+            'deletable' => $this->isRelationshipDeletable($resource, $attribute),
+            'addChildAtStart' => $this->requireChild,
+        ]);
+
+        $this->updateFieldValue($resource, $attribute, $properties);
+    }
+
+    /**
+     * Pluck id's from the model or collection.
+     *
+     * @return array
+     */
+    protected function modelIds()
+    {
+        if ($this->value instanceof Model) {
+            $models = [$this->value->{$this->value->getKeyName()}];
+        } elseif ($this->value instanceof Collection && $this->value->isNotEmpty()) {
+            $key = $this->value->first()->getKeyName();
+            $models = $this->value->pluck($key)->all();
+        }
+
+        return $models ?? [];
     }
 
     /**
@@ -439,7 +440,7 @@ class NovaInlineRelationship extends Field
                 'label' => $value->name,
                 'options' => $value->meta,
                 'rules' => $value->rules,
-                'attribute' => $value->attribute
+                'attribute' => $value->attribute,
             ];
         });
     }
@@ -462,7 +463,6 @@ class NovaInlineRelationship extends Field
                 return $properties->has($key) ? $this->setMetaFromClass($properties->get($key), $key, $value) : null;
             })->filter();
         });
-
     }
 
     /**

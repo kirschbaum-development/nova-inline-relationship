@@ -1,6 +1,6 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource;
+namespace Tests\Resource;
 
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ class Summary extends Resource
      *
      * @var string
      */
-    public static $model = \KirschbaumDevelopment\NovaInlineRelationship\Tests\Summary::class;
+    public static $model = \Tests\Summary::class;
 
     public function fields(Request $request)
     {

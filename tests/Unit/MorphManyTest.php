@@ -1,19 +1,20 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Unit;
+namespace Tests\Unit;
 
+use Tests\Comment;
+use Tests\Employee;
+use Tests\TestCase;
 use Laravel\Nova\Fields\Trix;
+use Tests\Resource\EmployeeMorphMany;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Comment;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\TestCase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\EmployeeMorphMany;
 
 class MorphManyTest extends TestCase
 {
-    use WithFaker, RefreshDatabase;
+    use WithFaker;
+    use RefreshDatabase;
 
     /**
      * @before

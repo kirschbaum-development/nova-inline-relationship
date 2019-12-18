@@ -1,11 +1,10 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource;
+namespace Tests\Resource;
 
-use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Trix;
 
 class Comment extends Resource
 {
@@ -14,7 +13,7 @@ class Comment extends Resource
      *
      * @var string
      */
-    public static $model = \KirschbaumDevelopment\NovaInlineRelationship\Tests\Comment::class;
+    public static $model = \Tests\Comment::class;
 
     public function fields(Request $request)
     {

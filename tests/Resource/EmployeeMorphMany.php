@@ -1,6 +1,6 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource;
+namespace Tests\Resource;
 
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class EmployeeMorphMany extends Resource
      *
      * @var string
      */
-    public static $model = \KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee::class;
+    public static $model = \Tests\Employee::class;
 
     public function fields(Request $request)
     {

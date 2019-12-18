@@ -1,12 +1,11 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource;
+namespace Tests\Resource;
 
-use Laravel\Nova\Fields\MorphOne;
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\MorphOne;
 
 class EmployeeMorphOne extends Resource
 {
@@ -15,7 +14,7 @@ class EmployeeMorphOne extends Resource
      *
      * @var string
      */
-    public static $model = \KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee::class;
+    public static $model = \Tests\Employee::class;
 
     public function fields(Request $request)
     {

@@ -1,19 +1,20 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Unit;
+namespace Tests\Unit;
 
+use Tests\Bill;
+use Tests\Employee;
+use Tests\TestCase;
 use Laravel\Nova\Fields\Currency;
+use Tests\Resource\EmployeeHasMany;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Bill;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\TestCase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\EmployeeHasMany;
 
 class HasManyTest extends TestCase
 {
-    use WithFaker, RefreshDatabase;
+    use WithFaker;
+    use RefreshDatabase;
 
     /**
      * @before
@@ -184,8 +185,8 @@ class HasManyTest extends TestCase
 
         tap($newEmployee->fresh()->bills, function ($bills) {
             $this->assertCount(2, $bills);
-            $this->assertEquals('200', $bills->first()->amount );
-            $this->assertEquals('100', $bills->last()->amount );
+            $this->assertEquals('200', $bills->first()->amount);
+            $this->assertEquals('100', $bills->last()->amount);
         });
     }
 
@@ -214,7 +215,7 @@ class HasManyTest extends TestCase
 
         tap($newEmployee->fresh()->bills, function ($bills) {
             $this->assertCount(2, $bills);
-            $this->assertEquals('300', $bills->first()->amount );
+            $this->assertEquals('300', $bills->first()->amount);
             $this->assertEquals('400', $bills->last()->amount);
         });
     }
@@ -242,7 +243,7 @@ class HasManyTest extends TestCase
 
         tap($newEmployee->fresh()->bills, function ($bills) {
             $this->assertCount(1, $bills);
-            $this->assertEquals('300', $bills->first()->amount );
+            $this->assertEquals('300', $bills->first()->amount);
         });
     }
 
