@@ -1,0 +1,20 @@
+on: push
+name: Code Style
+jobs:
+  php-cs-fixer:
+    runs-on: ubuntu-latest
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:7.3.0
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+
+    - name: Install PHP CS Fixer
+      run: |
+        composer global require friendsofphp/php-cs-fixer
+
+    - name: Check Coding Standards
+      run: php-cs-fixer fix --dry-run
+

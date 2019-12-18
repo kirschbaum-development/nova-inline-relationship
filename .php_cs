@@ -1,11 +1,8 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->exclude('bootstrap/cache')
-    ->exclude('storage')
-    ->exclude('vendor')
-    ->exclude('bower_components')
     ->exclude('node_modules')
+    ->exclude('vendor')
     ->in(__DIR__)
     ->name('*.php')
     ->notName('*.blade.php')
