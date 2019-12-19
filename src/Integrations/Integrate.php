@@ -2,18 +2,33 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Integrations;
 
-use LeadMarvels\Campaigns\Services\QueryClauses\Contracts\WhereInterface;
+use ReflectionClass;
+use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\ContractMissingException;
 use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Field as FieldInterface;
+use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Contracts\ThirdPartyContract;
 
 class Integrate
 {
-    public static function fields($object): array
+    public static function fields($field): array
     {
-        $basename = class_basename(get_class($object));
-        $class = "\\KirschbaumDevelopment\\NovaInlineRelationship\\Integrations\\{$basename}";
+        $basename = class_basename(get_class($field));
 
-        return class_exists($class)
-            ? (new $class($object))->fields()
-            : (new FieldInterface($object))->fields();
+        foreach (config('nova-inline-relationships.third-party') as $namespace) {
+            $class = "{$namespace}\\{$basename}";
+
+            if (class_exists($class)) {
+                $reflection = new ReflectionClass($class);
+
+                throw_unless(
+                    in_array(ThirdPartyContract::class, $reflection->getInterfaceNames()),
+                    ContractMissingException::class,
+                    sprintf('Third party integration [ %s ] does not implement [ %s ]', $class, ThirdPartyContract::class)
+                );
+
+                return (new $class($field))->fields();
+            }
+        }
+
+        return (new FieldInterface($field))->fields();
     }
 }

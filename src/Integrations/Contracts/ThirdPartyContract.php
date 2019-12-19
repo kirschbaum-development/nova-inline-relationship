@@ -7,9 +7,9 @@ interface ThirdPartyContract
     /**
      * ThirdPartyContract constructor.
      *
-     * @param $object
+     * @param $field
      */
-    public function __construct($object);
+    public function __construct($field);
 
     /**
      * Fields array from object.

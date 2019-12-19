@@ -74,6 +74,56 @@ Occasionally you may want to require a child relationship during the creation of
 HasOne::make('Profile', 'profile', Profile::class)->inline()->requireChild(),
 ```
 
+## Support for Third Party Packages
+
+We have included a simple way to address some issues regarding third party packages occasionally not working with Nova Inline Relationships. These packages occasionally handle how they return their subset of fields slightly different. We have a way of easily integrating functionality for these packages. This may not work across the board, but should allow for most third party packages.
+
+You must publish the configs for this package with
+
+```shell script
+php artisan vendor:publish
+```
+
+This will publish a config file as `config/nova-inline-relationships.php`. Add your custom namespaced paths within the `third-party` array. For example:
+
+```php
+'third-party' => [
+    'App\Nova\ThirdPartyIntegrations',
+    'KirschbaumDevelopment\NovaInlineRelationship\Integrations',
+]
+``` 
+
+Create a new class inside that namespace that looks like the following:
+
+```php
+<?php
+
+namespace App\Nova\ThirdPartyIntegrations;
+
+use KirschbaumDevelopment\NovaInlineRelationship\Integrations\ThirdParty;
+use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Contracts\ThirdPartyContract;
+
+class SomeThirdPartyField extends ThirdParty implements ThirdPartyContract
+{
+    /**
+     * Fields array from object.
+     *
+     * @return array
+     */
+    public function fields(): array
+    {
+        // The following is just an example and should be updated to meet your needs.
+        return $this->field->customFieldArray;
+    }
+}
+```
+
+The name of the class is very important. It should be the same name as the field used within the Nova resource. If the field class is `CustomField`, the third party integration class should also be called `CustomField`.
+
+The `fields()` method should return an array of all the custom field's or package's fields array.
+
+If you feel that the third party integration you've created should be included in this package, please create a pull request and we will look over it! 
+
 ## Supported Relationships
 
 The following eloquent relationships are currently supported:
