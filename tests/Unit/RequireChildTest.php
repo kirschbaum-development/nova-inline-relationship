@@ -1,9 +1,9 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Unit;
+namespace Tests\Unit;
 
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\TestCase;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 
 class RequireChildTest extends TestCase

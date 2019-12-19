@@ -1,19 +1,20 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Unit;
+namespace Tests\Unit;
 
+use Tests\User;
+use Tests\TestCase;
+use Tests\Department;
 use Laravel\Nova\Fields\Text;
+use Tests\Resource\User as UserResource;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\User;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\TestCase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Department;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\User as UserResource;
 
 class BelongsToTest extends TestCase
 {
-    use WithFaker, RefreshDatabase;
+    use WithFaker;
+    use RefreshDatabase;
 
     private $department;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource;
+namespace Tests\Resource;
 
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;

@@ -28,12 +28,7 @@ jobs:
 
     - name: Install composer dependencies
       run: |
-        composer install --no-scripts
-
-    # - name: Prepare Laravel Application
-    #   run: |
-    #     cp .env.ci .env
-    #     php artisan key:generate
+        composer install --prefer-dist --no-interaction --no-scripts
 
     - name: Run Testsuite
       run: vendor/bin/phpunit tests/

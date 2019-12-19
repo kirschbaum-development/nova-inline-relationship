@@ -16,10 +16,11 @@
         }
     ],
     "require-dev": {
-        "orchestra/testbench": "^3.8",
-        "phpunit/phpunit": "^7.5",
+        "codedungeon/phpunit-result-printer": "^0.26.2",
+        "orchestra/testing": "^4.0",
+        "phpunit/phpunit": "^8.3",
         "mockery/mockery": "^1.1",
-        "laravel/nova": "^2.5"
+        "laravel/nova": "*"
     },
     "autoload": {
         "psr-4": {
@@ -28,7 +29,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "KirschbaumDevelopment\\NovaInlineRelationship\\Tests\\": "tests/"
+            "Tests\\": "tests/"
         }
     },
     "extra": {

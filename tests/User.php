@@ -1,6 +1,6 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests;
+namespace Tests;
 
 use Illuminate\Database\Eloquent\Model;
 

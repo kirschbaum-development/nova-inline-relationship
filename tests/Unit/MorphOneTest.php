@@ -1,19 +1,20 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Unit;
+namespace Tests\Unit;
 
+use Tests\Summary;
+use Tests\Employee;
+use Tests\TestCase;
 use Laravel\Nova\Fields\Textarea;
+use Tests\Resource\EmployeeMorphOne;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Summary;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\TestCase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\EmployeeMorphOne;
 
 class MorphOneTest extends TestCase
 {
-    use WithFaker, RefreshDatabase;
+    use WithFaker;
+    use RefreshDatabase;
 
     /**
      * @before

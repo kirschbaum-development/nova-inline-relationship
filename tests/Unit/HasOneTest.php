@@ -1,20 +1,21 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Unit;
+namespace Tests\Unit;
 
+use Tests\Profile;
+use Tests\Employee;
+use Tests\TestCase;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Validation\ValidationException;
+use Tests\Resource\Employee as EmployeeResource;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Profile;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Employee;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\TestCase;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\Employee as EmployeeResource;
 
 class HasOneTest extends TestCase
 {
-    use WithFaker, RefreshDatabase;
+    use WithFaker;
+    use RefreshDatabase;
 
     /**
      * @before

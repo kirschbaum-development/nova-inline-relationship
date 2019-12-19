@@ -1,6 +1,6 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource;
+namespace Tests\Resource;
 
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ class Bill extends Resource
      *
      * @var string
      */
-    public static $model = \KirschbaumDevelopment\NovaInlineRelationship\Tests\Bill::class;
+    public static $model = \Tests\Bill::class;
 
     public function fields(Request $request)
     {

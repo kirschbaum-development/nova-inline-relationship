@@ -1,6 +1,6 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource;
+namespace Tests\Resource;
 
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ class Profile extends Resource
      *
      * @var string
      */
-    public static $model = \KirschbaumDevelopment\NovaInlineRelationship\Tests\Profile::class;
+    public static $model = \Tests\Profile::class;
 
     public function fields(Request $request)
     {

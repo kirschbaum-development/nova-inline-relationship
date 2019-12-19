@@ -12,6 +12,7 @@ interface RelationshipObservable
      * @param Model $model
      * @param $attribute
      * @param $value
+     *
      * @return mixed
      */
     public function updating(Model $model, $attribute, $value);
@@ -22,6 +23,7 @@ interface RelationshipObservable
      * @param Model $model
      * @param $attribute
      * @param $value
+     *
      * @return mixed
      */
     public function creating(Model $model, $attribute, $value);
@@ -32,6 +34,7 @@ interface RelationshipObservable
      * @param Model $model
      * @param $attribute
      * @param $value
+     *
      * @return mixed
      */
     public function created(Model $model, $attribute, $value);

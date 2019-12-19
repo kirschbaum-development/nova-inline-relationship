@@ -1,6 +1,6 @@
 <?php
 
-namespace KirschbaumDevelopment\NovaInlineRelationship\Tests;
+namespace Tests;
 
 use App\Nova\Resource;
 use Laravel\Nova\Nova;
@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Tests\Resource\Employee as EmployeeResource;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationshipServiceProvider;
-use KirschbaumDevelopment\NovaInlineRelationship\Tests\Resource\Employee as EmployeeResource;
 
 abstract class TestCase extends Orchestra
 {
