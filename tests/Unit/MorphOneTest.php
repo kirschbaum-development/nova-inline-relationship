@@ -110,8 +110,6 @@ class MorphOneTest extends TestCase
         $newEmployee = Employee::create(['name' => 'Test']);
         $newEmployee->summary()->save(Summary::make(['text' => 'summary text']));
 
-        $id = $newEmployee->fresh()->summary->id;
-
         $updateRequest = [
             'name' => 'Test 2',
             'summary' => [

@@ -14,11 +14,9 @@ class HasOneObserver extends BaseObserver
         $childModel = $model->{$attribute}()->first();
 
         if (! empty($childModel)) {
-            if (count($value)) {
-                $childModel->update($value[0]);
-            } else {
-                $childModel->delete();
-            }
+            count($value)
+                ? $childModel->update($value[0])
+                : $childModel->delete();
         } elseif (count($value)) {
             $model->{$attribute}()->create($value[0]);
         }

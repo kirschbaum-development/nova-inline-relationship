@@ -16,11 +16,9 @@ class HasManyObserver extends BaseObserver
         $childModels = $model->{$attribute}()->get()->all();
 
         for ($i = 0; $i < $count; $i++) {
-            if ($i < count($childModels)) {
-                $childModels[$i]->update($value[$i]);
-            } else {
-                $model->{$attribute}()->create($value[$i]);
-            }
+            $i < count($childModels)
+                ? $childModels[$i]->update($value[$i])
+                : $model->{$attribute}()->create($value[$i]);
         }
 
         if ($count < count($childModels)) {
