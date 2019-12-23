@@ -14,6 +14,6 @@ class UnsupportedRelationshipType extends InvalidArgumentException
      */
     public static function create(string $type, string $key)
     {
-        return new static(sprintf('Unsupported Inline Relationship type (%s) for an attribute (%s).', $type, $key));
+        return new static("Unsupported Inline Relationship type [{$type}] for an attribute [{$key}].");
     }
 }

@@ -111,8 +111,6 @@ class HasOneTest extends TestCase
         $newEmployee = Employee::create(['name' => 'Test']);
         $newEmployee->profile()->save(Profile::make(['phone' => '123123123']));
 
-        $id = $newEmployee->fresh()->profile->id;
-
         $updateRequest = [
             'name' => 'Test 2',
             'profile' => [
