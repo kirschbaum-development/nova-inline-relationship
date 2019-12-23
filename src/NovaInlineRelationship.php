@@ -208,7 +208,9 @@ class NovaInlineRelationship extends Field
         });
 
         // Create a New Request
-        $newRequest = NovaInlineRelationshipRequest::createFrom($request)->duplicate($item, array_merge($request->all(), $item));
+        $newRequest = NovaInlineRelationshipRequest::createFrom($request)
+            ->duplicate($item, array_merge($request->all(), $item));
+
         // Update List of converted Files
         $newRequest->updateConvertedFiles($files);
 
@@ -244,12 +246,13 @@ class NovaInlineRelationship extends Field
     protected function resolveResourceFields($resource, $attribute, $properties)
     {
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
+        $modelKey = optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance();
 
         $this->withMeta([
             'defaults' => $this->getDefaultsFromProperties($properties)->all(),
             'settings' => $properties->all(),
             'models' => $this->modelIds(),
-            'modelKey' => Str::plural(Str::kebab(class_basename(optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance()))),
+            'modelKey' => Str::plural(Str::kebab(class_basename($modelKey))),
             'singularLabel' => Str::title(Str::singular($this->name)),
             'pluralLabel' => Str::title(Str::plural($this->name)),
             'singular' => $this->isSingularRelationship($resource, $attribute),
@@ -326,7 +329,9 @@ class NovaInlineRelationship extends Field
     protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
         if ($request->exists($requestAttribute)) {
-            $response = is_array($request[$requestAttribute]) ? $request[$requestAttribute] : json_decode($request[$requestAttribute], true);
+            $response = is_array($request[$requestAttribute])
+                ? $request[$requestAttribute]
+                : json_decode($request[$requestAttribute], true);
 
             $properties = $this->getPropertiesFromResource($model, $attribute);
 
@@ -482,7 +487,10 @@ class NovaInlineRelationship extends Field
                     $field = $this->getResourceField($properties->get($key), $key);
                     $newRequest = $this->getDuplicateRequest($request, $item);
 
-                    return $this->getValueFromField($field, $newRequest, $key) ?? ((($field instanceof File) && ! empty($value)) ? $value : null);
+                    return $this->getValueFromField($field, $newRequest, $key)
+                        ?? ($field instanceof File) && ! empty($value)
+                            ? $value
+                            : null;
                 }
 
                 return $value;

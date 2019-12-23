@@ -18,7 +18,7 @@ class NovaInlineRelationshipServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Nova::serving(function (ServingNova $event) {
+        Nova::serving(function () {
             Nova::script('nova-inline-relationship', __DIR__ . '/../dist/js/field.js');
             Nova::style('nova-inline-relationship', __DIR__ . '/../dist/css/field.css');
         });
