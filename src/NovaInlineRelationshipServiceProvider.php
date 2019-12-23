@@ -4,7 +4,6 @@ namespace KirschbaumDevelopment\NovaInlineRelationship;
 
 use Laravel\Nova\Nova;
 use Laravel\Nova\Fields\Field;
-use Laravel\Nova\Events\ServingNova;
 use Illuminate\Support\ServiceProvider;
 use KirschbaumDevelopment\NovaInlineRelationship\Helpers\NovaInlineRelationshipHelper;
 use KirschbaumDevelopment\NovaInlineRelationship\Exceptions\UnsupportedRelationshipType;

@@ -16,8 +16,8 @@ class UnsupportedNestedRelationship extends InvalidArgumentException
     {
         return new static(
             "Unsupported nested relationship attribute value [{$value}] for a key [{$key}]. Please make sure that " .
-            "array returned by getPropertyMap function is in the following format: \"relationship.attribute\" and is " .
-            "only one level deep."
+            'array returned by getPropertyMap function is in the following format: "relationship.attribute" and is ' .
+            'only one level deep.'
         );
     }
 }

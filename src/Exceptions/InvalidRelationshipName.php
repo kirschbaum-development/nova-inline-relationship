@@ -16,7 +16,7 @@ class InvalidRelationshipName extends InvalidArgumentException
     {
         return new static(
             "Invalid relationship name [{$value}] for a key [{$key}] in array returned by getPropertyMap function. " .
-            "Please make sure that this relationship is defined on the model."
+            'Please make sure that this relationship is defined on the model.'
         );
     }
 }

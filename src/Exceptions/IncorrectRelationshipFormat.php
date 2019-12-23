@@ -16,7 +16,7 @@ class IncorrectRelationshipFormat extends InvalidArgumentException
     {
         return new static(
             "Incorrect relationship attribute value [{$value}] for a key [{$key}]. Please make sure that array " .
-            "returned by getPropertyMap function is in the following format: \"relationship.attribute\"."
+            'returned by getPropertyMap function is in the following format: "relationship.attribute".'
         );
     }
 }
