@@ -17,7 +17,13 @@ class NovaInlineRelationshipServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Nova::serving(function () {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__ . '/../config/config.php' => config_path('nova-inline-relationships.php'),
+            ], 'nova-inline-relationships');
+        }
+
+        Nova::serving(function (ServingNova $event) {
             Nova::script('nova-inline-relationship', __DIR__ . '/../dist/js/field.js');
             Nova::style('nova-inline-relationship', __DIR__ . '/../dist/css/field.css');
         });
@@ -38,5 +44,6 @@ class NovaInlineRelationshipServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'nova-inline-relationships');
     }
 }

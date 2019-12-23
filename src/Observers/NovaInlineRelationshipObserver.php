@@ -3,8 +3,8 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Laravel\Nova\Nova;
-use Laravel\Nova\Panel;
 use Illuminate\Database\Eloquent\Model;
+use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Integrate;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
 use KirschbaumDevelopment\NovaInlineRelationship\Helpers\NovaInlineRelationshipHelper;
@@ -96,9 +96,7 @@ class NovaInlineRelationshipObserver
     {
         return collect(Nova::newResourceFromModel($model)->fields(request()))
             ->flatMap(function ($value) {
-                return $value instanceof Panel
-                    ? $value->data
-                    : [$value];
+                return Integrate::fields($value);
             })
             ->filter(function ($value) {
                 return $value->component === 'nova-inline-relationship';
