@@ -411,7 +411,7 @@ class ModifiedNovaInlineRelationship extends Field
      */
     protected function getPropertiesFromResource($model, $attribute): Collection
     {
-        $fields = $this->getFieldsFromResource($model, $attribute);
+        list($fields, $related_resource) = $this->getFieldsFromResource($model, $attribute);
 
         return $this->getPropertiesFromFields($fields)
             ->keyBy('attribute');
@@ -428,7 +428,8 @@ class ModifiedNovaInlineRelationship extends Field
     protected function getFieldsFromResource($model, $attribute): Collection
     {
         $resource = ! empty($this->resourceClass)
-            ? new $this->resourceClass($model->{$attribute})
+            // @note: this is probably wrong, but it works for one to one relations.
+            ? new $this->resourceClass(isset($model->{$attribute}) ? $model->{$attribute} : $model)
             : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
         return collect([collect($resource->availableFields(app(NovaRequest::class)))

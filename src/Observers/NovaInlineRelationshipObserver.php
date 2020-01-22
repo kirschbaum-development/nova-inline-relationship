@@ -2,6 +2,7 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
+use Illuminate\Support\Facades\Log;
 use Laravel\Nova\Nova;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Integrate;
@@ -61,7 +62,11 @@ class NovaInlineRelationshipObserver
 
         $relationships = $this->getModelRelationships($model);
 
-        $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
+        // @note should call the correct class when `nova-inline-relationships.custom` is set.
+        $InlineRelationship = config('nova-inline-relationships.custom', false) === false ?
+            NovaInlineRelationship::class :
+            config('nova-inline-relationships.custom');
+        $relatedModelAttribs = $InlineRelationship::$observedModels[$modelClass];
 
         foreach ($relationships as $relationship) {
             $observer = $this->getRelationshipObserver($model, $relationship);
