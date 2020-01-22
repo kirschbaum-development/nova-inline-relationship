@@ -2,7 +2,7 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
-use Illuminate\Support\Facades\Log;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Integrate;
@@ -99,9 +99,19 @@ class NovaInlineRelationshipObserver
      */
     protected function getModelRelationships(Model $model)
     {
-        return collect(Nova::newResourceFromModel($model)->fields(request()))
-            ->flatMap(function ($value) {
-                return Integrate::fields($value);
+        $request = request();
+        // @note: we're going to need a NovaRequest instead of using the Illuminate\Http\Request.
+        $request = new NovaRequest($request->all());
+        $resource = Nova::newResourceFromModel($model);
+
+        // @note: $resource->fields($request) will not work if the first field returned is a package, e.g.  Nova Tabs
+        //          or similar packages where the first field returned by `fields()` is a field nesting other fields.
+        return collect($resource->availableFields($request))
+            ->flatMap(function ($field) use($model) {
+                $field->resolve($model);
+                // @note: resolve fields?
+                // @note: I don't think this compatibility solution is going to help much.
+                return Integrate::fields($field);
             })
             ->filter(function ($value) {
                 return $value->component === 'nova-inline-relationship';
