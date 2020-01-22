@@ -33,7 +33,12 @@ class NovaInlineRelationshipServiceProvider extends ServiceProvider
                 throw UnsupportedRelationshipType::create(class_basename($this), $this->attribute);
             }
 
-            return NovaInlineRelationship::make($this->name, $this->attribute)->resourceClass($this->resourceClass);
+            // simple switch to test between original and modified
+            $InlineRelationship = config('nova-inline-relationships.custom', false) === false ?
+                NovaInlineRelationship::class :
+                config('nova-inline-relationships.custom');
+
+            return $InlineRelationship::make($this->name, $this->attribute)->resourceClass($this->resourceClass);
         });
     }
 
