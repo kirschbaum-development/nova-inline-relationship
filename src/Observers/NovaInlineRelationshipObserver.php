@@ -108,13 +108,12 @@ class NovaInlineRelationshipObserver
         //          or similar packages where the first field returned by `fields()` is a field nesting other fields.
         return collect($resource->availableFields($request))
             ->flatMap(function ($field) use($model) {
-                $field->resolve($model);
-                // @note: resolve fields?
-                // @note: I don't think this compatibility solution is going to help much.
+                // @note: is this a solution to find inline-relationship fields within third party packages?
+                //          if so, to which problem is this a solution?
                 return Integrate::fields($field);
             })
             ->filter(function ($value) {
-                return $value->component === 'nova-inline-relationship';
+                return (isset($value->component) && $value->component === 'nova-inline-relationship');
             })
             ->pluck('attribute')
             ->all();

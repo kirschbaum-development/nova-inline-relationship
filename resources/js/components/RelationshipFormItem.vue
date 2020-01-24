@@ -53,12 +53,14 @@
 </template>
 
 <script>
+
     export default {
         name: "relationship-form-item",
 
         props: [
             'value',
-            'label',
+            // @note: already defined as computed property label().
+            // 'label',
             'id',
             'modelId',
             'modelKey',
@@ -68,6 +70,7 @@
 
         computed: {
             fields() {
+
                 return _.keyBy(
                     Object.keys({ ...this.value }).map(
                         attrib => {
@@ -80,7 +83,8 @@
                                     'attribute': (this.value[attrib].meta.component === "file-field") ?
                                         attrib + '?' + this.id :
                                         this.field.attribute + '_' + this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
-                                    'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
+                                    // @todo: no idea what it is suppose to do, but it screws with the fields label.
+                                    // 'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
                                     'deletable': this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                                     'attrib': attrib
                                 }
@@ -101,6 +105,7 @@
             getValueFromChildren() {
                 return _.tap(new FormData(), formData => {
                     _(this.$refs).each(item => {
+
                         if (item[0].field.component === 'file-field') {
                             if (item[0].file) {
                                 formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
@@ -112,11 +117,16 @@
                         } else {
                             item[0].fill(formData);
                         }
+
                     })
                 })
             },
 
             fill(formData, parentAttrib) {
+
+                // @note: why does this have to be so complicatd?
+                //  -   saving the original somewhere
+                //  -   keep track of index per $refs
                 this.getValueFromChildren().forEach(
                     (value, key) => {
                         let keyParts = key.split('_');
@@ -126,6 +136,12 @@
                         } else {
                             let parentParts = parentAttrib.split('_');
                             let attrib = keyParts.slice(parentParts.length + 1).join('_');
+
+                            // @note: workaround for ndc. if attribute does not have the given
+                            //          structure to split, field still has to be present somehow.
+                            if(attrib == '') {
+                                attrib = key;
+                            }
 
                             formData.append(`${parentAttrib}[${this.id}][${attrib}]`, value);
                         }

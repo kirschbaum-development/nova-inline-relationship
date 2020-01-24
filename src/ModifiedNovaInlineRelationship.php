@@ -320,6 +320,7 @@ class ModifiedNovaInlineRelationship extends Field
         }
 
         $item['meta'] = $field->jsonSerialize();
+        unset($item['field']);
         // We are using Singular Label instead of name to display labels as compound name will be used in Vue
         $item['meta']['singularLabel'] = Str::title(Str::singular(str_replace('_', ' ', $item['label'] ?? $attrib)));
 
@@ -411,7 +412,7 @@ class ModifiedNovaInlineRelationship extends Field
      */
     protected function getPropertiesFromResource($model, $attribute): Collection
     {
-        list($fields, $related_resource) = $this->getFieldsFromResource($model, $attribute);
+        list($fields) = $this->getFieldsFromResource($model, $attribute);
 
         return $this->getPropertiesFromFields($fields)
             ->keyBy('attribute');
