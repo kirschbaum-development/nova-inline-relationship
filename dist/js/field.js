@@ -184,7 +184,7 @@ module.exports = __webpack_require__(21);
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-Nova.booting(function (Vue, router, store) {
+Nova.booting(function (Vue) {
     Vue.component('index-nova-inline-relationship', __webpack_require__(3));
     Vue.component('detail-nova-inline-relationship', __webpack_require__(6));
     Vue.component('form-nova-inline-relationship', __webpack_require__(12));
@@ -17015,10 +17015,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "relationship-form-item",
 
-    props: ['value', 'label', 'id', 'modelId', 'modelKey', 'errors', 'field'],
+    props: ['value',
+    // @note: already defined as computed property label().
+    // 'label',
+    'id', 'modelId', 'modelKey', 'errors', 'field'],
 
     computed: {
         fields: function fields() {
@@ -17029,7 +17033,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                     'options': {}
                 }, _this.value[attrib].meta, {
                     'attribute': _this.value[attrib].meta.component === "file-field" ? attrib + '?' + _this.id : _this.field.attribute + '_' + _this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
-                    'name': _this.field.attribute + '[' + _this.id + '][' + attrib + ']',
+                    // @todo: no idea what it is suppose to do, but it screws with the fields label.
+                    // 'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
                     'deletable': _this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                     'attrib': attrib
                 });
@@ -17046,6 +17051,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
             return _.tap(new FormData(), function (formData) {
                 _(_this2.$refs).each(function (item) {
+
                     if (item[0].field.component === 'file-field') {
                         if (item[0].file) {
                             formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
@@ -17063,6 +17069,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         fill: function fill(formData, parentAttrib) {
             var _this3 = this;
 
+            // @note: why does this have to be so complicatd?
+            //  -   saving the original somewhere
+            //  -   keep track of index per $refs
             this.getValueFromChildren().forEach(function (value, key) {
                 var keyParts = key.split('_');
 
@@ -17071,6 +17080,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 } else {
                     var parentParts = parentAttrib.split('_');
                     var attrib = keyParts.slice(parentParts.length + 1).join('_');
+
+                    // @note: workaround for ndc. if attribute does not have the given
+                    //          structure to split, field still has to be present somehow.
+                    if (attrib == '') {
+                        attrib = key;
+                    }
 
                     formData.append(parentAttrib + '[' + _this3.id + '][' + attrib + ']', value);
                 }
