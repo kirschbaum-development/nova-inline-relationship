@@ -2,6 +2,8 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship;
 
+use Illuminate\Http\Request;
+use Laravel\Nova\Http\Requests\ResourceDetailRequest;
 use stdClass;
 use Carbon\Carbon;
 use App\Nova\Resource;
@@ -49,6 +51,24 @@ class ModifiedNovaInlineRelationship extends Field
     private $resourceClass;
 
     /**
+     * Original request passed by ->inline().
+     *
+     * @var
+     */
+    protected $request;
+
+    /**
+     * Set original request.
+     *
+     * @param Request $Request
+     * @return $this
+     */
+    public function setRequest(Request $Request) {
+        $this->request = $Request;
+        return $this;
+    }
+
+    /**
      * Pass resourceClass to NovaInlineRelationship.
      *
      * @param string $class
@@ -93,9 +113,9 @@ class ModifiedNovaInlineRelationship extends Field
     {
         parent::resolve($resource, $attribute);
 
-        $request = app(NovaRequest::class);
+        // $request = app(NovaRequest::class);
 
-        if ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest()) {
+        if ($this->request->isCreateOrAttachRequest() || $this->request->isUpdateOrUpdateAttachedRequest()) {
             $attribute = $attribute ?? $this->attribute;
 
             $properties = $this->getPropertiesWithMetaForForms($resource, $attribute);
@@ -157,14 +177,12 @@ class ModifiedNovaInlineRelationship extends Field
         list($fields, $related_resource) = $this->getFieldsFromResource($resource, $attribute);
 
         $fields
-            ->filter->authorize(app(NovaRequest::class))
+            ->filter->authorize($this->request) // app(NovaRequest::class)
             ->filter(function ($field) use ($related_resource) {
-                $request = app(NovaRequest::class);
-
                 $field->resolve($related_resource);
 
-                return ($request->isCreateOrAttachRequest() && $field->showOnCreation)
-                    || ($request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
+                return ($this->request->isCreateOrAttachRequest() && $field->showOnCreation)
+                    || ($this->request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
             });
 
         return $this->getPropertiesFromFields($fields)
@@ -433,7 +451,7 @@ class ModifiedNovaInlineRelationship extends Field
             ? new $this->resourceClass(isset($model->{$attribute}) ? $model->{$attribute} : $model)
             : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
-        return collect([collect($resource->availableFields(app(NovaRequest::class)))
+        return collect([collect($resource->availableFields($this->request))
             ->reject(function ($field) use ($resource) {
                 return $field instanceof ListableField ||
                     $field instanceof ResourceToolElement ||
@@ -530,5 +548,15 @@ class ModifiedNovaInlineRelationship extends Field
         }
 
         static::$observedModels[$modelClass][$attribute] = $this->isNullValue($value) ? null : $value;
+    }
+
+    /**
+     * Get Nova Request. Should be passed by ->inine().
+     */
+    protected function getNovaRequest() {
+        if($this->request === null) {
+            $this->request = app(NovaRequest::class);
+        }
+        return $this->request;
     }
 }

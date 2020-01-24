@@ -2,6 +2,8 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship;
 
+use Illuminate\Http\Request;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Fields\Field;
 use Illuminate\Support\ServiceProvider;
@@ -28,7 +30,7 @@ class NovaInlineRelationshipServiceProvider extends ServiceProvider
             Nova::style('nova-inline-relationship', __DIR__ . '/../dist/css/field.css');
         });
 
-        Field::macro('inline', function () {
+        Field::macro('inline', function (Request $Request) {
             if (! class_exists(NovaInlineRelationshipHelper::getObserver($this))) {
                 throw UnsupportedRelationshipType::create(class_basename($this), $this->attribute);
             }
@@ -38,7 +40,9 @@ class NovaInlineRelationshipServiceProvider extends ServiceProvider
                 NovaInlineRelationship::class :
                 config('nova-inline-relationships.custom');
 
-            return $InlineRelationship::make($this->name, $this->attribute)->resourceClass($this->resourceClass);
+            return $InlineRelationship::make($this->name, $this->attribute)
+                ->resourceClass($this->resourceClass)
+                ->setRequest($Request);
         });
     }
 
