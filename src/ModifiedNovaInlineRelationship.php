@@ -113,9 +113,9 @@ class ModifiedNovaInlineRelationship extends Field
     {
         parent::resolve($resource, $attribute);
 
-        // $request = app(NovaRequest::class);
+        $request = $this->getNovaRequest();
 
-        if ($this->request->isCreateOrAttachRequest() || $this->request->isUpdateOrUpdateAttachedRequest()) {
+        if ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest()) {
             $attribute = $attribute ?? $this->attribute;
 
             $properties = $this->getPropertiesWithMetaForForms($resource, $attribute);
@@ -176,13 +176,15 @@ class ModifiedNovaInlineRelationship extends Field
     {
         list($fields, $related_resource) = $this->getFieldsFromResource($resource, $attribute);
 
+        $request = $this->getNovaRequest();
+
         $fields
-            ->filter->authorize($this->request) // app(NovaRequest::class)
-            ->filter(function ($field) use ($related_resource) {
+            ->filter->authorize($request) // app(NovaRequest::class)
+            ->filter(function ($field) use ($request, $related_resource) {
                 $field->resolve($related_resource);
 
-                return ($this->request->isCreateOrAttachRequest() && $field->showOnCreation)
-                    || ($this->request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
+                return ($request->isCreateOrAttachRequest() && $field->showOnCreation)
+                    || ($request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
             });
 
         return $this->getPropertiesFromFields($fields)
@@ -451,7 +453,7 @@ class ModifiedNovaInlineRelationship extends Field
             ? new $this->resourceClass(isset($model->{$attribute}) ? $model->{$attribute} : $model)
             : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
-        return collect([collect($resource->availableFields($this->request))
+        return collect([collect($resource->availableFields($this->getNovaRequest()))
             ->reject(function ($field) use ($resource) {
                 return $field instanceof ListableField ||
                     $field instanceof ResourceToolElement ||
@@ -556,6 +558,11 @@ class ModifiedNovaInlineRelationship extends Field
     protected function getNovaRequest() {
         if($this->request === null) {
             $this->request = app(NovaRequest::class);
+        }
+        if(!$this->request->has('viaInlineRelationship')) {
+            $this->request->merge([
+                'viaInlineRelationship' => true
+            ]);
         }
         return $this->request;
     }
