@@ -559,6 +559,9 @@ class ModifiedNovaInlineRelationship extends Field
         if($this->request === null) {
             $this->request = app(NovaRequest::class);
         }
+        if(!$this->request instanceof NovaRequest) {
+            $this->request = new NovaRequest($this->request->all());
+        }
         if(!$this->request->has('viaInlineRelationship')) {
             $this->request->merge([
                 'viaInlineRelationship' => true
