@@ -295,6 +295,11 @@ class NovaInlineRelationship extends Field
 
         /** @var Field $class */
         $class = app($item['component'], $attrs);
+
+        if (isset($value) && is_callable($class->resolveCallback)) {
+            $value = call_user_func($class->resolveCallback, $value, $resource, $attrib);
+        }
+
         $class->value = $value !== null ? $value : '';
 
         if (! empty($item['options']) && is_array($item['options'])) {
