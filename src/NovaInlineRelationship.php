@@ -470,8 +470,8 @@ class NovaInlineRelationship extends Field
         }
 
         $this->value = $this->value->map(function ($items) use ($properties) {
-            return collect($items)->map(function ($value, $key) use ($properties) {
-                return $properties->has($key) ? $this->setMetaFromClass($properties->get($key), $key, $value) : null;
+            return collect($items)->map(function ($value, $key) use ($properties, $items) {
+                return $properties->has($key) ? $this->setMetaFromClass($properties->get($key), $key, $items->{$key}) : null;
             })->filter();
         });
     }
