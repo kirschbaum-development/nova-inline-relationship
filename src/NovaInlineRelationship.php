@@ -309,7 +309,7 @@ class NovaInlineRelationship extends Field
 
         $item['meta'] = $class->jsonSerialize();
         // We are using Singular Label instead of name to display labels as compound name will be used in Vue
-        $item['meta']['singularLabel'] = Str::title(Str::singular(str_replace('_', ' ', $item['label'] ?? $attrib)));
+        $item['meta']['singularLabel'] = Str::title(str_replace('_', ' ', $item['label'] ?? $attrib));
 
         $item['meta']['placeholder'] = 'Add ' . $item['meta']['singularLabel'];
 
