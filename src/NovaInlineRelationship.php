@@ -286,10 +286,11 @@ class NovaInlineRelationship extends Field
      * @param array $item
      * @param $attrib
      * @param null $value
+     * @param null|mixed $resource
      *
      * @return array
      */
-    protected function setMetaFromClass(array $item, $attrib, $value = null)
+    protected function setMetaFromClass(array $item, $attrib, $value = null, $resource = null)
     {
         $attrs = ['name' => $attrib, 'attribute' => $attrib];
 
