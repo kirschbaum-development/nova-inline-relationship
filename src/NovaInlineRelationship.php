@@ -6,6 +6,7 @@ use stdClass;
 use Carbon\Carbon;
 use App\Nova\Resource;
 use Laravel\Nova\Nova;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\File;
@@ -286,15 +287,21 @@ class NovaInlineRelationship extends Field
      * @param array $item
      * @param $attrib
      * @param null $value
+     * @param null|mixed $resource
      *
      * @return array
      */
-    protected function setMetaFromClass(array $item, $attrib, $value = null)
+    protected function setMetaFromClass(array $item, $attrib, $value = null, $resource = null)
     {
         $attrs = ['name' => $attrib, 'attribute' => $attrib];
 
         /** @var Field $class */
         $class = app($item['component'], $attrs);
+
+        if (isset($value) && is_callable($class->resolveCallback)) {
+            $value = call_user_func($class->resolveCallback, $value, $resource, $attrib);
+        }
+
         $class->value = $value !== null ? $value : '';
 
         if (! empty($item['options']) && is_array($item['options'])) {
@@ -460,13 +467,17 @@ class NovaInlineRelationship extends Field
     protected function updateFieldValue($resource, $attribute, Collection $properties): void
     {
         if ($this->isSingularRelationship($resource, $attribute)) {
-            $this->value = collect($this->value ? [$this->value] : []);
+            $this->value = collect(Arr::wrap($this->value));
         }
 
         $this->value = $this->value->map(function ($items) use ($properties) {
-            return collect($items)->map(function ($value, $key) use ($properties) {
-                return $properties->has($key) ? $this->setMetaFromClass($properties->get($key), $key, $value) : null;
-            })->filter();
+            return collect($items)
+                ->map(function ($value, $key) use ($properties, $items) {
+                    return $properties->has($key)
+                        ? $this->setMetaFromClass($properties->get($key), $key, $items->{$key} ?? $value)
+                        : null;
+                })
+                ->filter();
         });
     }
 
