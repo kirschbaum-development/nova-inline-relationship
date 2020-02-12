@@ -6,6 +6,7 @@ use stdClass;
 use Carbon\Carbon;
 use App\Nova\Resource;
 use Laravel\Nova\Nova;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\File;
@@ -466,20 +467,17 @@ class NovaInlineRelationship extends Field
     protected function updateFieldValue($resource, $attribute, Collection $properties): void
     {
         if ($this->isSingularRelationship($resource, $attribute)) {
-            $this->value = collect($this->value ? [$this->value] : []);
+            $this->value = collect(Arr::wrap($this->value));
         }
 
         $this->value = $this->value->map(function ($items) use ($properties) {
-            return collect($items)->map(function ($value, $key) use ($properties, $items) {
-                return $properties->has($key)
-                    ? $this->setMetaFromClass(
-                        $properties->get($key),
-                        $key,
-                        $items->{$key}
-                            ?? $value
-                    )
-                    : null;
-            })->filter();
+            return collect($items)
+                ->map(function ($value, $key) use ($properties, $items) {
+                    return $properties->has($key)
+                        ? $this->setMetaFromClass($properties->get($key), $key, $items->{$key} ?? $value)
+                        : null;
+                })
+                ->filter();
         });
     }
 
