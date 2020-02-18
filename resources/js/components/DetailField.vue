@@ -2,7 +2,7 @@
     <div class="flex border-b border-40">
         <div class="w-1/4 py-4">
             <slot>
-                <h4 class="font-normal text-80" v-text="field.singularLabel"></h4>
+                <h4 class="font-normal text-80" v-text="field.singular ? field.singularLabel : field.pluralLabel"></h4>
             </slot>
         </div>
 
