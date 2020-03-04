@@ -17,7 +17,7 @@
           :ref="index"
           :key="items.id"
           :id="index"
-          :model-id="field.models[index]||0"
+          :model-id="items.modelId"
           :model-key="field.modelKey"
           :value="items.fields"
           :errors="errorList"
