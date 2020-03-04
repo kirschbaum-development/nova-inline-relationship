@@ -532,6 +532,15 @@ class NovaInlineRelationship extends Field
 
                 return $value;
             })->all();
+
+            if (! empty($this->sortUsing)) {
+                $fields[$this->sortUsing] = $weight;
+            }
+
+            return [
+                'fields' => $fields,
+                'modelId' => $modelId,
+            ];
         })->all();
     }
 
