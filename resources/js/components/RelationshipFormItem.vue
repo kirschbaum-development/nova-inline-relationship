@@ -1,7 +1,7 @@
 <template>
     <div class="card shadow-md mb-4">
         <div class="bg-30 flex p-2 border-b border-40">
-            <div v-if="! field.singular"
+            <div v-if="! field.singular && field.sortable"
                 class="w-1/8 text-left py-2 px-2">
                 <span class="relationship-item-handle py-2 px-2 cursor-move">
                     <svg xmlns="http://www.w3.org/2000/svg"
