@@ -18,12 +18,14 @@ class HasManyObserver extends BaseObserver
             ->each
             ->delete();
 
-        $childModels = $model->{$attribute}()->get()->all();
+        for ($i = 0; $i < count($value); $i++) {
+            $childModel = $model->{$attribute}()->find($value[$i]['modelId']);
 
-        for ($i = 0; $i < $count; $i++) {
-            $i < count($childModels)
-                ? $childModels[$i]->update($value[$i])
-                : $model->{$attribute}()->create($value[$i]);
+            if (empty($childModel)) {
+                $model->{$attribute}()->create($value[$i]['fields']);
+            } else {
+                $childModel->update($value[$i]['fields']);
+            }
         }
     }
 
