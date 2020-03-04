@@ -122,12 +122,12 @@
                         let keyParts = key.split('_');
 
                         if (keyParts.length === 1) {
-                            formData.append(`${parentAttrib}[${this.id}][${key}]`, value);
+                            formData.append(`${parentAttrib}[${this.id}][values][${key}]`, value);
                         } else {
                             let parentParts = parentAttrib.split('_');
                             let attrib = keyParts.slice(parentParts.length + 1).join('_');
 
-                            formData.append(`${parentAttrib}[${this.id}][${attrib}]`, value);
+                            formData.append(`${parentAttrib}[${this.id}][values][${attrib}]`, value);
                         }
                     }
                 );
