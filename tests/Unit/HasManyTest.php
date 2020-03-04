@@ -59,10 +59,12 @@ class HasManyTest extends TestCase
     public function testFillAttributeForCreate()
     {
         $request = [
-            'name' => 'Test',
-            'bills' => [
-                [
-                    'amount' => '100',
+            'values' => [
+                'name' => 'Test',
+                'bills' => [
+                    [
+                        'amount' => '100',
+                    ],
                 ],
             ],
         ];
@@ -83,13 +85,15 @@ class HasManyTest extends TestCase
     public function testFillAttributeForCreateMany()
     {
         $request = [
-            'name' => 'New Test',
-            'bills' => [
-                [
-                    'amount' => '100',
-                ],
-                [
-                    'amount' => '200',
+            'values' => [
+                'name' => 'New Test',
+                'bills' => [
+                    [
+                        'amount' => '100',
+                    ],
+                    [
+                        'amount' => '200',
+                    ],
                 ],
             ],
         ];
@@ -114,10 +118,12 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
 
         $request = [
-            'name' => 'Test',
-            'bills' => [
-                [
-                    'amount' => '200',
+            'values' => [
+                'name' => 'Test',
+                'bills' => [
+                    [
+                        'amount' => '200',
+                    ],
                 ],
             ],
         ];
@@ -139,13 +145,15 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '200']));
 
         $request = [
-            'name' => 'Test',
-            'bills' => [
-                [
-                    'amount' => '300',
-                ],
-                [
-                    'amount' => '400',
+            'values' => [
+                'name' => 'Test',
+                'bills' => [
+                    [
+                        'amount' => '300',
+                    ],
+                    [
+                        'amount' => '400',
+                    ],
                 ],
             ],
         ];
@@ -168,13 +176,15 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '200']));
 
         $request = [
-            'name' => 'Test',
-            'bills' => [
-                [
-                    'amount' => '200',
-                ],
-                [
-                    'amount' => '100',
+            'values' => [
+                'name' => 'Test',
+                'bills' => [
+                    [
+                        'amount' => '200',
+                    ],
+                    [
+                        'amount' => '100',
+                    ],
                 ],
             ],
         ];
@@ -196,13 +206,15 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
 
         $request = [
-            'name' => 'Test',
-            'bills' => [
-                [
-                    'amount' => '300',
-                ],
-                [
-                    'amount' => '400',
+            'values' => [
+                'name' => 'Test',
+                'bills' => [
+                    [
+                        'amount' => '300',
+                    ],
+                    [
+                        'amount' => '400',
+                    ],
                 ],
             ],
         ];
@@ -227,10 +239,12 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '200']));
 
         $request = [
-            'name' => 'Test',
-            'bills' => [
-                [
-                    'amount' => '300',
+            'values' => [
+                'name' => 'Test',
+                'bills' => [
+                    [
+                        'amount' => '300',
+                    ],
                 ],
             ],
         ];
@@ -253,8 +267,10 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
 
         $request = [
-            'name' => 'Test',
-            'bills' => [
+            'values' => [
+                'name' => 'Test',
+                'bills' => [
+                ],
             ],
         ];
 

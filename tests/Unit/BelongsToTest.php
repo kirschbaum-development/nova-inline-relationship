@@ -59,10 +59,12 @@ class BelongsToTest extends TestCase
     public function testFillAttributeForCreate()
     {
         $request = [
-            'name' => 'Test',
-            'department' => [
-                [
-                    'title' => '123123123',
+            'values' => [
+                'name' => 'Test',
+                'department' => [
+                    [
+                        'title' => '123123123',
+                    ],
                 ],
             ],
         ];
@@ -86,10 +88,12 @@ class BelongsToTest extends TestCase
         $id = $this->userModel->fresh()->department->id;
 
         $updateRequest = [
-            'name' => 'Test 2',
-            'department' => [
-                [
-                    'title' => '456456456',
+            'values' => [
+                'name' => 'Test 2',
+                'department' => [
+                    [
+                        'title' => '456456456',
+                    ],
                 ],
             ],
         ];
@@ -107,8 +111,10 @@ class BelongsToTest extends TestCase
     public function testFillAttributeWillNotDelete()
     {
         $updateRequest = [
-            'name' => 'Test 2',
-            'department' => [
+            'values' => [
+                'name' => 'Test 2',
+                'department' => [
+                ],
             ],
         ];
 

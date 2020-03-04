@@ -58,10 +58,12 @@ class MorphManyTest extends TestCase
     public function testFillAttributeForCreate()
     {
         $request = [
-            'name' => 'Test',
-            'comments' => [
-                [
-                    'text' => 'comment 1',
+            'values' => [
+                'name' => 'Test',
+                'comments' => [
+                    [
+                        'text' => 'comment 1',
+                    ],
                 ],
             ],
         ];
@@ -82,13 +84,15 @@ class MorphManyTest extends TestCase
     public function testFillAttributeForCreateMany()
     {
         $request = [
-            'name' => 'New Test',
-            'comments' => [
-                [
-                    'text' => 'comment 1',
-                ],
-                [
-                    'text' => 'comment 2',
+            'values' => [
+                'name' => 'New Test',
+                'comments' => [
+                    [
+                        'text' => 'comment 1',
+                    ],
+                    [
+                        'text' => 'comment 2',
+                    ],
                 ],
             ],
         ];
@@ -113,10 +117,12 @@ class MorphManyTest extends TestCase
         $newEmployee->comments()->save(Comment::make(['text' => 'comment 1']));
 
         $request = [
-            'name' => 'Test',
-            'comments' => [
-                [
-                    'text' => 'comment 2',
+            'values' => [
+                'name' => 'Test',
+                'comments' => [
+                    [
+                        'text' => 'comment 2',
+                    ],
                 ],
             ],
         ];
@@ -138,13 +144,15 @@ class MorphManyTest extends TestCase
         $newEmployee->comments()->save(Comment::make(['text' => 'comment 2']));
 
         $request = [
-            'name' => 'Test',
-            'comments' => [
-                [
-                    'text' => 'comment 3',
-                ],
-                [
-                    'text' => 'comment 4',
+            'values' => [
+                'name' => 'Test',
+                'comments' => [
+                    [
+                        'text' => 'comment 3',
+                    ],
+                    [
+                        'text' => 'comment 4',
+                    ],
                 ],
             ],
         ];
@@ -167,13 +175,15 @@ class MorphManyTest extends TestCase
         $newEmployee->comments()->save(Comment::make(['text' => 'comment 2']));
 
         $request = [
-            'name' => 'Test',
-            'comments' => [
-                [
-                    'text' => 'comment 2',
-                ],
-                [
-                    'text' => 'comment 1',
+            'values' => [
+                'name' => 'Test',
+                'comments' => [
+                    [
+                        'text' => 'comment 2',
+                    ],
+                    [
+                        'text' => 'comment 1',
+                    ],
                 ],
             ],
         ];
@@ -195,13 +205,15 @@ class MorphManyTest extends TestCase
         $newEmployee->comments()->save(Comment::make(['text' => 'comment 1']));
 
         $request = [
-            'name' => 'Test',
-            'comments' => [
-                [
-                    'text' => 'comment 3',
-                ],
-                [
-                    'text' => 'comment 4',
+            'values' => [
+                'name' => 'Test',
+                'comments' => [
+                    [
+                        'text' => 'comment 3',
+                    ],
+                    [
+                        'text' => 'comment 4',
+                    ],
                 ],
             ],
         ];
@@ -226,10 +238,12 @@ class MorphManyTest extends TestCase
         $newEmployee->comments()->save(Comment::make(['text' => 'comment 2']));
 
         $request = [
-            'name' => 'Test',
-            'comments' => [
-                [
-                    'text' => 'comment 3',
+            'values' => [
+                'name' => 'Test',
+                'comments' => [
+                    [
+                        'text' => 'comment 3',
+                    ],
                 ],
             ],
         ];
@@ -252,8 +266,10 @@ class MorphManyTest extends TestCase
         $newEmployee->comments()->save(Comment::make(['text' => 'comment 1']));
 
         $request = [
-            'name' => 'Test',
-            'comments' => [
+            'values' => [
+                'name' => 'Test',
+                'comments' => [
+                ],
             ],
         ];
 
