@@ -34,6 +34,6 @@ class HasManyObserver extends BaseObserver
      */
     public function created(Model $model, $attribute, $value)
     {
-        $model->{$attribute}()->createMany($value);
+        $model->{$attribute}()->createMany(Arr::pluck($value, 'fields'));
     }
 }
