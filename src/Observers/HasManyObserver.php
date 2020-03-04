@@ -23,9 +23,10 @@ class HasManyObserver extends BaseObserver
 
             if (empty($childModel)) {
                 $model->{$attribute}()->create($value[$i]['fields']);
-            } else {
-                $childModel->update($value[$i]['fields']);
+
+                continue;
             }
+            $childModel->update($value[$i]['fields']);
         }
     }
 
