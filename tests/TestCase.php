@@ -181,11 +181,13 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * Load package service provider.
+     * Get package providers.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
      *
      * @return array
      */
-    protected function getPackageProviders()
+    protected function getPackageProviders($app)
     {
         return [NovaInlineRelationshipServiceProvider::class];
     }
