@@ -117,6 +117,7 @@
             },
 
             fill(formData, parentAttrib) {
+	            formData.append(`${parentAttrib}[${this.id}][modelId]`, this.modelId);
                 this.getValueFromChildren().forEach(
                     (value, key) => {
                         let keyParts = key.split('_');
