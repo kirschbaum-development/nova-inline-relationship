@@ -267,6 +267,10 @@ class NovaInlineRelationship extends Field
      */
     protected function resolveResourceFields($resource, $attribute, $properties)
     {
+        if (! empty($this->sortUsing) && $this->value instanceof Collection && $this->value->isNotEmpty()) {
+            $this->value = $this->value->sortBy($this->sortUsing)->values();
+        }
+
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
         $modelKey = optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance();
 
