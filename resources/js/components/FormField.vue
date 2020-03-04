@@ -9,6 +9,7 @@
       <draggable
         v-model="items"
         handle=".relationship-item-handle"
+        :disabled="!field.sortable"
         @start="drag=true"
         @end="drag=false"
       >
