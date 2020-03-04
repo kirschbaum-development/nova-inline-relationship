@@ -58,12 +58,13 @@ class HasOneTest extends TestCase
     public function testFillAttributeForCreate()
     {
         $request = [
-            'values' => [
-                'name' => 'Test',
-                'profile' => [
-                    [
+            'name' => 'Test',
+            'profile' => [
+                [
+                    'values' => [
                         'phone' => '123123123',
                     ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -90,12 +91,13 @@ class HasOneTest extends TestCase
         $id = $newEmployee->fresh()->profile->id;
 
         $updateRequest = [
-            'values' => [
-                'name' => 'Test 2',
-                'profile' => [
-                    [
+            'name' => 'Test 2',
+            'profile' => [
+                [
+                    'values' => [
                         'phone' => '456456456',
                     ],
+                    'modelId' => $id,
                 ],
             ],
         ];
@@ -115,11 +117,11 @@ class HasOneTest extends TestCase
         $newEmployee = Employee::create(['name' => 'Test']);
         $newEmployee->profile()->save(Profile::make(['phone' => '123123123']));
 
+        $id = $newEmployee->fresh()->profile->id;
+
         $updateRequest = [
-            'values' => [
-                'name' => 'Test 2',
-                'profile' => [
-                ],
+            'name' => 'Test 2',
+            'profile' => [
             ],
         ];
 

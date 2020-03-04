@@ -58,12 +58,13 @@ class MorphOneTest extends TestCase
     public function testFillAttributeForCreate()
     {
         $request = [
-            'values' => [
-                'name' => 'Test',
-                'summary' => [
-                    [
+            'name' => 'Test',
+            'summary' => [
+                [
+                    'values' => [
                         'text' => 'summary text',
                     ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -89,12 +90,13 @@ class MorphOneTest extends TestCase
         $id = $newEmployee->fresh()->summary->id;
 
         $updateRequest = [
-            'values' => [
-                'name' => 'Test 2',
-                'summary' => [
-                    [
+            'name' => 'Test 2',
+            'summary' => [
+                [
+                    'values' => [
                         'text' => 'new summary text',
                     ],
+                    'modelId' => $id,
                 ],
             ],
         ];
@@ -115,10 +117,8 @@ class MorphOneTest extends TestCase
         $newEmployee->summary()->save(Summary::make(['text' => 'summary text']));
 
         $updateRequest = [
-            'values' => [
-                'name' => 'Test 2',
-                'summary' => [
-                ],
+            'name' => 'Test 2',
+            'summary' => [
             ],
         ];
 
