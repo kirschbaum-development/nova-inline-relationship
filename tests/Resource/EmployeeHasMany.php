@@ -21,7 +21,9 @@ class EmployeeHasMany extends Resource
         return [
             Text::make('Name'),
 
-            HasMany::make('Bills', 'bills', Bill::class)->inline(),
+            HasMany::make('Bills', 'bills', Bill::class)
+                ->inline()
+                ->sortUsing('weight'),
         ];
     }
 }
