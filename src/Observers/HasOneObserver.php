@@ -15,10 +15,10 @@ class HasOneObserver extends BaseObserver
 
         if (! empty($childModel)) {
             count($value)
-                ? $childModel->update($value[0])
+                ? $childModel->update($value[0]['fields'])
                 : $childModel->delete();
         } elseif (count($value)) {
-            $model->{$attribute}()->create($value[0]);
+            $model->{$attribute}()->create($value[0]['fields']);
         }
     }
 
@@ -28,7 +28,7 @@ class HasOneObserver extends BaseObserver
     public function created(Model $model, $attribute, $value)
     {
         if (count($value)) {
-            $model->{$attribute}()->create($value[0]);
+            $model->{$attribute}()->create($value[0]['fields']);
         }
     }
 }

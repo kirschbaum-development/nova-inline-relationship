@@ -18,7 +18,7 @@ class BelongsToObserver extends BaseObserver
         }
 
         if (count($value)) {
-            $parentModel->update($value[0]);
+            $parentModel->update($value[0]['fields']);
         }
     }
 
@@ -28,7 +28,7 @@ class BelongsToObserver extends BaseObserver
     public function creating(Model $model, $attribute, $value)
     {
         if (count($value)) {
-            $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]);
+            $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]['fields']);
             $parentModel->save();
             $model->{$attribute}()->associate($parentModel);
         }
