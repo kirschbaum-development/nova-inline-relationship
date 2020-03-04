@@ -70,22 +70,7 @@ You can also update, re-arrange (for one-to-many relationships), and delete rela
  To rearrange a model you should specify an `integer` field which will be used to sort models. For example, in the following code we will use a field named `weight` to store the sorting order for `Images`.
  
  ```php
- namespace App\Nova;
- 
- use Laravel\Nova\Fields\Image;
- 
- class BlogPost extends Resource
- {
-     //...
-     public function fields(Request $request)
-     {
-         return [
-             //...
- 
-             HasMany::make('Images', 'images', Image::class)->inline()->sortUsing('weight'),
-         ];
-     }
- }
+HasMany::make('Images', 'images', Image::class)->inline()->sortUsing('weight'),
  ```
 
 

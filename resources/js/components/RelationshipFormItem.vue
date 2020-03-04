@@ -117,19 +117,20 @@
             },
 
             fill(formData, parentAttrib) {
-	            formData.append(`${parentAttrib}[${this.id}][modelId]`, this.modelId);
+            	formData.append(`${parentAttrib}[${this.id}][modelId]`, this.modelId);
                 this.getValueFromChildren().forEach(
                     (value, key) => {
                         let keyParts = key.split('_');
 
                         if (keyParts.length === 1) {
                             formData.append(`${parentAttrib}[${this.id}][values][${key}]`, value);
-                        } else {
-                            let parentParts = parentAttrib.split('_');
-                            let attrib = keyParts.slice(parentParts.length + 1).join('_');
-
-                            formData.append(`${parentAttrib}[${this.id}][values][${attrib}]`, value);
+                            return;
                         }
+
+                        let parentParts = parentAttrib.split('_');
+                        let attrib = keyParts.slice(parentParts.length + 1).join('_');
+
+                        formData.append(`${parentAttrib}[${this.id}][values][${attrib}]`, value);
                     }
                 );
             },

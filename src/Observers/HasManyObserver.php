@@ -26,6 +26,7 @@ class HasManyObserver extends BaseObserver
 
                 continue;
             }
+
             $childModel->update($value[$i]['fields']);
         }
     }
