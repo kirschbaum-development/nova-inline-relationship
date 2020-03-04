@@ -284,6 +284,7 @@ class NovaInlineRelationship extends Field
             'singular' => $this->isSingularRelationship($resource, $attribute),
             'deletable' => $this->isRelationshipDeletable($resource, $attribute),
             'addChildAtStart' => $this->requireChild,
+            'sortable' => ! empty($this->sortUsing),
         ]);
 
         $this->updateFieldValue($resource, $attribute, $properties);
