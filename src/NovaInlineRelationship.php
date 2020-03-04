@@ -515,8 +515,11 @@ class NovaInlineRelationship extends Field
      */
     protected function getResourceResponse(NovaRequest $request, $response, Collection $properties): array
     {
-        return collect($response)->map(function ($item) use ($properties, $request) {
-            return collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
+        return collect($response)->map(function ($itemData, $weight) use ($properties, $request) {
+            $item = $itemData['values'];
+            $modelId = $itemData['modelId'];
+
+            $fields = collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
                 if ($properties->has($key)) {
                     $field = $this->getResourceField($properties->get($key), $key);
                     $newRequest = $this->getDuplicateRequest($request, $item);
