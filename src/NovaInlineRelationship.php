@@ -50,6 +50,13 @@ class NovaInlineRelationship extends Field
     private $resourceClass;
 
     /**
+     * Name of field used to sort the models.
+     *
+     * @var string
+     */
+    private $sortUsing = '';
+
+    /**
      * Pass resourceClass to NovaInlineRelationship.
      *
      * @param string $class
@@ -59,6 +66,20 @@ class NovaInlineRelationship extends Field
     public function resourceClass(string $class): self
     {
         $this->resourceClass = $class;
+
+        return $this;
+    }
+
+    /**
+     * Fluent setter for sortUsing field.
+     *
+     * @param string $sortUsing
+     *
+     * @return NovaInlineRelationship
+     */
+    public function sortUsing(string $sortUsing): self
+    {
+        $this->sortUsing = $sortUsing;
 
         return $this;
     }
