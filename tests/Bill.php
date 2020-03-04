@@ -11,7 +11,7 @@ class Bill extends Model
      *
      * @var array
      */
-    protected $fillable = ['amount'];
+    protected $fillable = ['amount', 'weight'];
 
     public function employee()
     {
