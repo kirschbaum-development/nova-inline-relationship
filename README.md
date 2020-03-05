@@ -71,6 +71,7 @@ You can add drag and drop functionality for related models to update their order
  
  ```php
 HasMany::make('Images')->inline()->sortUsing('order'),
+```
 
 
 ## Required Relationships
