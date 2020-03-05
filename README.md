@@ -67,11 +67,10 @@ You can also update, re-arrange (for one-to-many relationships), and delete rela
 
 ![Rearrange Models](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/screenshots/UpdateView.png "Rearrange Models")
 
- To rearrange a model you should specify an `integer` field which will be used to sort models. For example, in the following code we will use a field named `weight` to store the sorting order for `Images`.
+You can add drag and drop functionality for related models to update their order by using the `sortUsing()` method. In the following code example we use a field named `order` to store the sort order for the `Images` model:
  
  ```php
-HasMany::make('Images', 'images', Image::class)->inline()->sortUsing('weight'),
- ```
+HasMany::make('Images')->inline()->sortUsing('order'),
 
 
 ## Required Relationships
