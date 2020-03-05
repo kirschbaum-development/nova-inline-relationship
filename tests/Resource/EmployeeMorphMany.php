@@ -5,7 +5,7 @@ namespace Tests\Resource;
 use Laravel\Nova\Resource;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\MorphOne;
+use Laravel\Nova\Fields\MorphMany;
 
 class EmployeeMorphMany extends Resource
 {
@@ -21,7 +21,9 @@ class EmployeeMorphMany extends Resource
         return [
             Text::make('Name'),
 
-            MorphOne::make('Comments', 'comments', Comment::class)->inline(),
+            MorphMany::make('Comments', 'comments', Comment::class)
+                ->inline()
+                ->sortUsing('weight'),
         ];
     }
 }

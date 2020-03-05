@@ -61,7 +61,10 @@ class HasOneTest extends TestCase
             'name' => 'Test',
             'profile' => [
                 [
-                    'phone' => '123123123',
+                    'values' => [
+                        'phone' => '123123123',
+                    ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -91,7 +94,10 @@ class HasOneTest extends TestCase
             'name' => 'Test 2',
             'profile' => [
                 [
-                    'phone' => '456456456',
+                    'values' => [
+                        'phone' => '456456456',
+                    ],
+                    'modelId' => $id,
                 ],
             ],
         ];

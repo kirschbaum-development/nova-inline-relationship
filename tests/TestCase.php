@@ -129,6 +129,7 @@ abstract class TestCase extends Orchestra
             $table->increments('id');
             $table->decimal('amount', 5, 2);
             $table->integer('employee_id');
+            $table->integer('weight')->default(0);
             $table->timestamps();
         });
 
@@ -142,6 +143,7 @@ abstract class TestCase extends Orchestra
         $this->app['db']->connection()->getSchemaBuilder()->create('comments', function (Blueprint $table) {
             $table->increments('id');
             $table->string('text');
+            $table->integer('weight')->default(0);
             $table->morphs('commentable');
             $table->timestamps();
         });
@@ -181,11 +183,13 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * Load package service provider.
+     * Get package providers.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
      *
      * @return array
      */
-    protected function getPackageProviders()
+    protected function getPackageProviders($app)
     {
         return [NovaInlineRelationshipServiceProvider::class];
     }

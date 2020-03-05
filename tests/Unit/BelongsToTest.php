@@ -62,7 +62,10 @@ class BelongsToTest extends TestCase
             'name' => 'Test',
             'department' => [
                 [
-                    'title' => '123123123',
+                    'values' => [
+                        'title' => '123123123',
+                    ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -89,7 +92,10 @@ class BelongsToTest extends TestCase
             'name' => 'Test 2',
             'department' => [
                 [
-                    'title' => '456456456',
+                    'values' => [
+                        'title' => '456456456',
+                    ],
+                    'modelId' => $id,
                 ],
             ],
         ];

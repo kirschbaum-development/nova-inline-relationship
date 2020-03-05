@@ -9,6 +9,7 @@
       <draggable
         v-model="items"
         handle=".relationship-item-handle"
+        :disabled="! field.sortable"
         @start="drag=true"
         @end="drag=false"
       >
@@ -17,7 +18,7 @@
           :ref="index"
           :key="items.id"
           :id="index"
-          :model-id="field.models[index]||0"
+          :model-id="items.modelId"
           :model-key="field.modelKey"
           :value="items.fields"
           :errors="errorList"
@@ -89,8 +90,12 @@ export default {
          */
         setInitialValue() {
             this.items = Array.isArray(this.field.value) ? this.field.value : [];
-            this.items = this.items.map(item=>{
-                return { 'id': this.getNextId(), 'fields':item }
+            this.items = this.items.map((item, index) => {
+                return {
+                	'id': this.getNextId(),
+	                'modelId': this.field.models[index],
+	                'fields': item
+                }
             });
 
             if(this.field.singular){
@@ -98,7 +103,11 @@ export default {
             }
 
             if(this.field.addChildAtStart && (this.items.length === 0)){
-                this.items.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
+                this.items.push({
+	                'id': this.getNextId(),
+	                'modelId': 0,
+	                'fields': {...this.field.settings}
+                });
             }
         },
 
@@ -145,7 +154,11 @@ export default {
 
         addItem(){
             let value = [...this.items];
-            value.push({ 'id': this.getNextId(), 'fields': {...this.field.settings}});
+            value.push({
+	            'id': this.getNextId(),
+	            'modelId': 0,
+	            'fields': {...this.field.settings}
+            });
             this.handleChange(value);
         },
     }

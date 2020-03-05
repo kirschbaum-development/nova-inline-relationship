@@ -50,6 +50,13 @@ class NovaInlineRelationship extends Field
     private $resourceClass;
 
     /**
+     * Name of field used to sort the models.
+     *
+     * @var string
+     */
+    private $sortUsing = '';
+
+    /**
      * Pass resourceClass to NovaInlineRelationship.
      *
      * @param string $class
@@ -59,6 +66,20 @@ class NovaInlineRelationship extends Field
     public function resourceClass(string $class): self
     {
         $this->resourceClass = $class;
+
+        return $this;
+    }
+
+    /**
+     * Fluent setter for sortUsing field.
+     *
+     * @param string $sortUsing
+     *
+     * @return NovaInlineRelationship
+     */
+    public function sortUsing(string $sortUsing): self
+    {
+        $this->sortUsing = $sortUsing;
 
         return $this;
     }
@@ -246,6 +267,10 @@ class NovaInlineRelationship extends Field
      */
     protected function resolveResourceFields($resource, $attribute, $properties)
     {
+        if (! empty($this->sortUsing) && $this->value instanceof Collection && $this->value->isNotEmpty()) {
+            $this->value = $this->value->sortBy($this->sortUsing)->values();
+        }
+
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
         $modelKey = optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance();
 
@@ -259,6 +284,7 @@ class NovaInlineRelationship extends Field
             'singular' => $this->isSingularRelationship($resource, $attribute),
             'deletable' => $this->isRelationshipDeletable($resource, $attribute),
             'addChildAtStart' => $this->requireChild,
+            'sortable' => ! empty($this->sortUsing),
         ]);
 
         $this->updateFieldValue($resource, $attribute, $properties);
@@ -490,8 +516,11 @@ class NovaInlineRelationship extends Field
      */
     protected function getResourceResponse(NovaRequest $request, $response, Collection $properties): array
     {
-        return collect($response)->map(function ($item) use ($properties, $request) {
-            return collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
+        return collect($response)->map(function ($itemData, $weight) use ($properties, $request) {
+            $item = $itemData['values'];
+            $modelId = $itemData['modelId'];
+
+            $fields = collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
                 if ($properties->has($key)) {
                     $field = $this->getResourceField($properties->get($key), $key);
                     $newRequest = $this->getDuplicateRequest($request, $item);
@@ -504,6 +533,15 @@ class NovaInlineRelationship extends Field
 
                 return $value;
             })->all();
+
+            if (! empty($this->sortUsing)) {
+                $fields[$this->sortUsing] = $weight;
+            }
+
+            return [
+                'fields' => $fields,
+                'modelId' => $modelId,
+            ];
         })->all();
     }
 

@@ -45,12 +45,12 @@ class HasManyTest extends TestCase
 
         $inlineField->value->each(function ($bill) {
             $this->assertArrayHasKey('amount', $bill->all());
-            tap($bill->get('amount'), function ($phone) {
-                $this->assertEquals(Currency::class, $phone['component']);
-                $this->assertEquals('amount', $phone['attribute']);
-                $this->assertEquals('number', $phone['options']['type']);
-                tap($phone['meta'], function ($meta) {
-                    $this->assertEquals('text-field', $meta['component']);
+            tap($bill->get('amount'), function ($amount) {
+                $this->assertEquals(Currency::class, $amount['component']);
+                $this->assertEquals('amount', $amount['attribute']);
+                $this->assertEquals('number', $amount['options']['type']);
+                tap($amount['meta'], function ($meta) {
+                    $this->assertEquals('currency-field', $meta['component']);
                 });
             });
         });
@@ -62,7 +62,10 @@ class HasManyTest extends TestCase
             'name' => 'Test',
             'bills' => [
                 [
-                    'amount' => '100',
+                    'values' => [
+                        'amount' => '100',
+                    ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -86,10 +89,16 @@ class HasManyTest extends TestCase
             'name' => 'New Test',
             'bills' => [
                 [
-                    'amount' => '100',
+                    'values' => [
+                        'amount' => '100',
+                    ],
+                    'modelId' => 0,
                 ],
                 [
-                    'amount' => '200',
+                    'values' => [
+                        'amount' => '200',
+                    ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -113,11 +122,16 @@ class HasManyTest extends TestCase
         $newEmployee = Employee::create(['name' => 'test']);
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
 
+        $id = $newEmployee->fresh()->bills->first()->id;
+
         $request = [
             'name' => 'Test',
             'bills' => [
                 [
-                    'amount' => '200',
+                    'values' => [
+                        'amount' => '200',
+                    ],
+                    'modelId' => $id,
                 ],
             ],
         ];
@@ -138,14 +152,23 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
         $newEmployee->bills()->save(Bill::make(['amount' => '200']));
 
+        $bill1 = $newEmployee->fresh()->bills->first();
+        $bill2 = $newEmployee->fresh()->bills->reverse()->first();
+
         $request = [
             'name' => 'Test',
             'bills' => [
                 [
-                    'amount' => '300',
+                    'values' => [
+                        'amount' => '300',
+                    ],
+                    'modelId' => $bill1->id,
                 ],
                 [
-                    'amount' => '400',
+                    'values' => [
+                        'amount' => '400',
+                    ],
+                    'modelId' => $bill2->id,
                 ],
             ],
         ];
@@ -154,10 +177,10 @@ class HasManyTest extends TestCase
 
         $newEmployee->save();
 
-        tap($newEmployee->fresh()->bills, function ($bills) {
+        tap($newEmployee->fresh()->bills, function ($bills) use ($bill1, $bill2) {
             $this->assertCount(2, $bills);
-            $this->assertEquals('300', $bills->first()->amount);
-            $this->assertEquals('400', $bills->last()->amount);
+            $this->assertEquals('300', $bill1->fresh()->amount);
+            $this->assertEquals('400', $bill2->fresh()->amount);
         });
     }
 
@@ -167,14 +190,23 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
         $newEmployee->bills()->save(Bill::make(['amount' => '200']));
 
+        $bill1 = $newEmployee->fresh()->bills->first();
+        $bill2 = $newEmployee->fresh()->bills->reverse()->first();
+
         $request = [
             'name' => 'Test',
             'bills' => [
                 [
-                    'amount' => '200',
+                    'values' => [
+                        'amount' => '200',
+                    ],
+                    'modelId' => $bill1->id,
                 ],
                 [
-                    'amount' => '100',
+                    'values' => [
+                        'amount' => '100',
+                    ],
+                    'modelId' => $bill2->id,
                 ],
             ],
         ];
@@ -183,10 +215,58 @@ class HasManyTest extends TestCase
 
         $newEmployee->save();
 
-        tap($newEmployee->fresh()->bills, function ($bills) {
+        tap($newEmployee->fresh()->bills, function ($bills) use ($bill1, $bill2) {
             $this->assertCount(2, $bills);
-            $this->assertEquals('200', $bills->first()->amount);
-            $this->assertEquals('100', $bills->last()->amount);
+            tap($bill1->fresh(), function ($bill) {
+                $this->assertEquals('200', $bill->amount);
+            });
+            tap($bill2->fresh(), function ($bill) {
+                $this->assertEquals('100', $bill->amount);
+            });
+        });
+    }
+
+    public function testFillAttributeForUpdateByOrder()
+    {
+        $newEmployee = Employee::create(['name' => 'test']);
+        $newEmployee->bills()->save(Bill::make(['amount' => '100']));
+        $newEmployee->bills()->save(Bill::make(['amount' => '200']));
+
+        $bill1 = $newEmployee->fresh()->bills->first();
+        $bill2 = $newEmployee->fresh()->bills->reverse()->first();
+
+        $request = [
+            'name' => 'Test',
+            'bills' => [
+                [
+                    'values' => [
+                        'amount' => '200',
+                    ],
+                    'modelId' => $bill2->id,
+                ],
+                [
+                    'values' => [
+                        'amount' => '100',
+                    ],
+                    'modelId' => $bill1->id,
+                ],
+            ],
+        ];
+
+        $this->employeeResource->fillForUpdate(new NovaRequest($request), $newEmployee);
+
+        $newEmployee->save();
+
+        tap($newEmployee->fresh()->bills, function ($bills) use ($bill1, $bill2) {
+            $this->assertCount(2, $bills);
+            tap($bill1->fresh(), function ($bill) {
+                $this->assertEquals('100', $bill->amount);
+                $this->assertEquals(1, $bill->weight);
+            });
+            tap($bill2->fresh(), function ($bill) {
+                $this->assertEquals('200', $bill->amount);
+                $this->assertEquals(0, $bill->weight);
+            });
         });
     }
 
@@ -195,14 +275,22 @@ class HasManyTest extends TestCase
         $newEmployee = Employee::create(['name' => 'test']);
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
 
+        $bill = $newEmployee->fresh()->bills->first();
+
         $request = [
             'name' => 'Test',
             'bills' => [
                 [
-                    'amount' => '300',
+                    'values' => [
+                        'amount' => '300',
+                    ],
+                    'modelId' => $bill->id,
                 ],
                 [
-                    'amount' => '400',
+                    'values' => [
+                        'amount' => '400',
+                    ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -226,11 +314,16 @@ class HasManyTest extends TestCase
         $newEmployee->bills()->save(Bill::make(['amount' => '100']));
         $newEmployee->bills()->save(Bill::make(['amount' => '200']));
 
+        $bill = $newEmployee->fresh()->bills->first();
+
         $request = [
             'name' => 'Test',
             'bills' => [
                 [
-                    'amount' => '300',
+                    'values' => [
+                        'amount' => '300',
+                    ],
+                    'modelId' => $bill->id,
                 ],
             ],
         ];
@@ -241,9 +334,9 @@ class HasManyTest extends TestCase
 
         $newEmployee->save();
 
-        tap($newEmployee->fresh()->bills, function ($bills) {
+        tap($newEmployee->fresh()->bills, function ($bills) use ($bill) {
             $this->assertCount(1, $bills);
-            $this->assertEquals('300', $bills->first()->amount);
+            $this->assertEquals('300', $bill->fresh()->amount);
         });
     }
 

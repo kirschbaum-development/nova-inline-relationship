@@ -67,6 +67,12 @@ You can also update, re-arrange (for one-to-many relationships), and delete rela
 
 ![Rearrange Models](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/screenshots/UpdateView.png "Rearrange Models")
 
+You can add drag and drop functionality for related models to update their order by using the `sortUsing()` method. In the following code example we use a field named `order` to store the sort order for the `Images` model:
+ 
+ ```php
+HasMany::make('Images')->inline()->sortUsing('order'),
+
+
 ## Required Relationships
 
 Occasionally you may want to require a child relationship during the creation of a model. To do this, just use the `requireChild()` method. As an example, you may want to create a new user and enforce that a new profile for the user is also created.

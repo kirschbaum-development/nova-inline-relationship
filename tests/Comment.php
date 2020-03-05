@@ -11,7 +11,7 @@ class Comment extends Model
      *
      * @var array
      */
-    protected $fillable = ['text'];
+    protected $fillable = ['text', 'weight'];
 
     public function commentable()
     {

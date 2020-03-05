@@ -2,6 +2,7 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
 
 class HasManyObserver extends BaseObserver
@@ -11,20 +12,22 @@ class HasManyObserver extends BaseObserver
      */
     public function updating(Model $model, $attribute, $value)
     {
-        $count = count($value);
+        $model->{$attribute}()
+            ->whereNotIn('id', Arr::pluck($value, 'modelId'))
+            ->get()
+            ->each
+            ->delete();
 
-        $childModels = $model->{$attribute}()->get()->all();
+        for ($i = 0; $i < count($value); $i++) {
+            $childModel = $model->{$attribute}()->find($value[$i]['modelId']);
 
-        for ($i = 0; $i < $count; $i++) {
-            $i < count($childModels)
-                ? $childModels[$i]->update($value[$i])
-                : $model->{$attribute}()->create($value[$i]);
-        }
+            if (empty($childModel)) {
+                $model->{$attribute}()->create($value[$i]['fields']);
 
-        if ($count < count($childModels)) {
-            for ($i = $count; $i < count($childModels); $i++) {
-                $childModels[$i]->delete();
+                continue;
             }
+
+            $childModel->update($value[$i]['fields']);
         }
     }
 
@@ -33,6 +36,6 @@ class HasManyObserver extends BaseObserver
      */
     public function created(Model $model, $attribute, $value)
     {
-        $model->{$attribute}()->createMany($value);
+        $model->{$attribute}()->createMany(Arr::pluck($value, 'fields'));
     }
 }

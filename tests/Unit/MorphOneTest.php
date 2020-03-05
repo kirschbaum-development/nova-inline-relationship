@@ -61,7 +61,10 @@ class MorphOneTest extends TestCase
             'name' => 'Test',
             'summary' => [
                 [
-                    'text' => 'summary text',
+                    'values' => [
+                        'text' => 'summary text',
+                    ],
+                    'modelId' => 0,
                 ],
             ],
         ];
@@ -90,7 +93,10 @@ class MorphOneTest extends TestCase
             'name' => 'Test 2',
             'summary' => [
                 [
-                    'text' => 'new summary text',
+                    'values' => [
+                        'text' => 'new summary text',
+                    ],
+                    'modelId' => $id,
                 ],
             ],
         ];
