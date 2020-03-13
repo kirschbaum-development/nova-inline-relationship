@@ -80,7 +80,7 @@
                                     'attribute': (this.value[attrib].meta.component === "file-field") ?
                                         attrib + '?' + this.id :
                                         this.field.attribute + '_' + this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
-                                    'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
+                                    'name': this.value[attrib].meta.singularLabel,
                                     'deletable': this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                                     'attrib': attrib
                                 }
