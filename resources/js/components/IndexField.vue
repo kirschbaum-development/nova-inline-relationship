@@ -9,7 +9,7 @@ export default {
     computed:{
         indexLabel: function(){
             let count = Object.keys(this.field.value).length;
-            let label = (count > 1) ? this.field.pluralLabel : this.field.singularLabel;
+            let label = (count > 1 || count == 0) ? this.field.pluralLabel : this.field.singularLabel;
             return `${count} ${label}`;
         }
     }
