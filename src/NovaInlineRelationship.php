@@ -405,7 +405,7 @@ class NovaInlineRelationship extends Field
 
         $properties->each(function ($child, $childAttribute) use ($attribute, &$ruleArray, &$messageArray, &$attribArray) {
             if (! empty($child['rules'])) {
-                $name = "{$attribute}.*.{$childAttribute}";
+                $name = "{$attribute}.*.values.{$childAttribute}";
                 $ruleArray[$name] = $child['rules'];
                 $attribArray[$name] = $child['label'] ?? $childAttribute;
 
