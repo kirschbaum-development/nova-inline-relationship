@@ -150,6 +150,12 @@
                         let parentParts = parentAttrib.split('_');
                         let attrib = keyParts.slice(parentParts.length + 1).join('_');
 
+                        // @note: workaround for ndc. if attribute does not have the given
+                        //          structure to split, field still has to be present somehow.
+                        if(attrib == '') {
+                            attrib = key;
+                        }
+
                         formData.append(`${parentAttrib}[${this.id}][values][${attrib}]`, value);
                     }
                 );
