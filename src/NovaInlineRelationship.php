@@ -2,11 +2,12 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship;
 
+use Illuminate\Http\Request;
+use Laravel\Nova\Http\Requests\ResourceDetailRequest;
 use stdClass;
 use Carbon\Carbon;
 use App\Nova\Resource;
 use Laravel\Nova\Nova;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\File;
@@ -50,11 +51,22 @@ class NovaInlineRelationship extends Field
     private $resourceClass;
 
     /**
-     * Name of field used to sort the models.
+     * Original request passed by ->inline().
      *
-     * @var string
+     * @var
      */
-    private $sortUsing = '';
+    protected $request;
+
+    /**
+     * Set original request.
+     *
+     * @param Request $Request
+     * @return $this
+     */
+    public function setRequest(Request $Request) {
+        $this->request = $Request;
+        return $this;
+    }
 
     /**
      * Pass resourceClass to NovaInlineRelationship.
@@ -66,20 +78,6 @@ class NovaInlineRelationship extends Field
     public function resourceClass(string $class): self
     {
         $this->resourceClass = $class;
-
-        return $this;
-    }
-
-    /**
-     * Fluent setter for sortUsing field.
-     *
-     * @param string $sortUsing
-     *
-     * @return NovaInlineRelationship
-     */
-    public function sortUsing(string $sortUsing): self
-    {
-        $this->sortUsing = $sortUsing;
 
         return $this;
     }
@@ -115,7 +113,7 @@ class NovaInlineRelationship extends Field
     {
         parent::resolve($resource, $attribute);
 
-        $request = app(NovaRequest::class);
+        $request = $this->getNovaRequest();
 
         if ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest()) {
             $attribute = $attribute ?? $this->attribute;
@@ -150,9 +148,12 @@ class NovaInlineRelationship extends Field
      */
     public function getPropertiesWithMetaForDisplay($resource, $attribute): Collection
     {
-        $fields = $this->getFieldsFromResource($resource, $attribute)
+        list($fields, $related_resource) = $this->getFieldsFromResource($resource, $attribute);
+
+        $fields
             ->filter->authorize(app(NovaRequest::class))
-            ->filter(function ($field) {
+            ->filter(function ($field) use($related_resource) {
+                $field->resolveForDisplay($related_resource);
                 return $field->showOnDetail;
             });
 
@@ -173,10 +174,14 @@ class NovaInlineRelationship extends Field
      */
     public function getPropertiesWithMetaForForms($resource, $attribute): Collection
     {
-        $fields = $this->getFieldsFromResource($resource, $attribute)
-            ->filter->authorize(app(NovaRequest::class))
-            ->filter(function ($field) {
-                $request = app(NovaRequest::class);
+        list($fields, $related_resource) = $this->getFieldsFromResource($resource, $attribute);
+
+        $request = $this->getNovaRequest();
+
+        $fields
+            ->filter->authorize($request) // app(NovaRequest::class)
+            ->filter(function ($field) use ($request, $related_resource) {
+                $field->resolve($related_resource);
 
                 return ($request->isCreateOrAttachRequest() && $field->showOnCreation)
                     || ($request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
@@ -267,10 +272,6 @@ class NovaInlineRelationship extends Field
      */
     protected function resolveResourceFields($resource, $attribute, $properties)
     {
-        if (! empty($this->sortUsing) && $this->value instanceof Collection && $this->value->isNotEmpty()) {
-            $this->value = $this->value->sortBy($this->sortUsing)->values();
-        }
-
         $this->rules = [$this->getRelationshipRule($attribute, $properties)];
         $modelKey = optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance();
 
@@ -284,10 +285,10 @@ class NovaInlineRelationship extends Field
             'singular' => $this->isSingularRelationship($resource, $attribute),
             'deletable' => $this->isRelationshipDeletable($resource, $attribute),
             'addChildAtStart' => $this->requireChild,
-            'sortable' => ! empty($this->sortUsing),
         ]);
 
-        $this->updateFieldValue($resource, $attribute, $properties);
+        // $this->updateFieldValue($resource, $attribute, $properties);
+        $this->value = collect([$properties]);
     }
 
     /**
@@ -313,35 +314,36 @@ class NovaInlineRelationship extends Field
      * @param array $item
      * @param $attrib
      * @param null $value
-     * @param null|mixed $resource
      *
      * @return array
      */
-    protected function setMetaFromClass(array $item, $attrib, $value = null, $resource = null)
+    protected function setMetaFromClass(array $item, $attrib, $value = null)
     {
         $attrs = ['name' => $attrib, 'attribute' => $attrib];
+        $field = $item['field'];
 
-        /** @var Field $class */
-        $class = app($item['component'], $attrs);
+        // we can skip this
+        if(false) {
+            /** @var Field $class */
+            $class = app($item['component'], $attrs);
+            $class->value = $value !== null ? $value : '';
 
-        if (isset($value) && is_callable($class->resolveCallback)) {
-            $value = call_user_func($class->resolveCallback, $value, $resource, $attrib);
+            if (!empty($item['options']) && is_array($item['options'])) {
+                $class->withMeta($item['options']);
+            }
+
+            if (!empty($item['placeholder'])) {
+                $class->withMeta(['extraAttributes' => [
+                    'placeholder' => $item['placeholder'],
+                ]]);
+            }
         }
 
-        $class->value = $value !== null ? $value : '';
+        $item['meta'] = $field->jsonSerialize();
+        unset($item['field']);
+        // We are using Singular Label instead of name to display labels as compound name will be used in Vue
+        $item['meta']['singularLabel'] = Str::title(Str::singular(str_replace('_', ' ', $item['label'] ?? $attrib)));
 
-        if (! empty($item['options']) && is_array($item['options'])) {
-            $class->withMeta($item['options']);
-        }
-
-        if (! empty($item['placeholder'])) {
-            $class->withMeta(['extraAttributes' => [
-                'placeholder' => $item['placeholder'],
-            ]]);
-        }
-
-        $item['meta'] = $class->jsonSerialize();
-        $item['meta']['singularLabel'] = $item['label'] ?? $attrib;
         $item['meta']['placeholder'] = 'Add ' . $item['meta']['singularLabel'];
 
         return $item;
@@ -405,7 +407,7 @@ class NovaInlineRelationship extends Field
 
         $properties->each(function ($child, $childAttribute) use ($attribute, &$ruleArray, &$messageArray, &$attribArray) {
             if (! empty($child['rules'])) {
-                $name = "{$attribute}.*.values.{$childAttribute}";
+                $name = "{$attribute}.*.{$childAttribute}";
                 $ruleArray[$name] = $child['rules'];
                 $attribArray[$name] = $child['label'] ?? $childAttribute;
 
@@ -430,7 +432,7 @@ class NovaInlineRelationship extends Field
      */
     protected function getPropertiesFromResource($model, $attribute): Collection
     {
-        $fields = $this->getFieldsFromResource($model, $attribute);
+        list($fields) = $this->getFieldsFromResource($model, $attribute);
 
         return $this->getPropertiesFromFields($fields)
             ->keyBy('attribute');
@@ -447,10 +449,11 @@ class NovaInlineRelationship extends Field
     protected function getFieldsFromResource($model, $attribute): Collection
     {
         $resource = ! empty($this->resourceClass)
-            ? new $this->resourceClass($model)
+            // @note: this is probably wrong, but it works for one to one relations.
+            ? new $this->resourceClass(isset($model->{$attribute}) ? $model->{$attribute} : $model)
             : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
-        return collect($resource->availableFields(app(NovaRequest::class)))
+        return collect([collect($resource->availableFields($this->getNovaRequest()))
             ->reject(function ($field) use ($resource) {
                 return $field instanceof ListableField ||
                     $field instanceof ResourceToolElement ||
@@ -458,7 +461,7 @@ class NovaInlineRelationship extends Field
                     ($field instanceof ID && $field->attribute === $resource->resource->getKeyName()) ||
                     collect(class_uses($field))->contains(ResolvesReverseRelation::class) ||
                     $field instanceof self;
-            });
+            }),$resource]);
     }
 
     /**
@@ -470,13 +473,14 @@ class NovaInlineRelationship extends Field
      */
     protected function getPropertiesFromFields(Collection $fields): Collection
     {
-        return $fields->map(function ($value) {
+        return $fields->map(function ($field) {
             return [
-                'component' => get_class($value),
-                'label' => $value->name,
-                'options' => $value->meta,
-                'rules' => $value->rules,
-                'attribute' => $value->attribute,
+                'field' => $field,
+                'component' => get_class($field),
+                'label' => $field->name,
+                'options' => $field->meta,
+                'rules' => $field->rules,
+                'attribute' => $field->attribute,
             ];
         });
     }
@@ -491,17 +495,13 @@ class NovaInlineRelationship extends Field
     protected function updateFieldValue($resource, $attribute, Collection $properties): void
     {
         if ($this->isSingularRelationship($resource, $attribute)) {
-            $this->value = collect(Arr::wrap($this->value));
+            $this->value = collect($this->value ? [$this->value] : []);
         }
 
         $this->value = $this->value->map(function ($items) use ($properties) {
-            return collect($items)
-                ->map(function ($value, $key) use ($properties, $items) {
-                    return $properties->has($key)
-                        ? $this->setMetaFromClass($properties->get($key), $key, $items->{$key} ?? $value)
-                        : null;
-                })
-                ->filter();
+            return collect($items)->map(function ($value, $key) use ($properties) {
+                return $properties->has($key) ? $this->setMetaFromClass($properties->get($key), $key, $value) : null;
+            })->filter();
         });
     }
 
@@ -516,11 +516,8 @@ class NovaInlineRelationship extends Field
      */
     protected function getResourceResponse(NovaRequest $request, $response, Collection $properties): array
     {
-        return collect($response)->map(function ($itemData, $weight) use ($properties, $request) {
-            $item = $itemData['values'];
-            $modelId = $itemData['modelId'];
-
-            $fields = collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
+        return collect($response)->map(function ($item) use ($properties, $request) {
+            return collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
                 if ($properties->has($key)) {
                     $field = $this->getResourceField($properties->get($key), $key);
                     $newRequest = $this->getDuplicateRequest($request, $item);
@@ -533,15 +530,6 @@ class NovaInlineRelationship extends Field
 
                 return $value;
             })->all();
-
-            if (! empty($this->sortUsing)) {
-                $fields[$this->sortUsing] = $weight;
-            }
-
-            return [
-                'fields' => $fields,
-                'modelId' => $modelId,
-            ];
         })->all();
     }
 
@@ -562,5 +550,23 @@ class NovaInlineRelationship extends Field
         }
 
         static::$observedModels[$modelClass][$attribute] = $this->isNullValue($value) ? null : $value;
+    }
+
+    /**
+     * Get Nova Request. Should be passed by ->inine().
+     */
+    protected function getNovaRequest() {
+        if($this->request === null) {
+            $this->request = app(NovaRequest::class);
+        }
+        if(!$this->request instanceof NovaRequest) {
+            $this->request = new NovaRequest($this->request->all());
+        }
+        if(!$this->request->has('viaInlineRelationship')) {
+            $this->request->merge([
+                'viaInlineRelationship' => true
+            ]);
+        }
+        return $this->request;
     }
 }
