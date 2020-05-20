@@ -124,6 +124,7 @@
             },
 
             fill(formData, parentAttrib) {
+                formData.append(`${parentAttrib}[${this.id}][modelId]`, this.modelId);
 
                 // @note: why does this have to be so complicatd?
                 //  -   saving the original somewhere
@@ -156,7 +157,17 @@
                             attrib = key;
                         }
 
-                        formData.append(`${parentAttrib}[${this.id}][values][${attrib}]`, value);
+                        // If the child field has array values, they will be in this format:
+                        // attribute_name[0]
+                        // We don't want the field name sent for processing to be like this:
+                        // ....[values][attribute_name[0]]
+                        // Instead, the name sent will look like this:
+                        // ....[values][attribute_name][0]
+                        const arrayIndex = attrib.match(/\[\d+\]/);
+
+                        attrib = attrib.replace(arrayIndex, '');
+
+                        formData.append(`${parentAttrib}[${this.id}][values][${attrib}]${arrayIndex}`, value);
                     }
                 );
             },

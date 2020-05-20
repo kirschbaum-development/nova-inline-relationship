@@ -70,7 +70,7 @@
             return {
                 isCollapsed: false
             }
-        },
+        },created(){console.log(this.value)},
 
         computed: {
             fields() {
