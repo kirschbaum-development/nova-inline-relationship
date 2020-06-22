@@ -558,7 +558,9 @@ class NovaInlineRelationship extends Field
 
         if (! array_key_exists($modelClass, static::$observedModels)) {
             $model::observe(NovaInlineRelationshipObserver::class);
-            $model->updated_at = Carbon::now();
+            if ($model->usesTimestamps()) {
+                $model->updated_at = Carbon::now();
+            }
         }
 
         static::$observedModels[$modelClass][$attribute] = $this->isNullValue($value) ? null : $value;
