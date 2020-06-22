@@ -80,7 +80,7 @@ class NovaInlineRelationshipObserver
      *
      * @return RelationshipObservable
      */
-    public function getRelationshipObserver(Model $model, $relationship): RelationshipObservable
+    public function getRelationshipObserver(Model $model, $relationship): ?RelationshipObservable
     {
         $className = NovaInlineRelationshipHelper::getObserver($model->{$relationship}());
 
