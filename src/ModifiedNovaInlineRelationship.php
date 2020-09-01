@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\RequireRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
-class NovaInlineRelationship extends Field
+class ModifiedNovaInlineRelationship extends Field
 {
     use RequireRelationship;
 
@@ -63,7 +63,8 @@ class NovaInlineRelationship extends Field
      * @param Request $Request
      * @return $this
      */
-    public function setRequest(Request $Request) {
+    public function setRequest(Request $Request)
+    {
         $this->request = $Request;
         return $this;
     }
@@ -152,8 +153,7 @@ class NovaInlineRelationship extends Field
 
         $fields
             ->filter->authorize(app(NovaRequest::class))
-            ->filter(function ($field) use($related_resource) {
-                $field->resolveForDisplay($related_resource);
+            ->filter(function ($field) use ($related_resource) {
                 return $field->showOnDetail;
             });
 
@@ -181,7 +181,6 @@ class NovaInlineRelationship extends Field
         $fields
             ->filter->authorize($request) // app(NovaRequest::class)
             ->filter(function ($field) use ($request, $related_resource) {
-                $field->resolve($related_resource);
 
                 return ($request->isCreateOrAttachRequest() && $field->showOnCreation)
                     || ($request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
@@ -217,7 +216,7 @@ class NovaInlineRelationship extends Field
      */
     public function isRelationshipDeletable(Model $model, $relation): bool
     {
-        return ! ($model->{$relation}() instanceof BelongsTo);
+        return !($model->{$relation}() instanceof BelongsTo);
     }
 
     /**
@@ -287,8 +286,7 @@ class NovaInlineRelationship extends Field
             'addChildAtStart' => $this->requireChild,
         ]);
 
-        // $this->updateFieldValue($resource, $attribute, $properties);
-        $this->value = collect([$properties]);
+        $this->updateFieldValue($resource, $attribute, $properties);
     }
 
     /**
@@ -319,28 +317,10 @@ class NovaInlineRelationship extends Field
      */
     protected function setMetaFromClass(array $item, $attrib, $value = null)
     {
-        $attrs = ['name' => $attrib, 'attribute' => $attrib];
         $field = $item['field'];
 
-        // we can skip this
-        if(false) {
-            /** @var Field $class */
-            $class = app($item['component'], $attrs);
-            $class->value = $value !== null ? $value : '';
-
-            if (!empty($item['options']) && is_array($item['options'])) {
-                $class->withMeta($item['options']);
-            }
-
-            if (!empty($item['placeholder'])) {
-                $class->withMeta(['extraAttributes' => [
-                    'placeholder' => $item['placeholder'],
-                ]]);
-            }
-        }
-
         $item['meta'] = $field->jsonSerialize();
-        unset($item['field']);
+
         // We are using Singular Label instead of name to display labels as compound name will be used in Vue
         $item['meta']['singularLabel'] = Str::title(Str::singular(str_replace('_', ' ', $item['label'] ?? $attrib)));
 
@@ -406,12 +386,12 @@ class NovaInlineRelationship extends Field
         $attribArray = [];
 
         $properties->each(function ($child, $childAttribute) use ($attribute, &$ruleArray, &$messageArray, &$attribArray) {
-            if (! empty($child['rules'])) {
+            if (!empty($child['rules'])) {
                 $name = "{$attribute}.*.{$childAttribute}";
                 $ruleArray[$name] = $child['rules'];
                 $attribArray[$name] = $child['label'] ?? $childAttribute;
 
-                if (! empty($child['messages']) && is_array($child['messages'])) {
+                if (!empty($child['messages']) && is_array($child['messages'])) {
                     foreach ($child['messages'] as $rule => $message) {
                         $messageArray["{$name}.{$rule}"] = $message;
                     }
@@ -448,10 +428,19 @@ class NovaInlineRelationship extends Field
      */
     protected function getFieldsFromResource($model, $attribute): Collection
     {
-        $resource = ! empty($this->resourceClass)
+        $related_model = !empty($this->resourceClass)
             // @note: this is probably wrong, but it works for one to one relations.
-            ? new $this->resourceClass(isset($model->{$attribute}) ? $model->{$attribute} : $model)
-            : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
+            ? isset($model->{$attribute}) ? $model->{$attribute} : $model
+            : $model->{$attribute}()->getRelated();
+
+        if (is_countable(($related_model))) {
+            $related_model = count($related_model) > 0 ? $related_model[0] : null;
+        }
+
+        $resource = !empty($this->resourceClass)
+            // @note: this is probably wrong, but it works for one to one relations.
+            ? new $this->resourceClass($related_model)
+            : Nova::newResourceFromModel($related_model);
 
         return collect([collect($resource->availableFields($this->getNovaRequest()))
             ->reject(function ($field) use ($resource) {
@@ -461,7 +450,7 @@ class NovaInlineRelationship extends Field
                     ($field instanceof ID && $field->attribute === $resource->resource->getKeyName()) ||
                     collect(class_uses($field))->contains(ResolvesReverseRelation::class) ||
                     $field instanceof self;
-            }),$resource]);
+            }), $resource]);
     }
 
     /**
@@ -498,10 +487,28 @@ class NovaInlineRelationship extends Field
             $this->value = collect($this->value ? [$this->value] : []);
         }
 
-        $this->value = $this->value->map(function ($items) use ($properties) {
-            return collect($items)->map(function ($value, $key) use ($properties) {
-                return $properties->has($key) ? $this->setMetaFromClass($properties->get($key), $key, $value) : null;
-            })->filter();
+        $this->value = $this->value->map(function ($related_model, $index) use ($properties) {
+            $related_resource = !empty($this->resourceClass)
+                ? new $this->resourceClass($related_model)
+                : Nova::newResourceFromModel($related_model);
+
+            $properties = $properties->map(function ($property, $attrib) use ($related_resource) {
+                $request = $this->getNovaRequest();
+
+                if ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest()) {
+                    $property['field']->resolve($related_resource);
+                } else {
+                    $property['field']->resolveForDisplay($related_resource);
+                }
+
+                $property = $this->setMetaFromClass($property, $attrib, null);
+
+                return $property;
+            });
+
+            // @note For some reason, returning just $properties won't work as
+            //       some fields get inadvertently change
+            return collect(json_decode(json_encode($properties), true));
         });
     }
 
@@ -523,9 +530,9 @@ class NovaInlineRelationship extends Field
                     $newRequest = $this->getDuplicateRequest($request, $item);
 
                     return $this->getValueFromField($field, $newRequest, $key)
-                        ?? ($field instanceof File) && ! empty($value)
-                            ? $value
-                            : null;
+                        ?? ($field instanceof File) && !empty($value)
+                        ? $value
+                        : null;
                 }
 
                 return $value;
@@ -544,7 +551,7 @@ class NovaInlineRelationship extends Field
     {
         $modelClass = get_class($model);
 
-        if (! array_key_exists($modelClass, static::$observedModels)) {
+        if (!array_key_exists($modelClass, static::$observedModels)) {
             $model::observe(NovaInlineRelationshipObserver::class);
             $model->updated_at = Carbon::now();
         }
@@ -555,14 +562,15 @@ class NovaInlineRelationship extends Field
     /**
      * Get Nova Request. Should be passed by ->inine().
      */
-    protected function getNovaRequest() {
-        if($this->request === null) {
+    protected function getNovaRequest()
+    {
+        if ($this->request === null) {
             $this->request = app(NovaRequest::class);
         }
-        if(!$this->request instanceof NovaRequest) {
+        if (!$this->request instanceof NovaRequest) {
             $this->request = new NovaRequest($this->request->all());
         }
-        if(!$this->request->has('viaInlineRelationship')) {
+        if (!$this->request->has('viaInlineRelationship')) {
             $this->request->merge([
                 'viaInlineRelationship' => true
             ]);

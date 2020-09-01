@@ -3,6 +3,7 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class BelongsToObserver extends BaseObserver
 {
@@ -18,7 +19,7 @@ class BelongsToObserver extends BaseObserver
         }
 
         if (count($value)) {
-            $parentModel->update($value[0]['fields']);
+            $parentModel->update($value[0]['values']);
         }
     }
 
@@ -28,7 +29,7 @@ class BelongsToObserver extends BaseObserver
     public function creating(Model $model, $attribute, $value)
     {
         if (count($value)) {
-            $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]['fields']);
+            $parentModel = $model->{$attribute}()->getRelated()->newInstance($value[0]['values']);
             $parentModel->save();
             $model->{$attribute}()->associate($parentModel);
         }

@@ -22,12 +22,12 @@ class HasManyObserver extends BaseObserver
             $childModel = $model->{$attribute}()->find($value[$i]['modelId']);
 
             if (empty($childModel)) {
-                $model->{$attribute}()->create($value[$i]['fields']);
+                $model->{$attribute}()->create($value[$i]['values']);
 
                 continue;
             }
 
-            $childModel->update($value[$i]['fields']);
+            $childModel->update($value[$i]['values']);
         }
     }
 
@@ -36,6 +36,6 @@ class HasManyObserver extends BaseObserver
      */
     public function created(Model $model, $attribute, $value)
     {
-        $model->{$attribute}()->createMany(Arr::pluck($value, 'fields'));
+        $model->{$attribute}()->createMany(Arr::pluck($value, 'values'));
     }
 }

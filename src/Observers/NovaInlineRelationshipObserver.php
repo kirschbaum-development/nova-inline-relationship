@@ -2,6 +2,7 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Integrate;
@@ -61,7 +62,11 @@ class NovaInlineRelationshipObserver
 
         $relationships = $this->getModelRelationships($model);
 
-        $relatedModelAttribs = NovaInlineRelationship::$observedModels[$modelClass];
+        // @note should call the correct class when `nova-inline-relationships.custom` is set.
+        $InlineRelationship = config('nova-inline-relationships.custom', false) === false ?
+            NovaInlineRelationship::class :
+            config('nova-inline-relationships.custom');
+        $relatedModelAttribs = $InlineRelationship::$observedModels[$modelClass];
 
         foreach ($relationships as $relationship) {
             $observer = $this->getRelationshipObserver($model, $relationship);
@@ -94,12 +99,21 @@ class NovaInlineRelationshipObserver
      */
     protected function getModelRelationships(Model $model)
     {
-        return collect(Nova::newResourceFromModel($model)->fields(request()))
-            ->flatMap(function ($value) {
-                return Integrate::fields($value);
+        $request = request();
+        // @note: we're going to need a NovaRequest instead of using the Illuminate\Http\Request.
+        $request = new NovaRequest($request->all());
+        $resource = Nova::newResourceFromModel($model);
+
+        // @note: $resource->fields($request) will not work if the first field returned is a package, e.g.  Nova Tabs
+        //          or similar packages where the first field returned by `fields()` is a field nesting other fields.
+        return collect($resource->availableFields($request))
+            ->flatMap(function ($field) use($model) {
+                // @note: is this a solution to find inline-relationship fields within third party packages?
+                //          if so, to which problem is this a solution?
+                return Integrate::fields($field);
             })
             ->filter(function ($value) {
-                return $value->component === 'nova-inline-relationship';
+                return (isset($value->component) && $value->component === 'nova-inline-relationship');
             })
             ->pluck('attribute')
             ->all();
