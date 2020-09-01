@@ -86,7 +86,7 @@
                                     'name': this.value[attrib].meta.singularLabel,
                                     // @todo: no idea what it is suppose to do, but it screws with the fields label.
                                     // 'name': this.field.attribute + '[' + this.id + '][' + attrib + ']',
-                                    'deletable': this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
+                                    'deletable': this.value[attrib].deletable && this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
                                     'attrib': attrib
                                 }
                             }
