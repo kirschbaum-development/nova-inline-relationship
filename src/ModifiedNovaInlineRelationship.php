@@ -447,7 +447,7 @@ class ModifiedNovaInlineRelationship extends Field
                 return $field instanceof ListableField ||
                     $field instanceof ResourceToolElement ||
                     $field->attribute === 'ComputedField' ||
-                    ($field instanceof ID && $field->attribute === $resource->resource->getKeyName()) ||
+                    ($field instanceof ID && $resource->resource && $field->attribute === $resource->resource->getKeyName()) ||
                     collect(class_uses($field))->contains(ResolvesReverseRelation::class) ||
                     $field instanceof self;
             }), $resource]);
