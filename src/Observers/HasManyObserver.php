@@ -22,12 +22,12 @@ class HasManyObserver extends BaseObserver
             $childModel = $model->{$attribute}()->find($value[$i]['modelId']);
 
             if (empty($childModel)) {
-                $model->{$attribute}()->create($value[$i]['values']);
+                $model->{$attribute}()->create(($value[$i]['values'] ?? []) + $value[$i]);
 
                 continue;
             }
 
-            $childModel->update($value[$i]['values']);
+            $childModel->update(($value[$i]['values'] ?? []) + $value[$i]);
         }
     }
 
