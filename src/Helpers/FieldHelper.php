@@ -8,36 +8,32 @@ class FieldHelper
 {
     /**
      * Generate field
-     * 
+     *
      * @param array $field
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public static function generate(array $field): array
     {
-        return collect($field)
-            ->map(function ($value) {
-                if ($value instanceof UploadedFile)
-                    return $value->hashName();
+        return array_map(function ($value) {
+            if ($value instanceof UploadedFile)
+                return $value->hashName();
 
-                return $value;
-            })
-            ->toArray();
+            return $value;
+        }, $field);
     }
 
     /**
      * Generate bulk field
-     * 
+     *
      * @param array $fields
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public static function generateMany(array $fields): array
     {
-        return collect($fields)
-            ->map(function ($field) {
-                return self::generate($field);
-            })
-            ->toArray();
+        return array_map(function ($field) {
+            return self::generate($field);
+        }, $fields);
     }
 }
