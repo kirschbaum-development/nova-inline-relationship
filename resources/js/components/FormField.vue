@@ -36,7 +36,7 @@
             class="btn btn-default bg-transparent hover:bg-primary text-primary hover:text-white border border-primary hover:border-transparent inline-flex items-center relative mr-3"
             @click="addItem()"
           >
-            Add new {{ field.singularLabel.toLowerCase() }}
+            {{ __("Add") }} {{ field.singularLabel.toLowerCase() }}
           </button>
         </div>
       </div>
