@@ -4,6 +4,7 @@ namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
+use KirschbaumDevelopment\NovaInlineRelationship\Helpers\FieldHelper;
 
 class HasManyObserver extends BaseObserver
 {
@@ -21,13 +22,15 @@ class HasManyObserver extends BaseObserver
         for ($i = 0; $i < count($value); $i++) {
             $childModel = $model->{$attribute}()->find($value[$i]['modelId']);
 
+            $field = FieldHelper::generate($value[$i]['fields']);
+
             if (empty($childModel)) {
-                $model->{$attribute}()->create($value[$i]['fields']);
+                $model->{$attribute}()->create($field);
 
                 continue;
             }
 
-            $childModel->update($value[$i]['fields']);
+            $childModel->update($field);
         }
     }
 
@@ -36,6 +39,7 @@ class HasManyObserver extends BaseObserver
      */
     public function created(Model $model, $attribute, $value)
     {
-        $model->{$attribute}()->createMany(Arr::pluck($value, 'fields'));
+        $fields = FieldHelper::generateMany(Arr::pluck($value, 'fields'));
+        $model->{$attribute}()->createMany($fields);
     }
 }
