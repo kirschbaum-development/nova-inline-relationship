@@ -36,7 +36,7 @@ If we assume that a `BlogPost` model has a one-to-many relationship with `Image`
 ```php
 namespace App\Nova;
 
-use Laravel\Nova\Fields\Image;
+use App\Nova\Image;
 
 class BlogPost extends Resource
 {
