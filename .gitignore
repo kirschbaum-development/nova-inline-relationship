@@ -9,3 +9,5 @@ phpunit.xml
 .DS_Store
 Thumbs.db
 .php_cs.cache
+
+auth.json
