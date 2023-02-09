@@ -24,7 +24,7 @@ jobs:
 
     - name: Configure composer for Nova
       run: |
-        composer config "http-basic.nova.laravel.com" "${{ secrets.NOVA_USERNAME }}" "${{ secrets.NOVA_PASSWORD }}"
+        composer config 'http-basic.nova.laravel.com' '${{ secrets.NOVA_USERNAME }}' '${{ secrets.NOVA_PASSWORD }}'
 
     - name: Install composer dependencies
       run: |
