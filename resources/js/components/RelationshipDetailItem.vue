@@ -1,31 +1,17 @@
 <template>
-    <div class="card shadow-md mb-4">
+    <div class="card shadow-md mb-4 border mr-2 rounded-lg">
         <div class="bg-30 flex p-2 border-b border-40">
             <span>
                 <button class="btn btn-default btn-icon btn-white mr-3 p-1"
                     v-if="isCollapsed"
                     @click="isCollapsed=false">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="24"
-                        height="24">
-                        <path class="heroicon-ui"
-                            d="M17 11a1 1 0 0 1 0 2h-4v4a1 1 0 0 1-2 0v-4H7a1 1 0 0 1 0-2h4V7a1 1 0 0 1 2 0v4h4z">
-                        </path>
-                    </svg>
+                    <Icon type="minus" />
                 </button>
 
                 <button class="btn btn-default btn-icon btn-white mr-3 p-1"
                     v-else
                     @click="isCollapsed=true">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="24"
-                        height="24">
-                        <path class="heroicon-ui"
-                            d="M17 11a1 1 0 0 1 0 2H7a1 1 0 0 1 0-2h10z">
-                        </path>
-                    </svg>
+                    <Icon type="plus" />
                 </button>
             </span>
 
