@@ -38,7 +38,7 @@
                     class="shadow relative bg-primary-500 hover:bg-primary-400 text-white dark:text-gray-900 cursor-pointer rounded text-sm font-bold focus:outline-none focus:ring ring-primary-200 dark:ring-gray-600 inline-flex items-center justify-center h-9 px-3 shadow relative bg-primary-500 hover:bg-primary-400 text-white dark:text-gray-900 mr-3"
                     @click="addItem()"
                 >
-                   Add new {{ field.singularLabel.toLowerCase() }}
+                   {{ __("Add") }} {{ field.singularLabel.toLowerCase() }}
                 </button>
             </div>
         </div>
