@@ -9,7 +9,6 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class NovaInlineRelationshipRequest extends NovaRequest
 {
-
     /**
      * Update list of converted files
      *

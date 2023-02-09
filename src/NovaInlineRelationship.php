@@ -23,7 +23,7 @@ use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\RequireRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
-use Laravel\Nova\Fields\Select;
+
 class NovaInlineRelationship extends Field
 {
     use RequireRelationship;
@@ -259,6 +259,27 @@ class NovaInlineRelationship extends Field
     }
 
     /**
+    * Serialize options for the field.
+    *
+    * @param  bool  $searchable
+    * @param mixed $optionsCallback
+    *
+    * @return array<int, array<string, mixed>>
+    */
+   public function serializeOptions($optionsCallback)
+   {
+       $options = value($optionsCallback);
+
+       if (is_callable($options)) {
+           $options = $options();
+       }
+
+       return collect($options ?? [])->map(function ($label, $value) {
+           return is_array($label) ? $label + ['value' => $value] : ['label' => $label, 'value' => $value];
+       })->values()->all();
+   }
+
+    /**
      * Resolve the fields for the resource.
      *
      * @param $resource
@@ -431,7 +452,7 @@ class NovaInlineRelationship extends Field
     protected function getPropertiesFromResource($model, $attribute): Collection
     {
         $fields = $this->getFieldsFromResource($model, $attribute);
-        
+
         return $this->getPropertiesFromFields($fields)
             ->keyBy('attribute');
     }
@@ -563,23 +584,4 @@ class NovaInlineRelationship extends Field
 
         static::$observedModels[$modelClass][$attribute] = $this->isNullValue($value) ? null : $value;
     }
-
-    /**
-    * Serialize options for the field.
-    *
-    * @param  bool  $searchable
-    * @return array<int, array<string, mixed>>
-    */
-   public function serializeOptions($optionsCallback)
-   {
-       $options = value($optionsCallback);
-
-       if (is_callable($options)) {
-           $options = $options();
-       }
-
-       return collect($options ?? [])->map(function ($label, $value) {
-           return is_array($label) ? $label + ['value' => $value] : ['label' => $label, 'value' => $value];
-       })->values()->all();
-   }
 }
