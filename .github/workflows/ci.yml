@@ -23,7 +23,7 @@ jobs:
         fetch-depth: 1
 
     - name: Configure composer for Nova
-      run: composer config 'http-basic.nova.laravel.com' '${{ secrets.NOVA_USERNAME }}' '${{ secrets.NOVA_PASSWORD }}'
+      run: composer config 'http-basic.nova.laravel.com' '${{ secrets.NOVA_USERNAME }}' '${{ secrets.NOVA_LICENSE_KEY }}'
 
     - name: Install composer dependencies
       run: |
