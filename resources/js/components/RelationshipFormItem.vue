@@ -1,16 +1,11 @@
 <template>
-    <div class="card shadow-md mb-4">
-        <div class="bg-30 flex p-2 border-b border-40">
-            <div v-if="! field.singular && field.sortable"
-                class="w-1/8 text-left py-2 px-2">
-                <span class="relationship-item-handle py-2 px-2 cursor-move">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="24"
-                        height="24">
-                        <path class="heroicon-ui"
-                            d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z">
-                        </path>
+    <div class="card shadow-md mb-4 border mr-2 rounded-lg">
+        <div class="bg-30 flex p-2 border-b border-40 relationship-item-handle">
+            <div
+                class="w-1/8 text-left py-2 px-2 cursor-move">
+                <span class="">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
                     </svg>
                 </span>
             </div>
@@ -21,18 +16,11 @@
 
             <div v-if="field.deletable" class="w-1/4 text-right">
                 <button
-                    class="btn btn-default btn-icon btn bg-transparent hover:bg-danger text-danger hover:text-white border border-danger hover:border-transparent inline-flex items-center relative mr-3"
-                    title="Delete"
-                    @click.prevent="removeItem">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        class="fill-current text-0">
-                        <path fill-rule="nonzero"
-                            d="M6 4V2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2h5a1 1 0 0 1 0 2h-1v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6H1a1 1 0 1 1 0-2h5zM4 6v12h12V6H4zm8-2V2H8v2h4zM8 8a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1z">
-                        </path>
-                    </svg>
+                    @click.stop="removeItem"
+                    v-tooltip.click="__('Delete')"
+                    class="toolbar-button hover:text-red-600 px-2 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                    <Icon type="trash" />
                 </button>
             </div>
         </div>
@@ -41,21 +29,23 @@
             :key="attrib"
             class="nova-items-field-input-wrapper w-full">
             <component :is="'form-' + field.component"
-                :ref="attrib"
+                ref="{attrib}"
                 :field="field"
                 :full-width-content="true"
                 :errors="errors"
                 :resource-id="modelId"
                 :resource-name="modelKey">
             </component>
+
         </div>
     </div>
 </template>
 
 <script>
+    // import draggable from 'vuedraggable'; 
     export default {
         name: "relationship-form-item",
-
+        
         props: [
             'value',
             'label',
@@ -72,9 +62,6 @@
                     Object.keys({ ...this.value }).map(
                         attrib => {
                             return {
-                                ...{
-                                    'options': {}
-                                },
                                 ...this.value[attrib].meta,
                                 ...{
                                     'attribute': (this.value[attrib].meta.component === "file-field") ?
@@ -82,7 +69,8 @@
                                         this.field.attribute + '_' + this.id + '_' + attrib, // This is needed to enable delete link for file without triggering duplicate id warning
                                     'name': this.value[attrib].meta.singularLabel,
                                     'deletable': this.modelId > 0, // Hide delete button if model Id is not present, i.e. new model
-                                    'attrib': attrib
+                                    'attrib': attrib,
+                                    'options': this.value[attrib].options,
                                 }
                             }
                         }
@@ -101,23 +89,27 @@
             getValueFromChildren() {
                 return _.tap(new FormData(), formData => {
                     _(this.$refs).each(item => {
-                        if (item[0].field.component === 'file-field') {
-                            if (item[0].file) {
-                                formData.append(item[0].field.attrib, item[0].file, item[0].fileName);
-                            } else if (item[0].value) {
-                                formData.append(item[0].field.attrib, String(item[0].value))
+                        _(item).each(field => {
+                            if (field.currentField.component === 'file-field') {
+                                if (field.file) {
+                                    formData.append(field.currentField.attrib, field.file, field.fileName);
+                                } else if (field.value) {
+                                    formData.append(field.currentField.attrib, String(field.value))
+                                }
+                            } else if (field.field.component === 'boolean-field') {
+                                formData.append(field.currentField.attribute, field.trueValue);
+                            } else {
+                                field.fill(formData);
                             }
-                        } else if (item[0].field.component === 'boolean-field') {
-                            formData.append(item[0].field.attribute, item[0].trueValue);
-                        } else {
-                            item[0].fill(formData);
-                        }
+                        })
+
                     })
                 })
             },
 
             fill(formData, parentAttrib) {
             	formData.append(`${parentAttrib}[${this.id}][modelId]`, this.modelId);
+
                 this.getValueFromChildren().forEach(
                     (value, key) => {
                         let keyParts = key.split('_');
@@ -141,3 +133,8 @@
         },
     }
 </script>
+<style>
+.relationship-item-handle{
+    cursor: move;
+}
+</style>
