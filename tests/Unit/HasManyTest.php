@@ -48,7 +48,7 @@ class HasManyTest extends TestCase
             tap($bill->get('amount'), function ($amount) {
                 $this->assertEquals(Currency::class, $amount['component']);
                 $this->assertEquals('amount', $amount['attribute']);
-                $this->assertEquals('number', $amount['options']['type']);
+                $this->assertEquals('number', $amount['meta']['type']);
                 tap($amount['meta'], function ($meta) {
                     $this->assertEquals('currency-field', $meta['component']);
                 });
