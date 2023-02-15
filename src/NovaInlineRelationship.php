@@ -266,18 +266,18 @@ class NovaInlineRelationship extends Field
     *
     * @return array<int, array<string, mixed>>
     */
-   public function serializeOptions($optionsCallback)
-   {
-       $options = value($optionsCallback);
+    public function serializeOptions($optionsCallback)
+    {
+        $options = value($optionsCallback);
 
-       if (is_callable($options)) {
-           $options = $options();
-       }
+        if (is_callable($options)) {
+            $options = $options();
+        }
 
-       return collect($options ?? [])->map(function ($label, $value) {
-           return is_array($label) ? $label + ['value' => $value] : ['label' => $label, 'value' => $value];
-       })->values()->all();
-   }
+        return collect($options ?? [])->map(function ($label, $value) {
+            return is_array($label) ? $label + ['value' => $value] : ['label' => $label, 'value' => $value];
+        })->values()->all();
+    }
 
     /**
      * Resolve the fields for the resource.

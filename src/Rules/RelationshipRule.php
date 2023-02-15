@@ -53,7 +53,7 @@ class RelationshipRule implements Rule
         $input = [$attribute => is_array($value) ? $value : json_decode($value, true)];
 
         $validator = Validator::make($input, $this->rules, $this->messages, $this->attributes);
-        
+
         $this->response = array_map(function ($message) {
             return is_array($message) ? $message[0] ?? '' : $message;
         }, $validator->errors()->getMessages());
