@@ -145,7 +145,7 @@ class HasOneTest extends TestCase
 
         $this->employeeResource->resolveFieldForAttribute(new NovaRequest(), 'profile');
 
-        // $this->expectException(ValidationException::class);
+        $this->expectException(ValidationException::class);
         $this->employeeResource::validateForUpdate(new NovaRequest($request));
     }
 }
