@@ -54,7 +54,9 @@ class RelationshipRule implements Rule
 
         $validator = Validator::make($input, $this->rules, $this->messages, $this->attributes);
 
-        $this->response = $validator->errors();
+        $this->response = array_map(function ($message) {
+            return is_array($message) ? $message[0] ?? '' : $message;
+        }, $validator->errors()->getMessages());
 
         return $validator->passes();
     }

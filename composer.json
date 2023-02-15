@@ -7,7 +7,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": ">=7.1.0"
+        "php": "^7.4|^8.0"
     },
     "repositories": [
         {
@@ -16,11 +16,10 @@
         }
     ],
     "require-dev": {
-        "codedungeon/phpunit-result-printer": "^0.26.2",
-        "orchestra/testing": "^4.0",
-        "phpunit/phpunit": "^8.3",
+        "orchestra/testbench": "^7.4",
+        "phpunit/phpunit": "^9.5.10",
         "mockery/mockery": "^1.1",
-        "laravel/nova": "*"
+        "laravel/nova": "4.2"
     },
     "autoload": {
         "psr-4": {

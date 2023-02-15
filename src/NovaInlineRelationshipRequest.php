@@ -6,23 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 
 class NovaInlineRelationshipRequest extends NovaRequest
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function duplicate(
-        array $query = null,
-        array $request = null,
-        array $attributes = null,
-        array $cookies = null,
-        array $files = null,
-        array $server = null
-    ) {
-        return parent::duplicate($query, $request, $attributes, $cookies, $files, $server);
-    }
-
     /**
      * Update list of converted files
      *
@@ -66,12 +53,14 @@ class NovaInlineRelationshipRequest extends NovaRequest
 
         $request->setJson($from->json());
 
-        if ($session = $from->getSession()) {
+        try {
+            $session = $from->getSession();
             $request->setLaravelSession($session);
+        } catch (SessionNotFoundException $exception) {
+            // do nothing
         }
 
         $request->setUserResolver($from->getUserResolver());
-
         $request->setRouteResolver($from->getRouteResolver());
 
         return $request;

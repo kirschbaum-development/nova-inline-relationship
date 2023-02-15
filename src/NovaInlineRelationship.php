@@ -259,6 +259,27 @@ class NovaInlineRelationship extends Field
     }
 
     /**
+    * Serialize options for the field.
+    *
+    * @param  bool  $searchable
+    * @param mixed $optionsCallback
+    *
+    * @return array<int, array<string, mixed>>
+    */
+    public function serializeOptions($optionsCallback)
+    {
+        $options = value($optionsCallback);
+
+        if (is_callable($options)) {
+            $options = $options();
+        }
+
+        return collect($options ?? [])->map(function ($label, $value) {
+            return is_array($label) ? $label + ['value' => $value] : ['label' => $label, 'value' => $value];
+        })->values()->all();
+    }
+
+    /**
      * Resolve the fields for the resource.
      *
      * @param $resource
@@ -474,7 +495,7 @@ class NovaInlineRelationship extends Field
             return [
                 'component' => get_class($value),
                 'label' => $value->name,
-                'options' => $value->meta,
+                'options' => $this->serializeOptions(data_get($value, 'optionsCallback'), false),
                 'rules' => $value->rules,
                 'attribute' => $value->attribute,
             ];

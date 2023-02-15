@@ -1,47 +1,49 @@
 <template>
-  <default-field
-    :field="field"
-    :errors="errors"
-    :show-errors="false"
-    :full-width-content="true"
-  >
-    <template slot="field">
-      <draggable
-        v-model="items"
-        handle=".relationship-item-handle"
-        :disabled="! field.sortable"
-        @start="drag=true"
-        @end="drag=false"
-      >
-        <relationship-form-item
-          v-for="(items, index) in items"
-          :ref="index"
-          :key="items.id"
-          :id="index"
-          :model-id="items.modelId"
-          :model-key="field.modelKey"
-          :value="items.fields"
-          :errors="errorList"
-          :field="field"
-          @deleted="removeItem(index)"
-        />
-      </draggable>
-      <div
-        v-if="!field.singular || !items.length"
-        class="bg-30 flex p-2 border-b border-40 rounded-lg"
-      >
-        <div class="w-full text-right">
-          <button
-            type="button"
-            class="btn btn-default bg-transparent hover:bg-primary text-primary hover:text-white border border-primary hover:border-transparent inline-flex items-center relative mr-3"
-            @click="addItem()"
+    <PanelItem
+        :field="field"
+        :errors="errors"
+        :show-errors="false"
+        class="mx-0 md:py-5"
+    >
+      <template #value>
+          <draggable
+              :list="items"
+              item-key="id"
+              handle=".relationship-item-handle"
+              @start="drag = true"
+              @end="drag = false"
           >
-            Add new {{ field.singularLabel.toLowerCase() }}
-          </button>
+              <template
+                  #item="{element, index}"
+              >
+                  <relationship-form-item
+                      :ref="refName(index)"
+                      :key="element.id"
+                      :id="index"
+                      :model-id="element.modelId"
+                      :model-key="field.modelKey"
+                      :value="element.fields"
+                      :errors="errorList"
+                      :field="field"
+                      @deleted="removeItem(index)"
+                  />
+              </template>
+          </draggable>
+          <div
+              v-if="!field.singular || !items.length"
+          >
+            <div class="w-full text-right">
+                <button
+                    type="button"
+                    class="shadow relative bg-primary-500 hover:bg-primary-400 text-white dark:text-gray-900 cursor-pointer rounded text-sm font-bold focus:outline-none focus:ring ring-primary-200 dark:ring-gray-600 inline-flex items-center justify-center h-9 px-3 shadow relative bg-primary-500 hover:bg-primary-400 text-white dark:text-gray-900 mr-3"
+                    @click="addItem()"
+                >
+                   {{ __("Add") }} {{ field.singularLabel.toLowerCase() }}
+                </button>
+            </div>
         </div>
-      </div>
-    </template>
-  </default-field>
+      </template>
+    </PanelItem>
 </template>
 
 <script>
@@ -49,7 +51,9 @@ import { FormField, HandlesValidationErrors, Errors } from 'laravel-nova'
 import draggable from 'vuedraggable'
 import RelationshipFormItem from './RelationshipFormItem.vue'
 
+
 export default {
+    
     components:{
         draggable,
         RelationshipFormItem
@@ -59,13 +63,17 @@ export default {
 
     props: ['resourceName', 'resourceId', 'field'],
 
+
+
     data: function(){
         return {
             id: 0,
             items: [],
-            errorList: new Errors()
+            errorList: new Errors(),
+            dragging: false,
         }
     },
+
 
     watch: {
         errors: function (errors) {
@@ -81,7 +89,7 @@ export default {
     computed: {
         valueAsArray: function (){
             return Array.isArray(this.items) ? this.items : [];
-        }
+        }, 
     },
 
     methods: {
@@ -123,10 +131,10 @@ export default {
         },
 
         fillValueFromChildren: function(formData) {
-            if(!_.isEmpty(this.$refs[0])){
+            if(!_.isEmpty(this.$refs)){
                 _(this.$refs).each(item => {
-                      if(item && Array.isArray(item) && item[0]){
-                          item[0].fill(formData, this.field.attribute);
+                      if(item && item.fields){
+                        item.fill(formData, this.field.attribute);
                       }
                 });
             }else{
@@ -141,7 +149,7 @@ export default {
             this.items = Array.isArray(value) ? value : [];
         },
 
-        getNextId(){
+        getNextId() {
             this.id += 1;
             return this.id;
         },
@@ -152,7 +160,7 @@ export default {
             this.handleChange(value);
         },
 
-        addItem(){
+        addItem() {
             let value = [...this.items];
             value.push({
 	            'id': this.getNextId(),
@@ -161,6 +169,10 @@ export default {
             });
             this.handleChange(value);
         },
+
+        refName(index) {
+            return `child-${index}`;
+        }
     }
 }
 </script>
