@@ -1,23 +1,16 @@
-## :warning: Experimental Project / Support & Future Development
-
-Please note that this is experimental and is not actively maintained and supported by our team. If you are interested in helping to maintain/extend this project please reach out.
-
-Background: we initially started this project in 2019 to add inline relationship functionality to Laravel Nova. In addition to running into some significant complexities that prevented us from efficiently moving forward, Laravel Nova has since added functionality that covers most, but not all, of what we were trying to accomplish here. We recommend using those core Laravel Nova features instead of this package at this point. 
-
 ![Banner](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/resources/imgs/banner.png "Banner")
 
 ## Nova Inline Relationship
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/kirschbaum-development/nova-inline-relationship.svg)](https://packagist.org/packages/kirschbaum-development/nova-inline-relationship)
 [![Total Downloads](https://img.shields.io/packagist/dt/kirschbaum-development/nova-inline-relationship.svg)](https://packagist.org/packages/kirschbaum-development/nova-inline-relationship)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/56297e6b77604f37a505edf234ca2a4b)](https://www.codacy.com/manual/Kirschbaum/nova-inline-relationship?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kirschbaum-development/nova-inline-relationship&amp;utm_campaign=Badge_Grade)
 [![Actions Status](https://github.com/kirschbaum-development/nova-inline-relationship/workflows/CI/badge.svg)](https://github.com/kirschbaum-development/nova-inline-relationship/actions)
 
 Nova Inline Relationship allows you to manage (add/edit/update/delete/reorder) an object's relationships directly from the parent object's create/edit screens. By presenting relationships as inline properties you can provide content editors with a streamlined and efficient workflow for managing complex data.
 
 ## Requirements
 
-This Nova field requires Nova 2.0 or higher.
+This package requires Laravel Nova 4.0.
 
 ## Installation
 
