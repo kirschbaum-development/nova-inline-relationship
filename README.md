@@ -1,3 +1,9 @@
+## :warning: Experimental Project / Support & Future Development
+
+Please note that this is experimental and is not actively maintained and supported by our team. If you are interested in helping to maintain/extend this project please reach out.
+
+Background: we initially started this project in 2019 to add inline relationship functionality to Laravel Nova. In addition to running into some significant complexities that prevented us from efficiently moving forward, Laravel Nova has since added functionality that covers most, but not all, of what we were trying to accomplish here. We recommend using those core Laravel Nova features instead of this package at this point.
+
 ![Banner](https://raw.githubusercontent.com/kirschbaum-development/nova-inline-relationship/master/resources/imgs/banner.png "Banner")
 
 ## Nova Inline Relationship
