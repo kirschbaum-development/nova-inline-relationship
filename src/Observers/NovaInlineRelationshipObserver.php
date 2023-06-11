@@ -3,6 +3,7 @@
 namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 
 use Laravel\Nova\Nova;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Database\Eloquent\Model;
 use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Integrate;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
@@ -94,7 +95,7 @@ class NovaInlineRelationshipObserver
      */
     protected function getModelRelationships(Model $model)
     {
-        return collect(Nova::newResourceFromModel($model)->fields(request()))
+        return collect(Nova::newResourceFromModel($model)->fields(Nova::createFrom(request())))
             ->flatMap(function ($value) {
                 return Integrate::fields($value);
             })
