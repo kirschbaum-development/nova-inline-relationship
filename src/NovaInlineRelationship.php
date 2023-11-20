@@ -2,9 +2,7 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship;
 
-use stdClass;
 use Carbon\Carbon;
-use App\Nova\Resource;
 use Laravel\Nova\Nova;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -21,6 +19,7 @@ use Laravel\Nova\Fields\ResolvesReverseRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
+use Illuminate\Support\Fluent;
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\RequireRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
@@ -250,7 +249,7 @@ class NovaInlineRelationship extends Field
      */
     public function getValueFromField(Field $field, NovaInlineRelationshipRequest $request, string $attribute)
     {
-        $temp = new stdClass();
+        $temp = new Fluent();
 
         // Fill Attributes in Field
         $field->fillAttribute($request, $attribute, $temp, $attribute);
