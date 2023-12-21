@@ -19,7 +19,7 @@
         "orchestra/testbench": "^7.4",
         "phpunit/phpunit": "^9.5.10",
         "mockery/mockery": "^1.1",
-        "laravel/nova": "4.2"
+        "laravel/nova": "^4.26"
     },
     "autoload": {
         "psr-4": {
