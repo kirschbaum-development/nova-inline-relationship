@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Field;
+use Laravel\Nova\Support\Fluent;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Laravel\Nova\ResourceToolElement;
@@ -19,7 +20,6 @@ use Laravel\Nova\Fields\ResolvesReverseRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
-use Illuminate\Support\Fluent;
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\RequireRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Observers\NovaInlineRelationshipObserver;
 
@@ -249,7 +249,7 @@ class NovaInlineRelationship extends Field
      */
     public function getValueFromField(Field $field, NovaInlineRelationshipRequest $request, string $attribute)
     {
-        $temp = new Fluent();
+        $temp = new Fluent;
 
         // Fill Attributes in Field
         $field->fillAttribute($request, $attribute, $temp, $attribute);
