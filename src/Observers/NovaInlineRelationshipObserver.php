@@ -5,6 +5,7 @@ namespace KirschbaumDevelopment\NovaInlineRelationship\Observers;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use KirschbaumDevelopment\NovaInlineRelationship\Integrations\Integrate;
 use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 use KirschbaumDevelopment\NovaInlineRelationship\Contracts\RelationshipObservable;
@@ -79,9 +80,9 @@ class NovaInlineRelationshipObserver
      * @param Model $model
      * @param $relationship
      *
-     * @return RelationshipObservable
+     * @return RelationshipObservable|null
      */
-    public function getRelationshipObserver(Model $model, $relationship): RelationshipObservable
+    public function getRelationshipObserver(Model $model, $relationship): ?RelationshipObservable
     {
         $className = NovaInlineRelationshipHelper::getObserver($model->{$relationship}());
 

@@ -2,15 +2,14 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship;
 
-use stdClass;
 use Carbon\Carbon;
-use App\Nova\Resource;
 use Laravel\Nova\Nova;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Field;
+use Laravel\Nova\Support\Fluent;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Laravel\Nova\ResourceToolElement;
@@ -250,7 +249,7 @@ class NovaInlineRelationship extends Field
      */
     public function getValueFromField(Field $field, NovaInlineRelationshipRequest $request, string $attribute)
     {
-        $temp = new stdClass();
+        $temp = new Fluent;
 
         // Fill Attributes in Field
         $field->fillAttribute($request, $attribute, $temp, $attribute);
