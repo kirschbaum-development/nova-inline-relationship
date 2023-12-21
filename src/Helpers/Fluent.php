@@ -2,8 +2,8 @@
 
 namespace KirschbaumDevelopment\NovaInlineRelationship\Helpers;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class Fluent extends \Illuminate\Support\Fluent
 {
@@ -11,6 +11,7 @@ class Fluent extends \Illuminate\Support\Fluent
      * Fill the model with an array of attributes.
      *
      * @param  array  $attributes
+     *
      * @return $this
      */
     public function fill(array $attributes)
@@ -30,6 +31,7 @@ class Fluent extends \Illuminate\Support\Fluent
      * Fill the model with an array of attributes.
      *
      * @param  array  $attributes
+     *
      * @return $this
      */
     public function forceFill(array $attributes)
