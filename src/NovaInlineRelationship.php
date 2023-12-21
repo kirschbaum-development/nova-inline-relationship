@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Field;
-use Laravel\Nova\Support\Fluent;
+use Illuminate\Support\Fluent;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Laravel\Nova\ResourceToolElement;
@@ -258,13 +258,12 @@ class NovaInlineRelationship extends Field
     }
 
     /**
-    * Serialize options for the field.
-    *
-    * @param  bool  $searchable
-    * @param mixed $optionsCallback
-    *
-    * @return array<int, array<string, mixed>>
-    */
+     * Serialize options for the field.
+     *
+     * @param mixed $optionsCallback
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public function serializeOptions($optionsCallback)
     {
         $options = value($optionsCallback);
