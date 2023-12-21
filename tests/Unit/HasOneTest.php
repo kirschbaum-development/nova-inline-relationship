@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Validation\ValidationException;
 use Tests\Resource\Employee as EmployeeResource;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Nova\Http\Requests\UpdateResourceRequest;
 
 class HasOneTest extends TestCase
 {
@@ -40,19 +41,8 @@ class HasOneTest extends TestCase
 
         $inlineField = $this->employeeResource->resolveFieldForAttribute(new NovaRequest(), 'profile');
 
-        $this->assertCount(1, $inlineField->value);
-
-        tap($inlineField->value->first(), function ($profile) {
-            $this->assertArrayHasKey('phone', $profile->all());
-            tap($profile->get('phone'), function ($phone) {
-                $this->assertEquals(Text::class, $phone['component']);
-                $this->assertEquals('phone', $phone['attribute']);
-                tap($phone['meta'], function ($meta) {
-                    $this->assertEquals('text-field', $meta['component']);
-                    $this->assertEquals('123234234', $meta['value']);
-                });
-            });
-        });
+        $this->assertInstanceOf(Profile::class, $inlineField->value);
+        $this->assertEquals('123234234', $inlineField->value->phone);
     }
 
     public function testFillAttributeForCreate()
@@ -146,6 +136,6 @@ class HasOneTest extends TestCase
         $this->employeeResource->resolveFieldForAttribute(new NovaRequest(), 'profile');
 
         $this->expectException(ValidationException::class);
-        $this->employeeResource::validateForUpdate(new NovaRequest($request));
+        $this->employeeResource::validateForUpdate(new UpdateResourceRequest($request));
     }
 }

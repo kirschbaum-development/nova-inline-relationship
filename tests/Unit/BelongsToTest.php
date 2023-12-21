@@ -5,11 +5,11 @@ namespace Tests\Unit;
 use Tests\User;
 use Tests\TestCase;
 use Tests\Department;
-use Laravel\Nova\Fields\Text;
 use Tests\Resource\User as UserResource;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use KirschbaumDevelopment\NovaInlineRelationship\NovaInlineRelationship;
 
 class BelongsToTest extends TestCase
 {
@@ -40,20 +40,11 @@ class BelongsToTest extends TestCase
 
     public function testResolveWithRelationship()
     {
+        /** @var NovaInlineRelationship $inlineField */
         $inlineField = $this->userResource->resolveFieldForAttribute(new NovaRequest(), 'department');
-        $this->assertCount(1, $inlineField->value);
 
-        tap($inlineField->value->first(), function ($department) {
-            $this->assertArrayHasKey('title', $department->all());
-            tap($department->get('title'), function ($title) {
-                $this->assertEquals(Text::class, $title['component']);
-                $this->assertEquals('title', $title['attribute']);
-                tap($title['meta'], function ($meta) {
-                    $this->assertEquals('text-field', $meta['component']);
-                    $this->assertEquals('Employee Department', $meta['value']);
-                });
-            });
-        });
+        $this->assertInstanceOf(Department::class, $inlineField->value);
+        $this->assertEquals('Employee Department', $inlineField->value->title);
     }
 
     public function testFillAttributeForCreate()

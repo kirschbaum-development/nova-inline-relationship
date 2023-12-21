@@ -40,19 +40,8 @@ class MorphOneTest extends TestCase
 
         $inlineField = $this->employeeResource->resolveFieldForAttribute(new NovaRequest(), 'summary');
 
-        $this->assertCount(1, $inlineField->value);
-
-        tap($inlineField->value->first(), function ($summary) {
-            $this->assertArrayHasKey('text', $summary->all());
-            tap($summary->get('text'), function ($text) {
-                $this->assertEquals(Textarea::class, $text['component']);
-                $this->assertEquals('text', $text['attribute']);
-                tap($text['meta'], function ($meta) {
-                    $this->assertEquals('textarea-field', $meta['component']);
-                    $this->assertEquals('summary text', $meta['value']);
-                });
-            });
-        });
+        $this->assertInstanceOf(Summary::class, $inlineField->value);
+        $this->assertEquals('summary text', $inlineField->value->text);
     }
 
     public function testFillAttributeForCreate()

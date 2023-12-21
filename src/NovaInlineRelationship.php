@@ -18,6 +18,7 @@ use Laravel\Nova\Contracts\ListableField;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\ResolvesReverseRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Nova\Exceptions\ResourceMissingException;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\RequireRelationship;
@@ -103,26 +104,22 @@ class NovaInlineRelationship extends Field
     }
 
     /**
-     * Resolve the field's value.
+     * Get the rules for the field.
      *
-     * @param  mixed  $resource
-     * @param  string|null  $attribute
-     *
-     * @return void
+     * @param NovaRequest $request
+     * @return array[]
      */
-    public function resolve($resource, $attribute = null)
+    public function getRules(NovaRequest $request)
     {
-        parent::resolve($resource, $attribute);
+        $properties = $this->getPropertiesWithMetaForForms($request);
 
-        $request = app(NovaRequest::class);
+//        $this->resolveResourceFields($this->resource, $this->attribute, $properties);
 
-        if ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest()) {
-            $attribute = $attribute ?? $this->attribute;
-
-            $properties = $this->getPropertiesWithMetaForForms($resource, $attribute);
-
-            $this->resolveResourceFields($resource, $attribute, $properties);
-        }
+        return [
+            $this->attribute => [
+                $this->getRelationshipRule($this->attribute, $properties)
+            ],
+        ];
     }
 
     /**
@@ -165,18 +162,14 @@ class NovaInlineRelationship extends Field
     /**
      * Get Properties From Resource with Meta Information
      *
-     * @param  mixed  $resource
-     * @param  string  $attribute
-     *
+     * @param NovaRequest $request
      * @return Collection
      */
-    public function getPropertiesWithMetaForForms($resource, $attribute): Collection
+    public function getPropertiesWithMetaForForms(NovaRequest $request): Collection
     {
-        $fields = $this->getFieldsFromResource($resource, $attribute)
-            ->filter->authorize(app(NovaRequest::class))
-            ->filter(function ($field) {
-                $request = app(NovaRequest::class);
-
+        $fields = $this->getFieldsFromResource($this->resource, $this->attribute, $request)
+            ->filter->authorize($request)
+            ->filter(function ($field) use ($request) {
                 return ($request->isCreateOrAttachRequest() && $field->showOnCreation)
                     || ($request->isUpdateOrUpdateAttachedRequest() && $field->showOnUpdate);
             });
@@ -291,7 +284,6 @@ class NovaInlineRelationship extends Field
             $this->value = $this->value->sortBy($this->sortUsing)->values();
         }
 
-        $this->rules = [$this->getRelationshipRule($attribute, $properties)];
         $modelKey = optional($this->value)->first() ?? $resource->{$attribute}()->getRelated()->newInstance();
 
         $this->withMeta([
@@ -461,16 +453,17 @@ class NovaInlineRelationship extends Field
      *
      * @param $model
      * @param $attribute
-     *
+     * @param NovaRequest|null $request
      * @return Collection
+     * @throws ResourceMissingException
      */
-    protected function getFieldsFromResource($model, $attribute): Collection
+    protected function getFieldsFromResource($model, $attribute, ?NovaRequest $request = null): Collection
     {
         $resource = ! empty($this->resourceClass)
             ? new $this->resourceClass($model)
             : Nova::newResourceFromModel($model->{$attribute}()->getRelated());
 
-        return collect($resource->availableFields(app(NovaRequest::class)))
+        return collect($resource->availableFields($request ?? app(NovaRequest::class)))
             ->reject(function ($field) use ($resource) {
                 return $field instanceof ListableField ||
                     $field instanceof ResourceToolElement ||

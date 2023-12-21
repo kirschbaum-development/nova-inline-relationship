@@ -36,22 +36,21 @@ class MorphManyTest extends TestCase
 
     public function testResolveWithRelationship()
     {
-        $this->employeeModel->comments()->save(Comment::make(['text' => 'comment 1']));
-        $this->employeeModel->comments()->save(Comment::make(['text' => 'comment 2']));
+        $texts = [
+            'comment 1',
+            'comment 2',
+        ];
+
+        $this->employeeModel->comments()->save(Comment::make(['text' => $texts[0]]));
+        $this->employeeModel->comments()->save(Comment::make(['text' => $texts[1]]));
 
         $inlineField = $this->employeeResource->resolveFieldForAttribute(new NovaRequest(), 'comments');
 
         $this->assertCount(2, $inlineField->value);
 
-        $inlineField->value->each(function ($comment) {
-            $this->assertArrayHasKey('text', $comment->all());
-            tap($comment->get('text'), function ($phone) {
-                $this->assertEquals(Trix::class, $phone['component']);
-                $this->assertEquals('text', $phone['attribute']);
-                tap($phone['meta'], function ($meta) {
-                    $this->assertEquals('trix-field', $meta['component']);
-                });
-            });
+        $inlineField->value->each(function ($comment, $index) use ($texts) {
+            $this->assertInstanceOf(Comment::class, $comment);
+            $this->assertEquals($texts[$index], $comment->text);
         });
     }
 

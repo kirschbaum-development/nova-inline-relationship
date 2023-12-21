@@ -36,23 +36,18 @@ class HasManyTest extends TestCase
 
     public function testResolveWithRelationship()
     {
-        $this->employeeModel->bills()->save(Bill::make(['amount' => '100']));
-        $this->employeeModel->bills()->save(Bill::make(['amount' => '200']));
+        $amounts = ['100', '200'];
+
+        $this->employeeModel->bills()->save(Bill::make(['amount' => $amounts[0]]));
+        $this->employeeModel->bills()->save(Bill::make(['amount' => $amounts[1]]));
 
         $inlineField = $this->employeeResource->resolveFieldForAttribute(new NovaRequest(), 'bills');
 
         $this->assertCount(2, $inlineField->value);
 
-        $inlineField->value->each(function ($bill) {
-            $this->assertArrayHasKey('amount', $bill->all());
-            tap($bill->get('amount'), function ($amount) {
-                $this->assertEquals(Currency::class, $amount['component']);
-                $this->assertEquals('amount', $amount['attribute']);
-                $this->assertEquals('number', $amount['meta']['type']);
-                tap($amount['meta'], function ($meta) {
-                    $this->assertEquals('currency-field', $meta['component']);
-                });
-            });
+        $inlineField->value->each(function ($bill, $index) use ($amounts) {
+            $this->assertInstanceOf(Bill::class, $bill);
+            $this->assertEquals($amounts[$index], $bill->amount);
         });
     }
 
