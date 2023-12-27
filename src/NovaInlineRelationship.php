@@ -254,7 +254,7 @@ class NovaInlineRelationship extends Field
         // Fill Attributes in Field
         $field->fillAttribute($request, $attribute, $temp, $attribute);
 
-        return $temp->{$attribute} ?? null;
+        return $temp->{$attribute} ?? data_get($temp, "forceFill.{$attribute}");
     }
 
     /**
@@ -536,18 +536,17 @@ class NovaInlineRelationship extends Field
     protected function getResourceResponse(NovaRequest $request, $response, Collection $properties): array
     {
         return collect($response)->map(function ($itemData, $weight) use ($properties, $request) {
-            $item = $itemData['values'];
-            $modelId = $itemData['modelId'];
+            $item = data_get($itemData, 'values');
+            $modelId = data_get($itemData, 'modelId');
 
             $fields = collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
                 if ($properties->has($key)) {
                     $field = $this->getResourceField($properties->get($key), $key);
                     $newRequest = $this->getDuplicateRequest($request, $item);
 
-                    return $this->getValueFromField($field, $newRequest, $key)
-                        ?? ($field instanceof File) && ! empty($value)
+                    return ($field instanceof File) && ! empty($value)
                             ? $value
-                            : null;
+                            : $this->getValueFromField($field, $newRequest, $key);
                 }
 
                 return $value;
