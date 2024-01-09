@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Field;
-use Laravel\Nova\Support\Fluent;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Laravel\Nova\ResourceToolElement;
@@ -18,6 +17,7 @@ use Laravel\Nova\Contracts\ListableField;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\ResolvesReverseRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use KirschbaumDevelopment\NovaInlineRelationship\Helpers\Fluent;
 use KirschbaumDevelopment\NovaInlineRelationship\Rules\RelationshipRule;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
 use KirschbaumDevelopment\NovaInlineRelationship\Traits\RequireRelationship;
@@ -254,17 +254,16 @@ class NovaInlineRelationship extends Field
         // Fill Attributes in Field
         $field->fillAttribute($request, $attribute, $temp, $attribute);
 
-        return $temp->{$attribute} ?? null;
+        return $temp->{$attribute} ?? data_get($temp, "forceFill.{$attribute}");
     }
 
     /**
-    * Serialize options for the field.
-    *
-    * @param  bool  $searchable
-    * @param mixed $optionsCallback
-    *
-    * @return array<int, array<string, mixed>>
-    */
+     * Serialize options for the field.
+     *
+     * @param mixed $optionsCallback
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public function serializeOptions($optionsCallback)
     {
         $options = value($optionsCallback);
@@ -537,18 +536,17 @@ class NovaInlineRelationship extends Field
     protected function getResourceResponse(NovaRequest $request, $response, Collection $properties): array
     {
         return collect($response)->map(function ($itemData, $weight) use ($properties, $request) {
-            $item = $itemData['values'];
-            $modelId = $itemData['modelId'];
+            $item = data_get($itemData, 'values');
+            $modelId = data_get($itemData, 'modelId');
 
             $fields = collect($item)->map(function ($value, $key) use ($properties, $request, $item) {
                 if ($properties->has($key)) {
                     $field = $this->getResourceField($properties->get($key), $key);
                     $newRequest = $this->getDuplicateRequest($request, $item);
 
-                    return $this->getValueFromField($field, $newRequest, $key)
-                        ?? ($field instanceof File) && ! empty($value)
+                    return ($field instanceof File) && ! empty($value)
                             ? $value
-                            : null;
+                            : $this->getValueFromField($field, $newRequest, $key);
                 }
 
                 return $value;
