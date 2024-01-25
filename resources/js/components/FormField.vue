@@ -53,7 +53,7 @@ import RelationshipFormItem from './RelationshipFormItem.vue'
 
 
 export default {
-    
+
     components:{
         draggable,
         RelationshipFormItem
@@ -89,7 +89,7 @@ export default {
     computed: {
         valueAsArray: function (){
             return Array.isArray(this.items) ? this.items : [];
-        }, 
+        },
     },
 
     methods: {
@@ -131,7 +131,7 @@ export default {
         },
 
         fillValueFromChildren: function(formData) {
-            if(!_.isEmpty(this.$refs)){
+            if(!_.isEmpty(Object.entries(this.$refs).reduce((a,[k,v]) => (v ? (a[k]=v, a) : a), {}))){
                 _(this.$refs).each(item => {
                       if(item && item.fields){
                         item.fill(formData, this.field.attribute);
